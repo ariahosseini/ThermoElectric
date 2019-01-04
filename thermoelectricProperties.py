@@ -58,7 +58,7 @@ class thermoelectricProperties:
         with open(os.path.expanduser(path2eigenval)) as eigenvalFile:
             for _ in range(skipLines):
                 next(eigenvalFile)
-            block = [line.split() for line in eigenvalFile]
+            block = [[float(_) for _ in line.split()] for line in eigenvalFile]
         eigenvalFile.close()
         electronDispersian = [range(1, self.numBands + 1)]  # First line is atoms id
         for _ in range(self.numKpoints):
@@ -66,18 +66,18 @@ class thermoelectricProperties:
             for __ in range(self.numBands):
                 binary2Darray = np.append(binary2Darray, block[__ + 2 + (self.numBands + 2) * _][1])
             electronDispersian = np.vstack([electronDispersian, binary2Darray])  # Next lines are eigenvalues in eV
-            electronDispersian = [[float(_) for _ in __] for __ in electronDispersian]
+            # electronDispersian = [[float(_) for _ in __] for __ in electronDispersian]
         # electronDispersian = electronDispersian  # .astype(np.float)
-        return np.array(electronDispersian)
+        return electronDispersian
 
     def kpoints(self, path2kpoints):
         with open(os.path.expanduser(path2kpoints)) as kpointsFile:
-            kpoints = [line.split() for line in kpointsFile]
+            kpoints = [line.split("\t") for line in kpointsFile]
         kpointsFile.close()
         kpoints = [[float(_) for _ in __] for __ in kpoints]
-        kpoints_value = np.sqrt([sum(_) for _ in np.square(kpoints)])  # K value (rad/m)
-        kPoints = np.array([kpoints, kpoints_value])
-        return kPoints
+        kpoints_value = np.sqrt([sum(_) for _ in np.square(kpoints)]).reshape(-1, 1)  # K value (rad/m)
+        # kPoints = np.array([kpoints, kpoints_value])
+        return kpoints, kpoints_value
         # return kpoints
 
     def temp(self, TempMin, TempMax, dT=10):
@@ -89,10 +89,10 @@ class thermoelectricProperties:
 
     def carrierConcentration(self, effectiveDoSConductionBand, effectiveDoSValanceBand, path2extrinsicCarrierConcentration, bandGap, temp):
         with open(os.path.expanduser(path2extrinsicCarrierConcentration)) as exCarrierFile:
-            data = [line.split() for line in exCarrierFile]
+            data = [line.split("\t") for line in exCarrierFile]
         exCarrierFile.close()
         data = [[float(_) for _ in __] for __ in data]
-        extrinsicCarrierConcentration = InterpolatedUnivariateSpline(data[0], data[1])
+        extrinsicCarrierConcentration = InterpolatedUnivariateSpline(data[:,0], data[:,1])
         extrinsicCarrierConcentration = extrinsicCarrierConcentration(temp)
         intrinsicCarrierConcentration = np.multiply(np.sqrt(np.multiply(effectiveDoSConductionBand, effectiveDoSValanceBand)), np.exp(-(np.divide(bandGap, (2 * thermoelectricProperties.kB * temp)))))
         totalCarrierConcentration = intrinsicCarrierConcentration + abs(extrinsicCarrierConcentration)

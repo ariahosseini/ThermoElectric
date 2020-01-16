@@ -77,7 +77,7 @@ class thermoelectricProperties:
         kpoints = [[float(_) for _ in __] for __ in kpoints]
         kpoints_value = np.sqrt([sum(_) for _ in np.square(kpoints)]).reshape(-1, 1)  # K value (rad/m)
         # kPoints = np.array([kpoints, kpoints_value])
-        return kpoints, kpoints_value
+        return [kpoints, kpoints_value]
         # return kpoints
 
     def temp(self, TempMin, TempMax, dT=10):
@@ -92,7 +92,7 @@ class thermoelectricProperties:
             data = [line.split("\t") for line in exCarrierFile]
         exCarrierFile.close()
         data = [[float(_) for _ in __] for __ in data]
-        extrinsicCarrierConcentration = InterpolatedUnivariateSpline(data[:,0], data[:,1])
+        extrinsicCarrierConcentration = InterpolatedUnivariateSpline(data[:, 0], data[:, 1])
         extrinsicCarrierConcentration = extrinsicCarrierConcentration(temp)
         intrinsicCarrierConcentration = np.multiply(np.sqrt(np.multiply(effectiveDoSConductionBand, effectiveDoSValanceBand)), np.exp(-(np.divide(bandGap, (2 * thermoelectricProperties.kB * temp)))))
         totalCarrierConcentration = intrinsicCarrierConcentration + abs(extrinsicCarrierConcentration)

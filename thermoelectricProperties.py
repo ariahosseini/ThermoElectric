@@ -50,85 +50,107 @@ class thermoelectricProperties:
     #         return result
     #     return wrapper
 
-    def energyRange(self):                              # Create an array of energy space sampling
+        def energyRange(self):                                  # Create an array of energy space sampling
         energyRange = np.linspace(self.energyMin, self.energyMax, self.numEnergySampling)
-        return energyRange
+        return np.expand_dims(energyRange, axis=0)
+
+    def kpoints(self, path2kpoints, delimiter=None, skiprows=0):
+        kpoints = np.loadtxt(expanduser(path2kpoints), delimiter=None, skiprows=0)
+        return kpoints
+
+    def temp(self, TempMin=300, TempMax=1301, dT=100):
+        temperature = np.arange(TempMin, TempMax, dT)
+        return np.expand_dims(temperature, axis=0)
+
+    def bandGap(self, Eg_o, Ao, Bo, Temp=None):
+        if Temp is None:
+            T = self.temp()
+        else:
+            T = Temp
+        Eg = Eg_o - Ao * np.divide(T**2, T + Bo)
+        return Eg
+
+    def carrierConcentration(self, path2extrinsicCarrierConcentration, bandGap, Ao=None, Bo=None, Nc=None, Nv=None, Temp=None):
+        if Temp is None:
+            T = self.temp()
+        else:
+            T = Temp
+
+        if Ao is None and Nc is None:
+            raise Exception("Either Ao or Nc should be defined")
+        if Bo is None and Nv is None:
+            raise Exception("Either Bo or Nv should be defined")
+
+        if Nc is None:
+            Nc = Ao * Temp**(3. / 2)
+        if Nv is None:
+            Nv = Bo * Temp**(3. / 2)
+
+        exCarrierFile = np.loadtxt(expanduser(path2extrinsicCarrierConcentration), delimiter=None, skiprows=0)
+        extrinsicCarrierConcentration_tmp = InterpolatedUnivariateSpline(exCarrierFile[0, :], exCarrierFile[1, :])
+        extrinsicCarrierConcentration = extrinsicCarrierConcentration_tmp(T)
+        intrinsicCarrierConcentration = np.multiply(np.sqrt(np.multiply(Nc, Nv)), np.exp(-(np.divide(bandGap, (2 * thermoelectricProperties.kB * T)))))
+        totalCarrierConcentration = intrinsicCarrierConcentration + abs(extrinsicCarrierConcentration)
+        return totalCarrierConcentration
+
+    def fermiLevel(self, carrierConcentration, Nc=None, Ao=None, Temp=None):
+
+        if Temp is None:
+            T = self.temp()
+        else:
+            T = Temp
+
+        if Ao is None and Nc is None:
+            raise Exception("Either Ao or Nc should be defined")
+
+        if Nc is None:
+            Nc = Ao * Temp**(3. / 2)
+
+        JD_CC = np.log(np.divide(carrierConcentration, Nc)) + 1 / np.sqrt(8) * np.divide(carrierConcentration, Nc) - (3. / 16 - np.sqrt(3) / 9) * np.power(np.divide(carrierConcentration, Nc), 2)
+        fermiLevelEnergy = thermoelectricProperties.kB * np.multiply(T, JD_CC)
+        return fermiLevelEnergy
+
+    def fermiDistribution(self, energyRange, fermiLevel, Temp=None):
+
+        if Temp is None:
+            T = self.temp()
+        else:
+            T = Temp
+
+        fermiDirac = np.divide(1, np.exp(np.divide((repmat(energyRange, np.shape(T)[1], 1) - repmat(np.transpose(fermiLevel), 1, np.shape(energyRange)[1])) / thermoelectricProperties.kB, repmat(np.transpose(T), 1, np.shape(energyRange)[1]))) + 1)  # Fermi Dirac distribution
+        dE = energyRange[0, 2] - energyRange[0, 1]
+        df = np.roll(fermiDirac, -1, axis=1) - np.roll(fermiDirac, 1, axis=1)
+        dfdE = df / dE / 2
+        dfdE[:, 0] = (fermiDirac[:, 1] - fermiDirac[:, 0]) / dE
+        dfdE[:, -1] = (fermiDirac[:, -1] - fermiDirac[:, -2]) / dE
+        fermi = np.array([fermiDirac, dfdE])
+        return fermi
 
     def electronBandStructure(self, path2eigenval, skipLines):
-        with open(os.path.expanduser(path2eigenval)) as eigenvalFile:
+        with open(expanduser(path2eigenval)) as eigenvalFile:
             for _ in range(skipLines):
                 next(eigenvalFile)
             block = [[float(_) for _ in line.split()] for line in eigenvalFile]
         eigenvalFile.close()
         electronDispersian = [range(1, self.numBands + 1)]  # First line is atoms id
+        kpoints = np.asarray(block[1::self.numBands + 2])[:, 0]
+        print(type(kpoints))
         for _ in range(self.numKpoints):
             binary2Darray = []
             for __ in range(self.numBands):
                 binary2Darray = np.append(binary2Darray, block[__ + 2 + (self.numBands + 2) * _][1])
             electronDispersian = np.vstack([electronDispersian, binary2Darray])  # Next lines are eigenvalues in eV
-            # electronDispersian = [[float(_) for _ in __] for __ in electronDispersian]
-        # electronDispersian = electronDispersian  # .astype(np.float)
-        return electronDispersian
+        dispersian = [np.expand_dims(kpoints, axis=0), electronDispersian]
+        return dispersian
 
-    def kpoints(self, path2kpoints):
-        with open(os.path.expanduser(path2kpoints)) as kpointsFile:
-            kpoints = [line.split("\t") for line in kpointsFile]
-        kpointsFile.close()
-        kpoints = [[float(_) for _ in __] for __ in kpoints]
-        kpoints_value = np.sqrt([sum(_) for _ in np.square(kpoints)]).reshape(-1, 1)  # K value (rad/m)
-        # kPoints = np.array([kpoints, kpoints_value])
-        return [kpoints, kpoints_value]
-        # return kpoints
+    def electronDoS(self, path2DoS, headerLines, numDoSpoints, unitcell_volume, valleyPoint, energyRange):
 
-    def temp(self, TempMin, TempMax, dT=10):
-        temperature = np.arange(TempMin, TempMax, dT)
-        return temperature
-
-    def bandGap(self, temp, bandGapEquation):
-        return np.array(bandGapEquation)
-
-    def carrierConcentration(self, effectiveDoSConductionBand, effectiveDoSValanceBand, path2extrinsicCarrierConcentration, bandGap, temp):
-        with open(os.path.expanduser(path2extrinsicCarrierConcentration)) as exCarrierFile:
-            data = [line.split("\t") for line in exCarrierFile]
-        exCarrierFile.close()
-        data = [[float(_) for _ in __] for __ in data]
-        extrinsicCarrierConcentration = InterpolatedUnivariateSpline(data[:, 0], data[:, 1])
-        extrinsicCarrierConcentration = extrinsicCarrierConcentration(temp)
-        intrinsicCarrierConcentration = np.multiply(np.sqrt(np.multiply(effectiveDoSConductionBand, effectiveDoSValanceBand)), np.exp(-(np.divide(bandGap, (2 * thermoelectricProperties.kB * temp)))))
-        totalCarrierConcentration = intrinsicCarrierConcentration + abs(extrinsicCarrierConcentration)
-        return totalCarrierConcentration
-
-    def fermiLevel(self, effectiveDoSConductionBand, temp, carrierConcentration):
-        fermiLevelEnergy = thermoelectricProperties.kB * np.multiply(temp, np.log(np.divide(carrierConcentration, effectiveDoSConductionBand)) + 1 / np.sqrt(8) * np.divide(carrierConcentration, effectiveDoSConductionBand) - (3. / 16 - np.sqrt(3) / 9.) * np.power(np.divide(carrierConcentration, effectiveDoSConductionBand), 2))
-        return fermiLevelEnergy
-
-    def fermiDistribution(self, energyRange, temp, fermiLevel):
-        fermiDirac = np.divide(1, np.exp(np.divide((numpy.matlib.repmat(energyRange, len(temp), 1) - numpy.matlib.repmat(fermiLevel.reshape((-1, 1)), 1, len(energyRange))) / thermoelectricProperties.kB, np.matlib.repmat(temp.reshape((-1, 1)), 1, len(energyRange)))) + 1)  # Fermi Dirac distribution
-        global dE
-        dE = energyRange[2] - energyRange[1]
-        df = np.roll(fermiDirac, -1, axis=1) - np.roll(fermiDirac, 1, axis=1)
-        # df = fermiDirac[:, [2]] - fermiDirac[:, [1]]
-        # dfdE = np.divide(df, 2 * numpy.matlib.repmat(dE, len(temp), 1))
-        dfdE = df / dE / 2
-        dfdE[:, [0]] = (fermiDirac[:, [1]] - fermiDirac[:, [0]]) / dE
-        dfdE[:, [-1]] = (fermiDirac[:, [-1]] - fermiDirac[:, [-2]]) / dE
-        fermi = np.array([fermiDirac, dfdE])
-        return fermi
-
-    def electronDoS(self, path2DoS, headerLines, numDoSpoints, valleyPoint, energyRange):
-        with open(os.path.expanduser(path2DoS)) as DoSfile:
-            DoS = DoSfile.readlines()
-        DoS = [line.split() for line in DoS[headerLines: (headerLines + numDoSpoints)]]
-        DoS = np.array([[float(_) for _ in __] for __ in DoS])
-        DoSfile.close()
+        DoS = np.loadtxt(expanduser(path2DoS), delimiter=None, skiprows=headerLines, max_rows=numDoSpoints)
         # return DoS
         valleyPointEnergy = DoS[valleyPoint, 0]  # Energy of vally in conduction band
-        DoSSpline = InterpolatedUnivariateSpline(DoS[:, 0] - valleyPointEnergy, DoS[:, 1] * 4.0 / (self.latticeParameter**3) / (thermoelectricProperties.Ang2meter**3) / 2.0)  # Density of state what is that 4 for
+        # print(valleyPointEnergy)
+        DoSSpline = InterpolatedUnivariateSpline(DoS[valleyPoint:, 0] - valleyPointEnergy, DoS[valleyPoint:, 1] / unitcell_volume)
         DoSFunctionEnergy = DoSSpline(energyRange)  # Density of state
-        # DoSFunctionKpoint = float(D(float(EB_C(K_value[i, 0]))))
-        # np.matrix(np.zeros(np.shape(K_value)[0]))  # Density of state as a function of Kpoint
-        # for i in range(np.shape(K_value)[0]):
-        #     Density_Kpoint[0, i] = float(D(float(EB_C(K_value[i, 0]))))
         return DoSFunctionEnergy
 
     # def fermiLevelSelfConsistent(self, carrierConcentration, electronDoS, fermiDistribution, temp, energyRange, initialGuess=-0.1):
@@ -270,7 +292,7 @@ class thermoelectricProperties:
         gauss = (1.0 / np.sqrt(2 * pi) / sigma) * np.exp((-1.0 / 2) * np.power(((qpoints - expectedValue) / sigma), 2))
         return gauss
 
-    def singleWave(self, path2atomsPosition, numberOfAtomsInChain, skipLines)
+    # def singleWave(self, path2atomsPosition, numberOfAtomsInChain, skipLines)
     # def __str(self):
 
     # def __repr(self):
@@ -371,7 +393,7 @@ silicon = thermoelectricProperties(5.42, 1, 0.2, 0.001, 2, 4.1, 800, 8, 201)
 
 # matrixPro = thermoelectricProperties.filteringEffect(silicon, 0.2, 5e-15, tauOff, Erange, Disper, T, DoS, Vel, bandgap, carrierCon, fermilevelenergy, fermiDist, 3, -1, uIncrement=0.05, tauIncrement=1e-15)
 # print matrixPro
-Qpoint = np.array([np.zeros(silicon.numQpoints), np.zeros(silicon.numQpoints), np.linspace(-math.pi / silicon.latticeParameter, math.pi / silicon.latticeParameter, num=silicon.numQpoints)])
+# Qpoint = np.array([np.zeros(silicon.numQpoints), np.zeros(silicon.numQpoints), np.linspace(-math.pi / silicon.latticeParameter, math.pi / silicon.latticeParameter, num=silicon.numQpoints)])
 # print len(Qpoint[1])
 # dynamicalMatrix = thermoelectricProperties.dynamicalMatrix(silicon, '~/Desktop/Notes/Box_120a_Lambda_10a/Si-hessian-mass-weighted-hessian.d', '~/Desktop/Notes/Box_120a_Lambda_10a/data.Si-3x3x3', 15, 216, 14, 8, Qpoint)
 # print dynamicalMatrix

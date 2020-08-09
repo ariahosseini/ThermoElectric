@@ -167,6 +167,24 @@ class thermoelectricProperties:
         #     Ef = broyden1(func, initialGuess, f_tol=0.0001)
         #     fermiLevel = np.append(fermiLevel, Ef, axis=1)
         # return fermiLevel
+    def fermiLevelSelfConsistent(self, carrierConcentration, Temp, energyRange, DoS):
+
+        fermi = np.linspace(-0.2, 0.2, 10, endpoint=True)
+        result_array = np.empty((np.shape(Temp)[1], np.shape(fermi)[0]))
+        idx_j = 0
+        for j in Temp[0]:
+            idx_i = 0
+            for i in fermi:
+                _, f = self.fermiDistribution(energyRange=energyRange, fermiLevel=np.expand_dims(np.array([i]), axis=0), Temp=np.expand_dims(np.array([j]), axis=0))
+                tmp = np.trapz(np.multiply(DoS, f), axis=1)
+                result_array[idx_j, idx_i] = tmp
+                idx_i += 1
+            idx_j += 1
+        diff = np.tile(np.transpose(np.abs(carrierConcentration)), (1, np.shape(fermi)[0])) - np.abs(result_array)
+        # print(diff)
+        # print(np.argmin(np.abs(diff), axis=1))
+        Ef = fermi[np.argmin(np.abs(diff), axis=1)]
+        return Ef
 
     def electronGroupVelocity(self, electronBandStructure, conductionBandIndex, kpoints, KpathInitialpoint, KpathLastpoint, energyRange):
         vallyIndex = np.argmin(np.array(electronBandStructure[KpathInitialpoint: KpathLastpoint, conductionBandIndex]))

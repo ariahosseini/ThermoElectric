@@ -50,7 +50,7 @@ class thermoelectricProperties:
     #         return result
     #     return wrapper
 
-        def energyRange(self):                                  # Create an array of energy space sampling
+    def energyRange(self):                                  # Create an array of energy space sampling
         energyRange = np.linspace(self.energyMin, self.energyMax, self.numEnergySampling)
         return np.expand_dims(energyRange, axis=0)
 
@@ -70,6 +70,11 @@ class thermoelectricProperties:
         Eg = Eg_o - Ao * np.divide(T**2, T + Bo)
         return Eg
 
+    def analyticalDoS(self, energyRange, alpha, unitcell_volume):
+        print(np.shape(alpha))
+        DoS = 1 / np.pi**2 * np.sqrt(2 * energyRange * (1 + energyRange / np.transpose(alpha))) * np.sqrt(self.electronEffectiveMass / thermoelectricProperties.hBar**2)**3 * (1 + (2 * energyRange / np.transpose(alpha))) / unitcell_volume / thermoelectricProperties.e2C**(3. / 2)
+        return DoS
+
     def carrierConcentration(self, path2extrinsicCarrierConcentration, bandGap, Ao=None, Bo=None, Nc=None, Nv=None, Temp=None):
         if Temp is None:
             T = self.temp()
@@ -87,10 +92,11 @@ class thermoelectricProperties:
             Nv = Bo * Temp**(3. / 2)
 
         exCarrierFile = np.loadtxt(expanduser(path2extrinsicCarrierConcentration), delimiter=None, skiprows=0)
-        extrinsicCarrierConcentration_tmp = InterpolatedUnivariateSpline(exCarrierFile[0, :], exCarrierFile[1, :])
+        extrinsicCarrierConcentration_tmp = InterpolatedUnivariateSpline(exCarrierFile[0, :], exCarrierFile[1, :] * 1e6)
         extrinsicCarrierConcentration = extrinsicCarrierConcentration_tmp(T)
         intrinsicCarrierConcentration = np.multiply(np.sqrt(np.multiply(Nc, Nv)), np.exp(-(np.divide(bandGap, (2 * thermoelectricProperties.kB * T)))))
         totalCarrierConcentration = intrinsicCarrierConcentration + abs(extrinsicCarrierConcentration)
+        # return totalCarrierConcentration
         return totalCarrierConcentration
 
     def fermiLevel(self, carrierConcentration, Nc=None, Ao=None, Temp=None):
@@ -117,7 +123,7 @@ class thermoelectricProperties:
         else:
             T = Temp
 
-        fermiDirac = np.divide(1, np.exp(np.divide((repmat(energyRange, np.shape(T)[1], 1) - repmat(np.transpose(fermiLevel), 1, np.shape(energyRange)[1])) / thermoelectricProperties.kB, repmat(np.transpose(T), 1, np.shape(energyRange)[1]))) + 1)  # Fermi Dirac distribution
+        fermiDirac = np.divide(1, np.exp(np.divide((repmat(energyRange, np.shape(T)[1], 1) - repmat(np.transpose(fermiLevel), 1, np.shape(energyRange)[1])), thermoelectricProperties.kB * repmat(np.transpose(T), 1, np.shape(energyRange)[1]))) + 1)  # Fermi Dirac distribution
         dE = energyRange[0, 2] - energyRange[0, 1]
         df = np.roll(fermiDirac, -1, axis=1) - np.roll(fermiDirac, 1, axis=1)
         dfdE = df / dE / 2
@@ -127,20 +133,21 @@ class thermoelectricProperties:
         return fermi
 
     def electronBandStructure(self, path2eigenval, skipLines):
+
         with open(expanduser(path2eigenval)) as eigenvalFile:
             for _ in range(skipLines):
                 next(eigenvalFile)
             block = [[float(_) for _ in line.split()] for line in eigenvalFile]
         eigenvalFile.close()
         electronDispersian = [range(1, self.numBands + 1)]  # First line is atoms id
-        kpoints = np.asarray(block[1::self.numBands + 2])[:, 0]
-        print(type(kpoints))
+        kpoints = np.asarray(block[1::self.numBands + 2])[:, 0:3]
+        # print(type(kpoints))
         for _ in range(self.numKpoints):
             binary2Darray = []
             for __ in range(self.numBands):
                 binary2Darray = np.append(binary2Darray, block[__ + 2 + (self.numBands + 2) * _][1])
             electronDispersian = np.vstack([electronDispersian, binary2Darray])  # Next lines are eigenvalues in eV
-        dispersian = [np.expand_dims(kpoints, axis=0), electronDispersian]
+        dispersian = [kpoints, electronDispersian]
         return dispersian
 
     def electronDoS(self, path2DoS, headerLines, numDoSpoints, unitcell_volume, valleyPoint, energyRange):
@@ -153,70 +160,77 @@ class thermoelectricProperties:
         DoSFunctionEnergy = DoSSpline(energyRange)  # Density of state
         return DoSFunctionEnergy
 
-    # def fermiLevelSelfConsistent(self, carrierConcentration, electronDoS, fermiDistribution, temp, energyRange, initialGuess=-0.1):
-    #     # fermiLevel = np.empty([1, 1])
-    #     def func(Ef):
-    #         return np.trapz(np.divide(electronDoS, (1 + np.exp((energyRange - Ef) / (thermoelectricProperties.kB * 400)))), energyRange, dx=dE, axis=0) - 2.20195327099e+27
-    #     Ef = anderson(func, initialGuess, f_tol=0.1, maxiter=)
-    #     # fermiLevel = np.append(fermiLevel, Ef, axis=1)
-    #     return Ef
-        # fermiLevel = np.empty([1, 1])
-        # for _ in xrange(len(temp)):
-        #     def func(Ef):
-        #         return np.trapz(np.divide(electronDoS, (1 + np.exp((Erange - Ef) / (thermoelectricProperties.kB * temp[_])))), dx=dE, axis=0) - carrierConcentration[_]
-        #     Ef = broyden1(func, initialGuess, f_tol=0.0001)
-        #     fermiLevel = np.append(fermiLevel, Ef, axis=1)
-        # return fermiLevel
     def fermiLevelSelfConsistent(self, carrierConcentration, Temp, energyRange, DoS):
 
-        fermi = np.linspace(-0.2, 0.2, 10, endpoint=True)
+        fermi = np.linspace(-1.5, 1.5, 1000, endpoint=True)
         result_array = np.empty((np.shape(Temp)[1], np.shape(fermi)[0]))
         idx_j = 0
         for j in Temp[0]:
             idx_i = 0
             for i in fermi:
-                _, f = self.fermiDistribution(energyRange=energyRange, fermiLevel=np.expand_dims(np.array([i]), axis=0), Temp=np.expand_dims(np.array([j]), axis=0))
-                tmp = np.trapz(np.multiply(DoS, f), axis=1)
+                f, _ = self.fermiDistribution(energyRange=energyRange, fermiLevel=np.expand_dims(np.array([i]), axis=0), Temp=np.expand_dims(np.array([j]), axis=0))
+                tmp = np.trapz(np.multiply(DoS, f), energyRange, axis=1)
                 result_array[idx_j, idx_i] = tmp
                 idx_i += 1
             idx_j += 1
-        diff = np.tile(np.transpose(np.abs(carrierConcentration)), (1, np.shape(fermi)[0])) - np.abs(result_array)
-        # print(diff)
-        # print(np.argmin(np.abs(diff), axis=1))
-        Ef = fermi[np.argmin(np.abs(diff), axis=1)]
-        return Ef
 
-    def electronGroupVelocity(self, electronBandStructure, conductionBandIndex, kpoints, KpathInitialpoint, KpathLastpoint, energyRange):
-        vallyIndex = np.argmin(np.array(electronBandStructure[KpathInitialpoint: KpathLastpoint, conductionBandIndex]))
-        vallyEnergy = np.amin(electronBandStructure[KpathInitialpoint: KpathLastpoint, conductionBandIndex])
-        conductionBand = InterpolatedUnivariateSpline(kpoints[1], electronBandStructure[KpathInitialpoint: KpathLastpoint, conductionBandIndex] - vallyEnergy)
-        conductionBandDerivation = conductionBand.derivative()  # Derivation of E in respect of K
-        groupVelKspace = np.array([])
-        # for _ in xrange(1, 10):
-        groupVelKspace = np.array([np.append(groupVelKspace, conductionBandDerivation(_)) for _ in kpoints[1]])
-        groupVelKspace = groupVelKspace.T
-        groupVelKspace = (1. / thermoelectricProperties.hBar) * groupVelKspace  # Electron group velocity in K space
-        groupVelKspace = groupVelKspace[0]
-        energy = np.array(electronBandStructure[KpathInitialpoint:KpathInitialpoint + vallyIndex + 1, conductionBandIndex]) - vallyEnergy
-        velocity = np.array(groupVelKspace[0:vallyIndex + 1])
-        groupVelRealSpace = interp1d(energy, velocity, kind='cubic')
-        groupVelRealSpace = groupVelRealSpace(energyRange)  # Electron group velocity in real space
-        groupVelRealSpace[np.where(np.logical_or(Erange < 0, Erange > np.amax(electronBandStructure[KpathInitialpoint: KpathLastpoint, conductionBandIndex]) - vallyEnergy))] = 0
-        groupVel = np.array([groupVelRealSpace, groupVelKspace])
+        diff = np.tile(np.transpose(carrierConcentration), (1, np.shape(fermi)[0])) - abs(result_array)
+        # print('diff', diff)
+        # print('re', result_array)
+        # print(np.argmin(np.abs(diff), axis=1))
+        min_idx = np.argmin(np.abs(diff), axis=1)
+        # print(min_idx)
+        Ef = fermi[min_idx]
+        elm = 0
+        n = np.empty((1, np.shape(Temp)[1]))
+        # print(n, np.shape(n))
+        # print([result_array[0, 0]], np.shape([result_array[0, 0]]))
+        for idx in min_idx:
+            n = np.append(n, [np.array(np.expand_dims(result_array[elm, idx], axis=0))], axis=1)
+            elm += 1
+        return np.expand_dims(Ef, axis=0)
+
+    def electronGroupVelocity(self, kp, energy_kp, energyRange):
+
+        dE = np.roll(energy_kp, -1, axis=0) - np.roll(energy_kp, 1, axis=0)
+        dk = np.roll(kp, -1, axis=0) - np.roll(kp, 1, axis=0)
+        dEdk = np.divide(dE, dk)
+        dEdk[0] = (energy_kp[1] - energy_kp[0]) / (kp[1] - kp[0])
+        dEdk[-1] = (energy_kp[-1] - energy_kp[-2]) / (kp[-1] - kp[-2])
+        dEdkSpline = InterpolatedUnivariateSpline(energy_kp, np.array(dEdk))
+        dEdkFunctionEnergy = dEdkSpline(energyRange)
+        groupVel = dEdkFunctionEnergy / thermoelectricProperties.hBar
+        # groupVel = dEdk / thermoelectricProperties.hBar
         return groupVel
 
     def matthiessen(self, energyRange, *args):
         tau = 1. / sum([1. / arg for arg in args])
+        tau[np.isinf(tau)] = 0
         return tau
 
-    def electricalProperties(self, energyRange, electronBandStructure, temp, electronDoS, electronGroupVelocity, matthiessen, bandGap, carrierConcentration, fermiLevel, fermiDistribution, factor, q):
-        X = np.multiply(numpy.matlib.repmat(np.multiply(np.power(electronGroupVelocity[0], 2), electronDoS), len(temp), 1), fermiDistribution[1])
-        Y = np.multiply(np.multiply(numpy.matlib.repmat(np.multiply(np.power(electronGroupVelocity[0], 2), electronDoS), len(temp), 1), (numpy.matlib.repmat(Erange, len(temp), 1) - numpy.matlib.repmat((np.array([fermiLevel]).T), 1, len(Erange)))), fermiDistribution[1])
-        conductivity = factor * (-1.0 / 3) * ((q**2) * thermoelectricProperties.e2C) * np.trapz(np.multiply(X, numpy.matlib.repmat(matthiessen, len(temp), 1)), energyRange, dx=dE, axis=1)
-        resistivity = 1. / conductivity
-        seebeck = factor * q * (-1.0 / 3) * thermoelectricProperties.e2C * np.divide(np.divide(np.trapz(np.multiply(Y, numpy.matlib.repmat(matthiessen, len(temp), 1)), energyRange, dx=dE, axis=1), conductivity), temp)
-        powerFactor = np.multiply(conductivity, np.power(seebeck, 2))
-        return seebeck, resistivity, conductivity, powerFactor, X, Y
+    def electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau):
+
+        X = DoS * vg**2 * dfdE
+        print(np.shape(DoS), np.shape(vg), np.shape(dfdE), np.shape(X * tau))
+        Y = (E - np.transpose(Ef)) * X
+        Sigma = -1 * np.trapz(X * tau, E, axis=1) / 3 * thermoelectricProperties.e2C
+        print(Sigma)
+        # X = np.multiply(numpy.matlib.repmat(np.multiply(np.power(electronGroupVelocity[0], 2), electronDoS), len(temp), 1), fermiDistribution[1])
+        # Y = np.multiply(np.multiply(numpy.matlib.repmat(np.multiply(np.power(electronGroupVelocity[0], 2), electronDoS), len(temp), 1), (numpy.matlib.repmat(Erange, len(temp), 1) - numpy.matlib.repmat((np.array([fermiLevel]).T), 1, len(Erange)))), fermiDistribution[1])
+        # conductivity = factor * (-1.0 / 3) * ((q**2) * thermoelectricProperties.e2C) * np.trapz(np.multiply(X, numpy.matlib.repmat(matthiessen, len(temp), 1)), energyRange, dx=dE, axis=1)
+        # resistivity = 1. / conductivity
+        # seebeck = factor * q * (-1.0 / 3) * thermoelectricProperties.e2C * np.divide(np.divide(np.trapz(np.multiply(Y, numpy.matlib.repmat(matthiessen, len(temp), 1)), energyRange, dx=dE, axis=1), conductivity), temp)
+        # powerFactor = np.multiply(conductivity, np.power(seebeck, 2))
+        return np.expand_dims(Sigma, axis=0)
+
+    # def electricalProperties(self, energyRange, electronBandStructure, temp, electronDoS, electronGroupVelocity, matthiessen, bandGap, carrierConcentration, fermiLevel, fermiDistribution, factor, q):
+    #     X = np.multiply(numpy.matlib.repmat(np.multiply(np.power(electronGroupVelocity[0], 2), electronDoS), len(temp), 1), fermiDistribution[1])
+    #     Y = np.multiply(np.multiply(numpy.matlib.repmat(np.multiply(np.power(electronGroupVelocity[0], 2), electronDoS), len(temp), 1), (numpy.matlib.repmat(Erange, len(temp), 1) - numpy.matlib.repmat((np.array([fermiLevel]).T), 1, len(Erange)))), fermiDistribution[1])
+    #     conductivity = factor * (-1.0 / 3) * ((q**2) * thermoelectricProperties.e2C) * np.trapz(np.multiply(X, numpy.matlib.repmat(matthiessen, len(temp), 1)), energyRange, dx=dE, axis=1)
+    #     resistivity = 1. / conductivity
+    #     seebeck = factor * q * (-1.0 / 3) * thermoelectricProperties.e2C * np.divide(np.divide(np.trapz(np.multiply(Y, numpy.matlib.repmat(matthiessen, len(temp), 1)), energyRange, dx=dE, axis=1), conductivity), temp)
+    #     powerFactor = np.multiply(conductivity, np.power(seebeck, 2))
+    #     return seebeck, resistivity, conductivity, powerFactor, X, Y
 
     def filteringEffect(self, U0, tau0, tauOff, energyRange, electronBandStructure, temp, electronDoS, electronGroupVelocity, bandGap, carrierConcentration, fermiLevel, fermiDistribution, factor, q, uIncrement=0.05, tauIncrement=1e-15, tempIndex=0):
         n = 0

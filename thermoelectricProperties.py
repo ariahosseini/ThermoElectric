@@ -179,6 +179,20 @@ class thermoelectricProperties:
         tau[np.isinf(tau)] = 0
         return tau
 
+    def tau_p(self, energyRange, alpha, Dv, DA, T, vs, D, rho):
+
+        nonparabolic_term = (1 - (alpha.T * energyRange) / (1 + 2 * alpha.T * energyRange) * (1 - Dv / DA))**2 - 8 / 3 * (alpha.T * energyRange) / (1 + 2 * alpha.T * energyRange) * (Dv / DA)
+        tau = rho * vs**2 * thermoelectricProperties.hBar / np.pi / thermoelectricProperties.kB / T.T / DA / DA * 1e9 / thermoelectricProperties.e2C / D
+        tau_p = tau / nonparabolic_term
+        return [tau, tau_p]
+
+    def tau_ion(self, energyRange, LD, N):
+
+        g = 8 * self.electronEffectiveMass * LD.T**2 * energyRange / thermoelectricProperties.hBar**2
+        var_tmp = np.log(1 + g) - g / (1 + g)
+        tau = 16 * np.pi * np.sqrt(2 * self.electronEffectiveMass) * (4 * np.pi * self.dielectric * thermoelectricProperties.e0)**2 / N.T * energyRange**(3 / 2) * thermoelectricProperties.e2C**(-5 / 2)
+        return tau
+
     def electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau):
         X = DoS * vg**2 * dfdE
         # print(np.shape(DoS), np.shape(vg), np.shape(dfdE), np.shape(X * tau))

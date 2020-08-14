@@ -26,14 +26,14 @@ class thermoelectricProperties:
     e0 = 8.854187817e-12    # Permittivity in vacuum F/m
     Ang2meter = 1e-10       # Unit conversion from Angestrom to meter
 
-    def __init__(self, latticeParameter, dopantElectricCharge, electronEffectiveMass, kS, numKpoints, numBands=None, numQpoints=None, electronDispersian=None, kpoints=None, energyMin=0, energyMax=2, numEnergySampling=1000):
+    def __init__(self, latticeParameter, dopantElectricCharge, electronEffectiveMass, dielectric, numKpoints, numBands=None, numQpoints=None, electronDispersian=None, kpoints=None, energyMin=0, energyMax=2, numEnergySampling=1000):
 
         self.latticeParameter = latticeParameter            # Lattice parameter in A
         self.dopantElectricCharge = dopantElectricCharge
         self.electronEffectiveMass = electronEffectiveMass
         self.energyMax = energyMax                          # Maximum energy in eV
         self.energyMin = energyMin                          # Minimum energy in eV
-        self.kS = kS                                        # Relative permittivity
+        self.dielectric = dielectric                                        # Relative permittivity
         self.numEnergySampling = numEnergySampling          # Number of energy space samples to generate in eV
         self.numKpoints = numKpoints
         self.numBands = numBands
@@ -61,9 +61,9 @@ class thermoelectricProperties:
         return Eg
 
     def analyticalDoS(self, energyRange, alpha):
-        DoS_nonparabolic = 1 / np.pi**2 * np.sqrt(2 * energyRange * (1 + energyRange * np.transpose(alpha))) * np.sqrt(self.electronEffectiveMass / thermoelectricProperties.hBar**2)**3 * (1 + (2 * energyRange * np.transpose(alpha))) / thermoelectricProperties.e2C**(3. / 2)
-        DoS_parabolic = np.sqrt(energyRange) / np.pi**2 * np.sqrt(2) / thermoelectricProperties.hBar**3 * self.electronEffectiveMass**(3 / 2) / self.e2C**(3 / 2)
-        DoS = [DoS_nonparabolic, DoS_parabolic]
+        DoS_nonparabolic = 1/np.pi**2*np.sqrt(2*energyRange*(1+energyRange*np.transpose(alpha)))*np.sqrt(self.electronEffectiveMass/thermoelectricProperties.hBar**2)**3*(1+(2*energyRange*np.transpose(alpha)))/thermoelectricProperties.e2C**(3./2)
+        DoS_parabolic = np.sqrt(energyRange)/np.pi**2*np.sqrt(2)/thermoelectricProperties.hBar**3*self.electronEffectiveMass**(3/2)/self.e2C**(3/2)
+        DoS = [DoS_nonparabolic,DoS_parabolic]
         return DoS
 
     def carrierConcentration(self, path2extrinsicCarrierConcentration, bandGap, Ao=None, Bo=None, Nc=None, Nv=None, Temp=None):
@@ -99,19 +99,17 @@ class thermoelectricProperties:
         fermiLevelEnergy = thermoelectricProperties.kB * np.multiply(T, JD_CC)
         f, _ = self.fermiDistribution(energyRange=energyRange, fermiLevel=fermiLevelEnergy, Temp=T)
         n = np.trapz(np.multiply(DoS, f), energyRange, axis=1)
-        return [fermiLevelEnergy, n]
+        return [fermiLevelEnergy,np.expand_dims(n,axis=0)]
 
     def fermiDistribution(self, energyRange, fermiLevel, Temp=None):
         if Temp is None:
             T = self.temp()
         else:
             T = Temp
-        fermiDirac = np.divide(1, np.exp(np.divide((repmat(energyRange, np.shape(T)[1], 1) - repmat(np.transpose(fermiLevel), 1, np.shape(energyRange)[1])), thermoelectricProperties.kB * repmat(np.transpose(T), 1, np.shape(energyRange)[1]))) + 1)  # Fermi Dirac distribution
-        dE = energyRange[0, 2] - energyRange[0, 1]
-        df = np.roll(fermiDirac, -1, axis=1) - np.roll(fermiDirac, 1, axis=1)
-        dfdE = df / dE / 2
-        dfdE[:, 0] = (fermiDirac[:, 1] - fermiDirac[:, 0]) / dE
-        dfdE[:, -1] = (fermiDirac[:, -1] - fermiDirac[:, -2]) / dE
+
+        xi = np.exp((energyRange-fermiLevel.T)/T.T/thermoelectricProperties.kB)
+        fermiDirac = 1/(xi+1)
+        dfdE = -1*xi/(1+xi)**2/T.T/thermoelectricProperties.kB
         fermi = np.array([fermiDirac, dfdE])
         return fermi
 
@@ -139,7 +137,7 @@ class thermoelectricProperties:
         return DoSFunctionEnergy
 
     def fermiLevelSelfConsistent(self, carrierConcentration, Temp, energyRange, DoS, fermilevel):
-        fermi = np.linspace(fermilevel[0] - 0.2, fermilevel[0] + 0.2, 100, endpoint=True).T
+        fermi = np.linspace(fermilevel[0]-0.2, fermilevel[0]+0.2, 1000, endpoint=True).T
         result_array = np.empty((np.shape(Temp)[1], np.shape(fermi)[1]))
         idx_j = 0
         for j in Temp[0]:
@@ -152,16 +150,15 @@ class thermoelectricProperties:
             idx_j += 1
         diff = np.tile(np.transpose(carrierConcentration), (1, np.shape(fermi)[1])) - abs(result_array)
         min_idx = np.argmin(np.abs(diff), axis=1)
-        print(min_idx)
         Ef = np.empty((1, np.shape(Temp)[1]))
         for Ef_idx in np.arange(len(min_idx)):
-            Ef[0, Ef_idx] = fermi[Ef_idx, min_idx[Ef_idx]]
+            Ef[0,Ef_idx] = fermi[Ef_idx,min_idx[Ef_idx]]
         elm = 0
         n = np.empty((1, np.shape(Temp)[1]))
         for idx in min_idx:
-            n[0, elm] = result_array[elm, idx]
+            n[0,elm] = result_array[elm, idx]
             elm += 1
-        return [Ef, n]
+        return [Ef,n]
 
     def electronGroupVelocity(self, kp, energy_kp, energyRange):
         dE = np.roll(energy_kp, -1, axis=0) - np.roll(energy_kp, 1, axis=0)
@@ -174,38 +171,38 @@ class thermoelectricProperties:
         groupVel = dEdkFunctionEnergy / thermoelectricProperties.hBar
         return groupVel
 
-    def matthiessen(self, energyRange, *args):
+    def matthiessen(self, *args):
         tau = 1. / sum([1. / arg for arg in args])
         tau[np.isinf(tau)] = 0
         return tau
 
     def tau_p(self, energyRange, alpha, Dv, DA, T, vs, D, rho):
 
-        nonparabolic_term = (1 - (alpha.T * energyRange) / (1 + 2 * alpha.T * energyRange) * (1 - Dv / DA))**2 - 8 / 3 * (alpha.T * energyRange) / (1 + 2 * alpha.T * energyRange) * (Dv / DA)
-        tau = rho * vs**2 * thermoelectricProperties.hBar / np.pi / thermoelectricProperties.kB / T.T / DA / DA * 1e9 / thermoelectricProperties.e2C / D
-        tau_p = tau / nonparabolic_term
-        return [tau, tau_p]
+        nonparabolic_term = (1-(alpha.T*energyRange)/(1+2*alpha.T*energyRange)*(1-Dv/DA))**2-8/3*(alpha.T*energyRange)/(1+2*alpha.T*energyRange)*(Dv/DA)
+        tau = rho*vs**2*thermoelectricProperties.hBar/np.pi/thermoelectricProperties.kB/T.T/DA/DA*1e9/thermoelectricProperties.e2C/D
+        tau_p = tau/nonparabolic_term
+        return [tau,tau_p]
 
-    def tau_ion(self, energyRange, LD, N):
+    def tau_ion(self,energyRange, LD, N):
 
-        g = 8 * self.electronEffectiveMass * LD.T**2 * energyRange / thermoelectricProperties.hBar**2
-        var_tmp = np.log(1 + g) - g / (1 + g)
-        tau = 16 * np.pi * np.sqrt(2 * self.electronEffectiveMass) * (4 * np.pi * self.dielectric * thermoelectricProperties.e0)**2 / N.T * energyRange**(3 / 2) * thermoelectricProperties.e2C**(-5 / 2)
+        g = 8*self.electronEffectiveMass*LD.T**2*energyRange/thermoelectricProperties.hBar**2
+        var_tmp = np.log(1+g)-g/(1+g)
+        tau = 16*np.pi*np.sqrt(2*self.electronEffectiveMass)*(4*np.pi*self.dielectric*thermoelectricProperties.e0)**2/N.T*energyRange**(3/2)*thermoelectricProperties.e2C**(-5/2)
+        print(tau)
         return tau
 
     def electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau):
         X = DoS * vg**2 * dfdE
-        # print(np.shape(DoS), np.shape(vg), np.shape(dfdE), np.shape(X * tau))
         Y = (E - np.transpose(Ef)) * X
         Z = (E - np.transpose(Ef)) * Y
         Sigma = -1 * np.trapz(X * tau, E, axis=1) / 3 * thermoelectricProperties.e2C
-        S = -1 * np.trapz(Y * tau, E, axis=1) / np.trapz(X * tau, E, axis=1) / Temp
-        PF = Sigma * S**2
-        ke = -1 * (np.trapz(Z * tau, E, axis=1) - np.trapz(Y * tau, E, axis=1)**2 / np.trapz(X * tau, E, axis=1)) / Temp / 3 * thermoelectricProperties.e2C
-        delta_0 = np.trapz(X * tau * E, E, axis=1)
-        delta_1 = np.trapz(X * tau * E, E, axis=1) / np.trapz(X * tau, E, axis=1)
-        delta_2 = np.trapz(X * tau * E**2, E, axis=1) / np.trapz(X * tau, E, axis=1)
-        Lorenz = (delta_2 - delta_1**2) / Temp / Temp
+        S = -1*np.trapz(Y * tau, E, axis=1)/np.trapz(X * tau, E, axis=1)/Temp
+        PF = Sigma*S**2
+        ke = -1*(np.trapz(Z * tau, E, axis=1) - np.trapz(Y * tau, E, axis=1)**2/np.trapz(X * tau, E, axis=1))/Temp/3 * thermoelectricProperties.e2C
+        delta_0 = np.trapz(X * tau* E, E, axis=1)
+        delta_1 = np.trapz(X * tau* E, E, axis=1)/ np.trapz(X * tau, E, axis=1)
+        delta_2 = np.trapz(X * tau* E**2, E, axis=1)/ np.trapz(X * tau, E, axis=1)
+        Lorenz = (delta_2-delta_1**2)/Temp/Temp
         coefficients = [Sigma, S[0], PF[0], ke[0], delta_1, delta_2, Lorenz[0]]
         return coefficients
 
@@ -307,101 +304,374 @@ class thermoelectricProperties:
     # def __repr(self):
 
 
-silicon = thermoelectricProperties(5.42, 1, 0.2, 0.001, 2, 4.1, 800, 8, 201)
-# Erange = thermoelectricProperties.energyRange(silicon)
-# Disper = thermoelectricProperties.electronBandStructure(silicon, '~/Desktop/Si-Vasp-5_1_17/Si-Band-Structure-05_01_17/EIGENVAL', 6)
-# print('Good so far')
-# kpoints = thermoelectricProperties.kpoints(silicon, '~/Desktop/Si-Vasp-5_1_17/KvE-in-CB-valley.txt')
-# print(kpoints[1])
-# plt.plot(kpoints[1], Disper[401:601, 3], kpoints[1], Disper[401:601, 4])
-# plt.show()
-# T = thermoelectricProperties.temp(silicon, 400, 1201)
-# print(len(T))
-# bandgap = thermoelectricProperties.bandGap(silicon, T, 1.170 - np.divide(4.73e-4 * np.power(T, 2), (T + 636)))
-# carrierCon = thermoelectricProperties.carrierConcentration(silicon, 2.81e19 * np.power((T / 300.00), 3.0 / 2), 1.831e19 * np.power((T / 300.00), 3.0 / 2), '~/Desktop/data', bandgap, T)
-# carrierCon_5 = thermoelectricProperties.carrierConcentration(silicon, 2.81e19 * np.power((T / 300.00), 3.0 / 2), 1.831e19 * np.power((T / 300.00), 3.0 / 2), '~/Desktop/data_5', bandgap, T)
+me = 9.109e-31
+Si = thermoelectricProperties(latticeParameter=5.401803661945516e-10, dopantElectricCharge=1, electronEffectiveMass=1.08*me, energyMin=0.0, energyMax=2, dielectric=11.7, numKpoints=800, numBands=8, numQpoints=201, numEnergySampling=5000)
 
-# plt.figure(1)
-# plt.plot(T, carrierCon, T, carrierCon_5)
-# plt.show()
 
-# fermilevelenergy = thermoelectricProperties.fermiLevel(silicon, 2.81e19 * np.power((T / 300.00), 3.0 / 2), T, carrierCon)
-# fermilevelenergy_5 = thermoelectricProperties.fermiLevel(silicon, 2.81e19 * np.power((T / 300.00), 3.0 / 2), T, carrierCon_5)
+ml = 0.98*me
+mt = 0.19*me
+m_CB = 3/(1/ml+2/mt)
 
-# print(fermilevelenergy_5)
-# plt.figure(2)
-# plt.plot(T, fermilevelenergy, T, fermilevelenergy_5)
-# plt.show()
-# fermiDist = thermoelectricProperties.fermiDistribution(silicon, Erange, T, fermilevelenergy)
-# fermiDist_5 = thermoelectricProperties.fermiDistribution(silicon, Erange, T, fermilevelenergy_5)
 
-# plt.plot(Erange, fermiDist[1][1], Erange, fermiDist[1][50], Erange, fermiDist_5[1][1], Erange, fermiDist_5[1][50])
-# plt.show()
-# plt.plot(Erange, fermiDist[1][1], Erange, fermiDist[1][50], Erange, fermiDist_5[1][1], Erange, fermiDist_5[1][50])
-# plt.show()
-# print(len(fermiWindow[1]))
-# DoS = thermoelectricProperties.electronDoS(silicon, '~/Desktop/Si-Vasp-5_1_17/Si-DoS-05_04_17/DOSCAR', 6, 2000, 1118, Erange)
-# plt.plot(Erange, DoS)
-# plt.show()
-# Vel = thermoelectricProperties.electronGroupVelocity(silicon, Disper, 4, kpoints, 401, 601, Erange)
-# print len(Vel[0]), type(Vel[0])
-# plt.plot(kpoints[1], Vel[1])
-# plt.show()
-# plt.plot(Erange, abs(Vel[0]))
-# plt.show()
-# # test = np.trapz(np.divide(DoS, (1 + np.exp((-0.1) / (thermoelectricProperties.kB * 400)))), Erange, dx=dE, axis=0)
-# # print(test)
-# # Ef = thermoelectricProperties.fermiLevelSelfConsistent(silicon, carrierCon, DoS, fermiDist, T, Erange)
-# # print(Ef)
-# tauPhonon = 2e-15 * Erange**-0.5
-# tauInc = np.ones(len(Erange))
-# tauInc[np.where(Erange < 0.2)] = 1e-14
-# print tauInc
-# tauOff = thermoelectricProperties.matthiessen(silicon, Erange, tauPhonon)
-# tauOn = thermoelectricProperties.matthiessen(silicon, Erange, tauPhonon, tauInc)
-# plt.plot(Erange, tauOff, Erange, tauOn)
-# plt.show()
-# s, r, c, pf, X, Y = thermoelectricProperties.electricalProperties(silicon, Erange, Disper, T, DoS, Vel, tauOff, bandgap, carrierCon, fermilevelenergy, fermiDist, 3, -1)
-# s_5, r_5, c_5, pf_5, X_5, Y_5 = thermoelectricProperties.electricalProperties(silicon, Erange, Disper, T, DoS, Vel, tauOn, bandgap, carrierCon_5, fermilevelenergy_5, fermiDist_5, 3, -1)
-# ss, rr, cc, pff, XX, YY = thermoelectricProperties.electricalProperties(silicon, Erange, Disper, T, DoS, Vel, tauOff, bandgap, carrierCon_5, fermilevelenergy_5, fermiDist_5, 3, -1)
+Lv = np.array([[1,1,0],[0,1,1],[1,0,1]])*Si.latticeParameter/2
+a_rp = np.cross(Lv[1],Lv[2])/np.dot(Lv[0],np.cross(Lv[1],Lv[2]))
+b_rp = np.cross(Lv[2],Lv[0])/np.dot(Lv[1],np.cross(Lv[2],Lv[0]))
+a_rp = np.cross(Lv[0],Lv[1])/np.dot(Lv[2],np.cross(Lv[0],Lv[1]))
+RLv = np.array([a_rp, b_rp, a_rp])
 
-# T_exp = np.array([374.1, 472.9, 575.6, 675.7, 775.6, 874, 973.7, 1073.6, 1173.6, 1273.5])
-# R_exp = np.array([7.086e-06, 7.6208e-06, 8.295e-06, 8.9915e-06, 1.0114e-05, 1.1529e-05, 1.3554e-05, 1.3404e-05, 1.0918e-05, 1.1011e-05])
-# S_exp = [-0.00008005, -0.00009907, -0.00011806, -0.00013041, -0.000147142, -0.00015356, -0.00016366, -0.00015978, -0.000149326, -0.00014794]  # Seebeck 5% inclusion
-# PF_exp = np.divide(np.power(S_exp, 2), R_exp)
-# T5_exp = np.array([373, 473.2, 573.3, 673.5, 773.3, 873.3, 973.3, 1073.3, 1173.3, 1273.4])
-# R5_exp = np.array([1.2949e-05, 1.3688e-05, 1.458e-05, 1.5659e-05, 1.6999e-05, 1.8321e-05, 2.049e-05, 2.0107e-05, 1.761e-05, 1.6853e-05])
-# S5_exp = np.array([-0.00010974, -0.00014027, -0.00016151, -0.00017394, -0.000186419, -0.00019944, -0.00021742, -0.000218135, -0.00021185, -0.0002107])  # Seebeck 5% inclusion
-# PF5_exp = np.divide(np.power(S5_exp, 2), R5_exp)
-# print s[1]
-# print len(T), len(Erange), len(x), len(x[1])
-# print T[50]
-# plt.plot(Erange, X[0], Erange, X[50])
-# plt.show()
-# plt.plot(Erange, Y[0], Erange, Y[50])
-# plt.show()
-# plt.plot(Erange, X[0], Erange, X[50], Erange, X_5[0], Erange, X_5[50])
-# plt.show()
-# plt.plot(Erange, Y[0], Erange, Y[50], Erange, Y_5[0], Erange, Y_5[50])
-# plt.show()
-# plt.figure(1)
-# plt.subplot(311)
-# plt.plot(T, s, T, s_5, T, ss, T_exp, S_exp, T5_exp, S5_exp)
-# plt.ylabel("Seebeck")
-# plt.xlabel('Temperature ($^o$K)')
-# plt.subplot(312)
-# plt.plot(T, r, T, r_5, T, rr, T_exp, R_exp, T5_exp, R5_exp)
-# plt.ylabel("Resistivity")
-# plt.xlabel('Temperature ($^o$K)')
-# plt.subplot(313)
-# plt.plot(T, pf, T, pf_5, T, pff, T_exp, PF_exp, T5_exp, PF5_exp)
-# plt.ylabel("Power factor")
-# plt.xlabel('Temperature ($^o$K)')
-# plt.legend(['No inclusion', 'With 5% of inclusion', 'cc'])
-# plt.show()
 
-# matrixPro = thermoelectricProperties.filteringEffect(silicon, 0.2, 5e-15, tauOff, Erange, Disper, T, DoS, Vel, bandgap, carrierCon, fermilevelenergy, fermiDist, 3, -1, uIncrement=0.05, tauIncrement=1e-15)
-# print matrixPro
+e = Si.energyRange()
+g = Si.temp(TempMin=300, TempMax=1301, dT=100)
+h = Si.bandGap(Eg_o=2, Ao=7.7e-4, Bo=600, Temp=g)
+alpha = (1-m_CB/me)**2/h
+dos_nonparabolic, dos_parabolic = Si.analyticalDoS(energyRange=e, alpha = alpha)
+cc = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-no-inc.txt', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
+kp, band = Si.electronBandStructure(path2eigenval='EIGENVAL', skipLines=6)
+kp_rl = 2*np.pi*np.matmul(kp,RLv)
+kp_mag = norm(kp_rl, axis=1)
+min_band = np.argmin(band[400:600, 4], axis=0)
+max_band = np.argmax(band[400:600, 4], axis=0)
+kp_vel = kp_mag[401 + max_band:401 + min_band]
+energy_vel = band[401 + max_band:401 + min_band, 4] - band[401 + min_band, 4]
+enrg_sorted_idx = np.argsort(energy_vel, axis=0)
+gVel = Si.electronGroupVelocity(kp=kp_vel[enrg_sorted_idx], energy_kp=energy_vel[enrg_sorted_idx], energyRange=e)
+DoS = 1/2*Si.electronDoS(path2DoS='DOSCAR', headerLines=6, unitcell_volume=19.70272e-30, numDoSpoints=2000, valleyPoint=1118, energyRange=e)
+JD_f, JD_n = Si.fermiLevel(carrierConcentration=cc, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
+fermi, cc_sc = Si.fermiLevelSelfConsistent(carrierConcentration=cc, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f)
+dis, dfdE = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi)
+
+bulk_module = 98
+rho = 2329
+sp = np.sqrt(bulk_module/rho)
+
+LD = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc)
+
+tau_p = 220e-15/np.sqrt(np.transpose(g) * e)
+tau_p_npb, tau_p_pb = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=-9.5, T=g, vs=sp, D=DoS, rho=rho)
+tau_p_npb_type_2, tau_p_pb_type_2 = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=-9.5, T=g, vs=sp, D=dos_nonparabolic, rho=rho)
+tau_p_npb_type_3, tau_p_pb_type_3 = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=-9.5, T=g, vs=sp, D=dos_parabolic, rho=rho)
+# tau_ion = Si.tau_ion(energyRange=e, LD= LD, N= cc)
+
+tau_p2 = 2500e-15/np.sqrt(e)/np.transpose(g)
+tau = Si.matthiessen(e, tau_p)
+
+Coeff = Si.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi, dfdE=dfdE, Temp=g, tau=tau_p)
+
+exp_r = np.loadtxt('f1_Resistivity')
+exp_s = np.loadtxt('f1_Seebeck')
+
+print("done")
+fig_0 = plt.figure(figsize=(6.5,4.5))
+ax_0 = fig_0.add_subplot(111)
+ax_0.plot(g[0],h[0], 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_0.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax_0.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_0.tick_params(axis="x", labelsize=16)
+ax_0.set_ylabel('Band gap (eV)', fontsize=16, labelpad=10)
+ax_0.tick_params(axis="y", labelsize=16)
+fig_0.tight_layout()
+
+fig_1 = plt.figure(figsize=(6.5,4.5))
+ax_1 = fig_1.add_subplot(111)
+ax_1.plot(g[0],alpha[0], 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_1.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax_1.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_1.tick_params(axis="x", labelsize=16)
+ax_1.set_ylabel('Nonparabolic term (eV$^{-1}$)', fontsize=16, labelpad=10)
+ax_1.tick_params(axis="y", labelsize=16)
+fig_1.tight_layout()
+
+fig_2 = plt.figure(figsize=(6.5,4.5))
+ax_2 = fig_2.add_subplot(111)
+ax_2.plot(e[0],DoS[0], 'None', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_2.plot(e[0],dos_nonparabolic[0], 'None', linestyle='-', color='steelblue',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='steelblue',
+          markeredgewidth=1)
+ax_2.plot(e[0],dos_parabolic[0], 'None', linestyle='-', color='olive',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='olive',
+          markeredgewidth=1)
+ax_2.yaxis.set_major_formatter(ScalarFormatter())
+ax_2.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
+ax_2.tick_params(axis="x", labelsize=16)
+ax_2.set_ylabel('Density of state (#/eV/m$^3$)', fontsize=16, labelpad=10)
+ax_2.tick_params(axis="y", labelsize=16)
+ax_2.ticklabel_format(axis="y", style="sci", scilimits=None)
+fig_2.tight_layout()
+
+fig_3 = plt.figure(figsize=(6.5,4.5))
+ax_3 = fig_3.add_subplot(111)
+ax_3.plot(e[0],dos_nonparabolic[0], 'None', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_3.plot(e[0],dos_nonparabolic[-1], 'None', linestyle='-', color='steelblue',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='steelblue',
+          markeredgewidth=1)
+ax_3.yaxis.set_major_formatter(ScalarFormatter())
+ax_3.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
+ax_3.tick_params(axis="x", labelsize=16)
+ax_3.set_ylabel('Density of state (#/eV/m$^3$)', fontsize=16, labelpad=10)
+ax_3.tick_params(axis="y", labelsize=16)
+ax_3.ticklabel_format(axis="y", style="sci", scilimits=None)
+fig_3.tight_layout()
+
+fig_4 = plt.figure(figsize=(6.5,4.5))
+ax_4 = fig_4.add_subplot(111)
+ax_4.plot(e[0],-1*gVel[0]*1e-5, 'None', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_4.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+ax_4.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
+ax_4.tick_params(axis="x", labelsize=16)
+ax_4.set_ylabel('Group velocity (x10$^5$ m/s)', fontsize=16, labelpad=10)
+fig_4.tight_layout()
+
+fig_5 = plt.figure(figsize=(6.5,4.5))
+ax_5 = fig_5.add_subplot(111)
+ax_5.plot(band[1::,], 'None', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_5.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+ax_5.set_xlabel('BZ tour', fontsize=16, labelpad=10)
+ax_5.tick_params(axis="x", labelsize=16)
+ax_5.set_ylabel('Energy (eV)', fontsize=16)
+ax_5.tick_params(axis="y", labelsize=16)
+ax_5.set_xticks([0,199,399,599,799])
+ax_5.set_xticklabels(["W", "L","$\Gamma$", "X", "W"])
+fig_5.tight_layout()
+
+fig_6 = plt.figure(figsize=(6.5,4.5))
+ax_6 = fig_6.add_subplot(111)
+ax_6.plot(e[0],dis[0], 'None', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_6.plot(e[0],dis[-1], 'None', linestyle='-', color='steelblue',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='steelblue',
+          markeredgewidth=1)
+ax_6.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+ax_6.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
+ax_6.tick_params(axis="x", labelsize=16)
+ax_6.set_ylabel('Fermi distribution', fontsize=16, labelpad=10)
+ax_6.tick_params(axis="y", labelsize=16)
+fig_6.tight_layout()
+
+fig_7 = plt.figure(figsize=(6.5,4.5))
+ax_7 = fig_7.add_subplot(111)
+ax_7.plot(e[0],dfdE[0], 'None', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_7.plot(e[0],dfdE[-1], 'None', linestyle='-', color='steelblue',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='steelblue',
+          markeredgewidth=1)
+ax_7.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+ax_7.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
+ax_7.tick_params(axis="x", labelsize=16)
+ax_7.set_ylabel('Fermi window (eV$^{-1}$)', fontsize=16)
+ax_7.tick_params(axis="y", labelsize=16)
+fig_7.tight_layout()
+
+fig_8 = plt.figure(figsize=(6.5,4.5))
+ax_8 = fig_8.add_subplot(111)
+ax_8.plot(g[0],cc[0], 'o', linestyle='None', color='black',
+          markersize=12, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='black',
+          markeredgewidth=1,zorder=0)
+ax_8.plot(g[0],JD_n[0], 'o', linestyle='-', color='steelblue',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='steelblue',
+          markeredgewidth=1)
+
+ax_8.plot(g[0],cc_sc[0], 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+
+ax_8.yaxis.set_major_formatter(ScalarFormatter())
+ax_8.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_8.tick_params(axis="x", labelsize=16)
+ax_8.set_ylabel('Carrier concentration( #/m$^{3}$)', fontsize=16)
+ax_8.tick_params(axis="y", labelsize=16)
+ax_8.ticklabel_format(axis="y", style="sci", scilimits=None)
+fig_8.tight_layout()
+
+fig_9 = plt.figure(figsize=(6.5,4.5))
+ax_9 = fig_9.add_subplot(111)
+ax_9.plot(g[0],fermi[0], 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1,zorder=10)
+ax_9.plot(g[0],JD_f[0], 'o', linestyle='-', color='steelblue',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='steelblue',
+          markeredgewidth=1)
+
+ax_9.yaxis.set_major_formatter(ScalarFormatter())
+ax_9.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_9.tick_params(axis="x", labelsize=16)
+ax_9.set_ylabel('E$_f$ (eV)', fontsize=16)
+ax_9.tick_params(axis="y", labelsize=16)
+ax_9.ticklabel_format(axis="y", style="sci", scilimits=None)
+fig_9.tight_layout()
+
+fig_10 = plt.figure(figsize=(6.5,4.5))
+ax_10 = fig_10.add_subplot(111)
+ax_10.plot(g[0],Coeff[0]*1e-5, 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_10.plot(exp_r[0], np.divide(1, exp_r[1]) * 1e-5, '-o', linestyle='None', color='black',
+        markersize=5, linewidth=4,
+        markerfacecolor='white',
+        markeredgecolor='black',
+        markeredgewidth=1)
+ax_10.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+ax_10.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_10.tick_params(axis="x", labelsize=16)
+ax_10.set_ylabel('Conductivity(x10$^5$ S/m)', fontsize=16)
+ax_10.tick_params(axis="y", labelsize=16)
+fig_10.tight_layout()
+
+fig_11 = plt.figure(figsize=(6.5,4.5))
+ax_11 = fig_11.add_subplot(111)
+ax_11.plot(g[0],Coeff[1]*1e6, 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_11.plot(exp_s[0], exp_s[1] * 1e6, '-o', linestyle='None', color='black',
+          markersize=5, linewidth=4,
+          markerfacecolor='white',
+          markeredgecolor='black',
+          markeredgewidth=1)
+
+ax_11.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+ax_11.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_11.tick_params(axis="x", labelsize=16)
+ax_11.set_ylabel('Seebeck($\mu$V/K)', fontsize=16)
+ax_11.tick_params(axis="y", labelsize=16)
+fig_11.tight_layout()
+
+fig_12 = plt.figure(figsize=(6.5,4.5))
+ax_12 = fig_12.add_subplot(111)
+ax_12.plot(g[0],Coeff[2]*1e3, 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_12.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+ax_12.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_12.tick_params(axis="x", labelsize=16)
+ax_12.set_ylabel('Power factor(mW/mK$^2$)', fontsize=16, labelpad=10)
+ax_12.tick_params(axis="y", labelsize=16)
+fig_12.tight_layout()
+
+
+fig_13 = plt.figure(figsize=(6.5,4.5))
+ax_13 = fig_13.add_subplot(111)
+ax_13.plot(g[0],Coeff[3], 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+
+ax_13.plot(g[0],Coeff[0]*g[0]*Coeff[6], 'o', linestyle='-', color='steelblue',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='steelblue',
+          markeredgewidth=1)
+
+ax_13.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+ax_13.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_13.tick_params(axis="x", labelsize=16)
+ax_13.set_ylabel('$\kappa_e$(W/mK)', fontsize=16, labelpad=10)
+ax_13.tick_params(axis="y", labelsize=16)
+fig_13.tight_layout()
+
+fig_14 = plt.figure(figsize=(6.5,4.5))
+ax_14 = fig_14.add_subplot(111)
+ax_14.plot(g[0],Coeff[4], 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_14.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax_14.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_14.tick_params(axis="x", labelsize=16)
+ax_14.set_ylabel('$\Delta_1$(eV)', fontsize=16, labelpad=10)
+ax_14.tick_params(axis="y", labelsize=16)
+fig_14.tight_layout()
+
+fig_15 = plt.figure(figsize=(6.5,4.5))
+ax_15 = fig_15.add_subplot(111)
+ax_15.plot(g[0],Coeff[5], 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_15.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+ax_15.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_15.tick_params(axis="x", labelsize=16)
+ax_15.set_ylabel('$\Delta_2$([eV]$^2$)', fontsize=16, labelpad=10)
+ax_15.tick_params(axis="y", labelsize=16)
+fig_15.tight_layout()
+
+
+fig_16 = plt.figure(figsize=(6.5,4.5))
+ax_16 = fig_16.add_subplot(111)
+ax_16.plot(g[0],Coeff[6]*1e8, 'o', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+
+ax_16.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+ax_16.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_16.tick_params(axis="x", labelsize=16)
+ax_16.set_ylabel('Lorenz number (x$10^{-8}$[V/K]$^2$)', fontsize=16, labelpad=10)
+ax_16.tick_params(axis="y", labelsize=16)
+fig_16.tight_layout()
+
+plt.show()
+exit()
+
+
 # Qpoint = np.array([np.zeros(silicon.numQpoints), np.zeros(silicon.numQpoints), np.linspace(-math.pi / silicon.latticeParameter, math.pi / silicon.latticeParameter, num=silicon.numQpoints)])
 # print len(Qpoint[1])
 # dynamicalMatrix = thermoelectricProperties.dynamicalMatrix(silicon, '~/Desktop/Notes/Box_120a_Lambda_10a/Si-hessian-mass-weighted-hessian.d', '~/Desktop/Notes/Box_120a_Lambda_10a/data.Si-3x3x3', 15, 216, 14, 8, Qpoint)

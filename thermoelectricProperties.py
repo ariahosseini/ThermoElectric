@@ -2,6 +2,8 @@ import numpy as np
 from numpy.linalg import norm
 from os.path import expanduser
 from scipy.interpolate import InterpolatedUnivariateSpline
+from scipy.interpolate import PchipInterpolator
+from scipy.special import jv
 import matplotlib as mpl
 from matplotlib import cm
 from numpy.matlib import repmat
@@ -13,6 +15,7 @@ from matplotlib.ticker import ScalarFormatter
 from mpl_toolkits import mplot3d
 from matplotlib.colors import LightSource
 import seaborn as sns
+from accum import accum
 
 sns.set()
 sns.set_context("paper", font_scale=2, rc={"lines.linewidth": 4})
@@ -25,6 +28,7 @@ class thermoelectricProperties:
     e2C = 1.6021765e-19     # e to Coulomb unit change
     e0 = 8.854187817e-12    # Permittivity in vacuum F/m
     Ang2meter = 1e-10       # Unit conversion from Angestrom to meter
+    me = 9.109e-31
 
     def __init__(self, latticeParameter, dopantElectricCharge, electronEffectiveMass, dielectric, numKpoints, numBands=None, numQpoints=None, electronDispersian=None, kpoints=None, energyMin=0, energyMax=2, numEnergySampling=1000):
 
@@ -62,7 +66,7 @@ class thermoelectricProperties:
 
     def analyticalDoS(self, energyRange, alpha):
         DoS_nonparabolic = 1/np.pi**2*np.sqrt(2*energyRange*(1+energyRange*np.transpose(alpha)))*np.sqrt(self.electronEffectiveMass/thermoelectricProperties.hBar**2)**3*(1+(2*energyRange*np.transpose(alpha)))/thermoelectricProperties.e2C**(3./2)
-        DoS_parabolic = np.sqrt(energyRange)/np.pi**2*np.sqrt(2)/thermoelectricProperties.hBar**3*self.electronEffectiveMass**(3/2)/self.e2C**(3/2)
+        DoS_parabolic = np.sqrt(energyRange)/np.pi**2*np.sqrt(2)/thermoelectricProperties.hBar**3*self.electronEffectiveMass**(3/2)/thermoelectricProperties.e2C**(3/2)
         DoS = [DoS_nonparabolic,DoS_parabolic]
         return DoS
 
@@ -191,6 +195,49 @@ class thermoelectricProperties:
         print(tau)
         return tau
 
+    def tau2D_cylinder(self,energyRange, nk, Uo, m, vfrac, valley, dk_len, ro, n=2000):
+
+        meff = np.array(m) * thermoelectricProperties.me
+        ko = 2 * np.pi / self.latticeParameter * np.array(valley)
+        del_k = 2*np.pi/self.latticeParameter * dk_len * np.array([1, 1, 1])
+        N = vfrac/np.pi/ro**2
+        kx = np.linspace(ko[0], ko[0] + del_k[0], nk[0], endpoint=True)  # kpoints mesh
+        ky = np.linspace(ko[1], ko[1] + del_k[1], nk[1], endpoint=True)  # kpoints mesh
+        kz = np.linspace(ko[2], ko[2] + del_k[2], nk[2], endpoint=True)  # kpoints mesh
+        [xk, yk, zk] = np.meshgrid(kx, ky, kz)
+        xk_ = np.reshape(xk, -1)
+        yk_ = np.reshape(yk, -1)
+        zk_ = np.reshape(zk, -1)
+        kpoint = np.array([xk_, yk_, zk_])
+        mag_kpoint = norm(kpoint, axis=0)
+        E = thermoelectricProperties.hBar**2 / 2 * ((kpoint[0, :] - ko[0])**2 / meff[0] + (kpoint[1, :] - ko[1])**2 / meff[1] + (kpoint[2, :] - ko[2]) ** 2 / meff[2]) * thermoelectricProperties.e2C
+        t = np.linspace(0, 2*np.pi, n)
+        a = np.expand_dims(np.sqrt(2 * meff[1] / thermoelectricProperties.hBar**2 * E / thermoelectricProperties.e2C), axis=0)
+        b = np.expand_dims(np.sqrt(2 * meff[2] / thermoelectricProperties.hBar**2 * E / thermoelectricProperties.e2C), axis=0)
+        ds = np.sqrt((a.T * np.sin(t))**2 + (b.T * np.cos(t))**2)
+        cos_theta = ((a * kpoint[0]).T * np.cos(t) + (b * kpoint[1]).T * np.sin(t) + np.expand_dims(kpoint[2]**2, axis=1)) / np.sqrt(a.T**2 * np.cos(t)**2 + b.T**2 * np.sin(t)**2 + np.expand_dims(kpoint[2]**2, axis=1)) / np.expand_dims(mag_kpoint, axis=1)
+        delE = thermoelectricProperties.hBar**2 * np.abs((a.T * np.cos(t) - ko[0]) / meff[0] + (b.T * np.sin(t) - ko[1]) / meff[1] + (np.expand_dims(kpoint[2]**2, axis=1) - ko[2] / meff[2]))
+        qx = np.expand_dims(kpoint[0], axis=1) - a.T * np.cos(t)
+        qy = np.expand_dims(kpoint[1], axis=1) - b.T * np.sin(t)
+        qr = np.sqrt(qx**2 + qy**2)
+        tau = np.empty((len(ro), len(E)))
+        for r_idx in np.arange(len(ro)):
+            J = jv(1, ro[r_idx] * qr)
+            SR = 2 * np.pi / thermoelectricProperties.hBar * Uo**2 * (2 * np.pi)**3 * (ro[r_idx] * J / qr)**2
+            f = SR * (1 - cos_theta) / delE * ds
+            int_ = np.trapz(f, t, axis=1)
+            tau[r_idx] = 1 / (N[r_idx] / (2 * np.pi)**3 * int_) * thermoelectricProperties.e2C
+        Ec, indices, return_indices = np.unique(E, return_index=True, return_inverse=True)
+        print("Ec",Ec[30:])
+        tau_c = np.empty((len(ro), len(indices)))
+        tauFunctionEnergy = np.empty((len(ro), len(energyRange[0])))
+        for r_idx in np.arange(len(ro)):
+            tau_c[r_idx] = accum(return_indices, tau[r_idx], func=np.mean, dtype=float)
+        for tau_idx in np.arange(len(tau_c)):
+            ESpline = PchipInterpolator(Ec[30:], tau_c[tau_idx,30:])
+            tauFunctionEnergy[tau_idx] = ESpline(energyRange)
+        return tauFunctionEnergy
+
     def electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau):
         X = DoS * vg**2 * dfdE
         Y = (E - np.transpose(Ef)) * X
@@ -304,12 +351,12 @@ class thermoelectricProperties:
     # def __repr(self):
 
 
-me = 9.109e-31
-Si = thermoelectricProperties(latticeParameter=5.401803661945516e-10, dopantElectricCharge=1, electronEffectiveMass=1.08*me, energyMin=0.0, energyMax=2, dielectric=11.7, numKpoints=800, numBands=8, numQpoints=201, numEnergySampling=5000)
+
+Si = thermoelectricProperties(latticeParameter=5.401803661945516e-10, dopantElectricCharge=1, electronEffectiveMass=1.08*thermoelectricProperties.me, energyMin=0.0, energyMax=1, dielectric=11.7, numKpoints=800, numBands=8, numQpoints=201, numEnergySampling=5000)
 
 
-ml = 0.98*me
-mt = 0.19*me
+ml = 0.98*thermoelectricProperties.me
+mt = 0.19*thermoelectricProperties.me
 m_CB = 3/(1/ml+2/mt)
 
 

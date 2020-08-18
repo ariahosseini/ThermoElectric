@@ -19,9 +19,6 @@ from accum import accum
 from skimage import measure
 from skimage.draw import ellipsoid
 
-sns.set()
-sns.set_context("paper", font_scale=2, rc={"lines.linewidth": 4})
-sns.set_style("ticks", {"xtick.major.size": 2, "ytick.major.size": 2})
 
 class thermoelectricProperties:
 
@@ -261,7 +258,7 @@ class thermoelectricProperties:
         theta = np.linspace(0, 2 * np.pi, n)[None, :]
         x_ = r * np.cos(theta)
         y_ = r * np.sin(theta)
-        for u in [0,1,2]:
+        for u in np.arange(len(E)):
 
             Q = np.zeros((2 * (n-2) * (n - 1), 3))
             A = np.zeros((2 * (n-2) * (n - 1), 1))
@@ -269,6 +266,7 @@ class thermoelectricProperties:
             a_axis = np.sqrt(2 / (thermoelectricProperties.hBar**2 * thermoelectricProperties.e2C) * meff[0] * E[u])
             b_axis = np.sqrt(2 / (thermoelectricProperties.hBar**2 * thermoelectricProperties.e2C) * meff[1] * E[u])
             c_axis = np.sqrt(2 / (thermoelectricProperties.hBar**2 * thermoelectricProperties.e2C) * meff[2] * E[u])
+            print(a_axis,b_axis,c_axis)
 
             y = -1 * b_axis * y_ + ko[1]
             x = -1 * a_axis * x_ + ko[0]
@@ -316,18 +314,19 @@ class thermoelectricProperties:
                 s = s/2
                 A[k] = np.sqrt(s*(s-a)*(s-b)*(s-c))
                 k += 1
-        qx = kpoint[0,u] - Q[:,0]
-        qy = kpoint[1,u] - Q[:,1]
-        qz = kpoint[2,u] - Q[:,2]
-        q  = np.sqrt(qx**2+qy**2+qz**2)
-        cosTheta = np.matmul(kpoint[:,u][None,:],Q.T)/norm(kpoint[:,u])/np.sqrt(np.sum(Q**2,axis=1))
-        delE = np.abs(thermoelectricProperties.hBar**2*((Q[:,0]-ko[0])/meff[0]+(Q[:,1]-ko[1])/meff[1]+(Q[:,2]-ko[2])/meff[2]))
-        for ro_idx in  np.arange(len(ro)):
-          M = 4*np.pi*Uo*(1/q*np.sin(ro[ro_idx]*q)-ro[ro_idx]*np.cos(ro[ro_idx]*q))/(q**2)
-          SR = 2*np.pi/thermoelectricProperties.hBar*M*np.conj(M)
-          f = SR/delE*(1-cosTheta);
-          scattering_rate[ro_idx,u] = N[ro_idx]/(2*np.pi)**3*np.sum(f*A.T)
+            qx = kpoint[0,u] - Q[:,0]
+            qy = kpoint[1,u] - Q[:,1]
+            qz = kpoint[2,u] - Q[:,2]
+            q  = np.sqrt(qx**2+qy**2+qz**2)
+            cosTheta = np.matmul(kpoint[:,u][None,:],Q.T)/norm(kpoint[:,u])/np.sqrt(np.sum(Q**2,axis=1))
+            delE = np.abs(thermoelectricProperties.hBar**2*((Q[:,0]-ko[0])/meff[0]+(Q[:,1]-ko[1])/meff[1]+(Q[:,2]-ko[2])/meff[2]))
+            for ro_idx in  np.arange(len(ro)):
+              M = 4*np.pi*Uo*(1/q*np.sin(ro[ro_idx]*q)-ro[ro_idx]*np.cos(ro[ro_idx]*q))/(q**2)
+              SR = 2*np.pi/thermoelectricProperties.hBar*M*np.conj(M)
+              f = SR/delE*(1-cosTheta);
+              scattering_rate[ro_idx,u] = N[ro_idx]/(2*np.pi)**3*np.sum(f*A.T)
         return scattering_rate
+
 
     def electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau):
         X = DoS * vg**2 * dfdE
@@ -367,447 +366,79 @@ class thermoelectricProperties:
     #     qpoints = np.array([np.zeros(self.numQpoints), np.zeros(self.numQpoints), np.linspace(-math.pi / self.latticeParameter, math.pi / self.latticeParameter, num=self.numQpoints)])
     #     return qpoints
 
-    def dynamicalMatrix(self, path2massWeightedHessian, path2atomsPositions, skipLines, numAtoms, baseLatticePoint, numAtomsInUnitCell, qpoints):
-        with open(os.path.expanduser(path2massWeightedHessian)) as hessianFile:
-            hessianMatrix = hessianFile.readlines()
-        hessianMatrix = [line.split() for line in hessianMatrix]
-        hessianMatrix = np.array([[float(_) for _ in __] for __ in hessianMatrix])
-        hessianFile.close()
-        hessianSymmetry = (np.triu(hessianMatrix) + np.tril(hessianMatrix).transpose()) / 2
-        hessianMatrix = hessianSymmetry + np.triu(hessianSymmetry, 1).transpose()
-        #
-        with open(os.path.expanduser(path2atomsPositions)) as atomsPositionsFile:
-            atomsPositions = atomsPositionsFile.readlines()
-        atomsPositions = [line.split() for line in atomsPositions]
-        [atomsPositions.pop(0) for _ in range(skipLines)]
-        atomsPositions = np.array([[float(_) for _ in __] for __ in atomsPositions[0:numAtoms]])
-        atomsPositions = atomsPositions[atomsPositions[:, 0].argsort()]
-        # atomsPositions = np.sort(atomsPositions.view('i8,i8,f8,f8,f8,f8,f8,f8'), order=['f0'], axis=0).view(np.float)
-        latticePoints = np.array([_[2:5] for _ in atomsPositions[::numAtomsInUnitCell]])
-        latticePointsVectors = latticePoints - numpy.matlib.repmat(latticePoints[baseLatticePoint], len(latticePoints), 1)
-        dynamicalMatrix = np.zeros((numAtomsInUnitCell * 3, numAtomsInUnitCell * 3))
-        for _ in range(self.numQpoints):
-            dynamMatPerQpoint = np.zeros((numAtomsInUnitCell * 3, numAtomsInUnitCell * 3))
-            for __ in range(len(latticePointsVectors)):
-                sumMatrix = hessianMatrix[__ * numAtomsInUnitCell * 3: (__ + 1) * numAtomsInUnitCell * 3, baseLatticePoint * numAtomsInUnitCell * 3: (baseLatticePoint + 1) * numAtomsInUnitCell * 3] * cmath.exp(-1j * np.dot(latticePointsVectors[__], qpoints[:, _]))
-                dynamMatPerQpoint = dynamMatPerQpoint + sumMatrix
-            dynamicalMatrix = np.append(dynamicalMatrix, dynamMatPerQpoint, axis=0)
-        dynamicalMatrix = dynamicalMatrix[numAtomsInUnitCell * 3:]
-        eigVal = np.array([])
-        eigVec = np.zeros((numAtomsInUnitCell * 3, numAtomsInUnitCell * 3))
-        for _ in range(self.numQpoints):
-            dynmat = dynamicalMatrix[_ * numAtomsInUnitCell * 3:(_ + 1) * numAtomsInUnitCell * 3]
-            eigvals, eigvecs, = np.linalg.eigh(dynmat)
-            eigVal = np.append(eigVal, eigvals).reshape(-1, numAtomsInUnitCell * 3)
-            eigVec = np.append(eigVec, eigvecs, axis=0)
-        eigVec = eigVec[numAtomsInUnitCell * 3:]
-        frequencies = np.sqrt(np.abs(eigVal.real)) * np.sign(eigVal.real)
-        # conversion_factor_to_THz = 15.633302
-        # frequencies = frequencies * conversion_factor_to_THz
-        return eigVec
+    # def dynamicalMatrix(self, path2massWeightedHessian, path2atomsPositions, skipLines, numAtoms, baseLatticePoint, numAtomsInUnitCell, qpoints):
+    #     with open(os.path.expanduser(path2massWeightedHessian)) as hessianFile:
+    #         hessianMatrix = hessianFile.readlines()
+    #     hessianMatrix = [line.split() for line in hessianMatrix]
+    #     hessianMatrix = np.array([[float(_) for _ in __] for __ in hessianMatrix])
+    #     hessianFile.close()
+    #     hessianSymmetry = (np.triu(hessianMatrix) + np.tril(hessianMatrix).transpose()) / 2
+    #     hessianMatrix = hessianSymmetry + np.triu(hessianSymmetry, 1).transpose()
+    #     #
+    #     with open(os.path.expanduser(path2atomsPositions)) as atomsPositionsFile:
+    #         atomsPositions = atomsPositionsFile.readlines()
+    #     atomsPositions = [line.split() for line in atomsPositions]
+    #     [atomsPositions.pop(0) for _ in range(skipLines)]
+    #     atomsPositions = np.array([[float(_) for _ in __] for __ in atomsPositions[0:numAtoms]])
+    #     atomsPositions = atomsPositions[atomsPositions[:, 0].argsort()]
+    #     # atomsPositions = np.sort(atomsPositions.view('i8,i8,f8,f8,f8,f8,f8,f8'), order=['f0'], axis=0).view(np.float)
+    #     latticePoints = np.array([_[2:5] for _ in atomsPositions[::numAtomsInUnitCell]])
+    #     latticePointsVectors = latticePoints - numpy.matlib.repmat(latticePoints[baseLatticePoint], len(latticePoints), 1)
+    #     dynamicalMatrix = np.zeros((numAtomsInUnitCell * 3, numAtomsInUnitCell * 3))
+    #     for _ in range(self.numQpoints):
+    #         dynamMatPerQpoint = np.zeros((numAtomsInUnitCell * 3, numAtomsInUnitCell * 3))
+    #         for __ in range(len(latticePointsVectors)):
+    #             sumMatrix = hessianMatrix[__ * numAtomsInUnitCell * 3: (__ + 1) * numAtomsInUnitCell * 3, baseLatticePoint * numAtomsInUnitCell * 3: (baseLatticePoint + 1) * numAtomsInUnitCell * 3] * cmath.exp(-1j * np.dot(latticePointsVectors[__], qpoints[:, _]))
+    #             dynamMatPerQpoint = dynamMatPerQpoint + sumMatrix
+    #         dynamicalMatrix = np.append(dynamicalMatrix, dynamMatPerQpoint, axis=0)
+    #     dynamicalMatrix = dynamicalMatrix[numAtomsInUnitCell * 3:]
+    #     eigVal = np.array([])
+    #     eigVec = np.zeros((numAtomsInUnitCell * 3, numAtomsInUnitCell * 3))
+    #     for _ in range(self.numQpoints):
+    #         dynmat = dynamicalMatrix[_ * numAtomsInUnitCell * 3:(_ + 1) * numAtomsInUnitCell * 3]
+    #         eigvals, eigvecs, = np.linalg.eigh(dynmat)
+    #         eigVal = np.append(eigVal, eigvals).reshape(-1, numAtomsInUnitCell * 3)
+    #         eigVec = np.append(eigVec, eigvecs, axis=0)
+    #     eigVec = eigVec[numAtomsInUnitCell * 3:]
+    #     frequencies = np.sqrt(np.abs(eigVal.real)) * np.sign(eigVal.real)
+    #     # conversion_factor_to_THz = 15.633302
+    #     # frequencies = frequencies * conversion_factor_to_THz
+    #     return eigVec
 
-    def phonopyQpointYamlInterface(self, path2QpointYaml):
-        qpointsData = yaml.load(open("qpoints.yaml"))
-        nqpoint = qpointsData['nqpoint']
-        natom = qpointsData['natom']
-        qpoints = []
-        qpoints = np.append(qpoints, [qpointsData['phonon'][_]['q-position'] for _ in range(nqpoint)]).reshape(-1, 3)
-        frequency = []
-        frequency = np.append(frequency, [[qpointsData['phonon'][_]['band'][__]['frequency'] for __ in range(3 * natom)] for _ in range(nqpoint)]). reshape(-1, 3 * natom)
-        eigVal = np.array([])
-        eigVec = np.zeros((natom * 3, natom * 3))
-        for _ in range(nqpoint):
-            dynmat = []
-            dynmat_data = qpointsData['phonon'][_]['dynamical_matrix']
-            for row in dynmat_data:
-                vals = np.reshape(row, (-1, 2))
-                dynmat.append(vals[:, 0] + vals[:, 1] * 1j)
-            dynmat = np.array(dynmat)
-            eigvals, eigvecs, = np.linalg.eigh(dynmat)
-            eigVal = np.append(eigVal, eigvals).reshape(-1, natom * 3)
-            eigVec = np.append(eigVec, eigvecs, axis=0)
-        eigVec = eigVec[natom * 3:]
-        frequencies = np.sqrt(np.abs(eigVal.real)) * np.sign(eigVal.real)
-        conversion_factor_to_THz = 15.633302
-        frequencies = frequencies * conversion_factor_to_THz
-        return eigVec
+    # def phonopyQpointYamlInterface(self, path2QpointYaml):
+    #     qpointsData = yaml.load(open("qpoints.yaml"))
+    #     nqpoint = qpointsData['nqpoint']
+    #     natom = qpointsData['natom']
+    #     qpoints = []
+    #     qpoints = np.append(qpoints, [qpointsData['phonon'][_]['q-position'] for _ in range(nqpoint)]).reshape(-1, 3)
+    #     frequency = []
+    #     frequency = np.append(frequency, [[qpointsData['phonon'][_]['band'][__]['frequency'] for __ in range(3 * natom)] for _ in range(nqpoint)]). reshape(-1, 3 * natom)
+    #     eigVal = np.array([])
+    #     eigVec = np.zeros((natom * 3, natom * 3))
+    #     for _ in range(nqpoint):
+    #         dynmat = []
+    #         dynmat_data = qpointsData['phonon'][_]['dynamical_matrix']
+    #         for row in dynmat_data:
+    #             vals = np.reshape(row, (-1, 2))
+    #             dynmat.append(vals[:, 0] + vals[:, 1] * 1j)
+    #         dynmat = np.array(dynmat)
+    #         eigvals, eigvecs, = np.linalg.eigh(dynmat)
+    #         eigVal = np.append(eigVal, eigvals).reshape(-1, natom * 3)
+    #         eigVec = np.append(eigVec, eigvecs, axis=0)
+    #     eigVec = eigVec[natom * 3:]
+    #     frequencies = np.sqrt(np.abs(eigVal.real)) * np.sign(eigVal.real)
+    #     conversion_factor_to_THz = 15.633302
+    #     frequencies = frequencies * conversion_factor_to_THz
+    #     return eigVec
 
-    def gaussianDestribution(self, sigma, expectedValue, qpoints):
-        gauss = (1.0 / np.sqrt(2 * pi) / sigma) * np.exp((-1.0 / 2) * np.power(((qpoints - expectedValue) / sigma), 2))
-        return gauss
+    # def gaussianDestribution(self, sigma, expectedValue, qpoints):
+    #     gauss = (1.0 / np.sqrt(2 * pi) / sigma) * np.exp((-1.0 / 2) * np.power(((qpoints - expectedValue) / sigma), 2))
+    #     return gauss
 
     # def singleWave(self, path2atomsPosition, numberOfAtomsInChain, skipLines)
     # def __str(self):
 
     # def __repr(self):
-
-
-
-Si = thermoelectricProperties(latticeParameter=5.401803661945516e-10, dopantElectricCharge=1, electronEffectiveMass=1.08*thermoelectricProperties.me, energyMin=0.0, energyMax=1, dielectric=11.7, numKpoints=800, numBands=8, numQpoints=201, numEnergySampling=5000)
-
-
-ml = 0.98*thermoelectricProperties.me
-mt = 0.19*thermoelectricProperties.me
-m_CB = 3/(1/ml+2/mt)
-
-
-Lv = np.array([[1,1,0],[0,1,1],[1,0,1]])*Si.latticeParameter/2
-a_rp = np.cross(Lv[1],Lv[2])/np.dot(Lv[0],np.cross(Lv[1],Lv[2]))
-b_rp = np.cross(Lv[2],Lv[0])/np.dot(Lv[1],np.cross(Lv[2],Lv[0]))
-a_rp = np.cross(Lv[0],Lv[1])/np.dot(Lv[2],np.cross(Lv[0],Lv[1]))
-RLv = np.array([a_rp, b_rp, a_rp])
-
-
-e = Si.energyRange()
-g = Si.temp(TempMin=300, TempMax=1301, dT=100)
-h = Si.bandGap(Eg_o=2, Ao=7.7e-4, Bo=600, Temp=g)
-alpha = (1-m_CB/me)**2/h
-dos_nonparabolic, dos_parabolic = Si.analyticalDoS(energyRange=e, alpha = alpha)
-cc = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-no-inc.txt', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
-kp, band = Si.electronBandStructure(path2eigenval='EIGENVAL', skipLines=6)
-kp_rl = 2*np.pi*np.matmul(kp,RLv)
-kp_mag = norm(kp_rl, axis=1)
-min_band = np.argmin(band[400:600, 4], axis=0)
-max_band = np.argmax(band[400:600, 4], axis=0)
-kp_vel = kp_mag[401 + max_band:401 + min_band]
-energy_vel = band[401 + max_band:401 + min_band, 4] - band[401 + min_band, 4]
-enrg_sorted_idx = np.argsort(energy_vel, axis=0)
-gVel = Si.electronGroupVelocity(kp=kp_vel[enrg_sorted_idx], energy_kp=energy_vel[enrg_sorted_idx], energyRange=e)
-DoS = 1/2*Si.electronDoS(path2DoS='DOSCAR', headerLines=6, unitcell_volume=19.70272e-30, numDoSpoints=2000, valleyPoint=1118, energyRange=e)
-JD_f, JD_n = Si.fermiLevel(carrierConcentration=cc, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
-fermi, cc_sc = Si.fermiLevelSelfConsistent(carrierConcentration=cc, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f)
-dis, dfdE = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi)
-
-bulk_module = 98
-rho = 2329
-sp = np.sqrt(bulk_module/rho)
-
-LD = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc)
-
-tau_p = 220e-15/np.sqrt(np.transpose(g) * e)
-tau_p_npb, tau_p_pb = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=-9.5, T=g, vs=sp, D=DoS, rho=rho)
-tau_p_npb_type_2, tau_p_pb_type_2 = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=-9.5, T=g, vs=sp, D=dos_nonparabolic, rho=rho)
-tau_p_npb_type_3, tau_p_pb_type_3 = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=-9.5, T=g, vs=sp, D=dos_parabolic, rho=rho)
-# tau_ion = Si.tau_ion(energyRange=e, LD= LD, N= cc)
-
-tau_p2 = 2500e-15/np.sqrt(e)/np.transpose(g)
-tau = Si.matthiessen(e, tau_p)
-
-Coeff = Si.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi, dfdE=dfdE, Temp=g, tau=tau_p)
-
-exp_r = np.loadtxt('f1_Resistivity')
-exp_s = np.loadtxt('f1_Seebeck')
-
-print("done")
-fig_0 = plt.figure(figsize=(6.5,4.5))
-ax_0 = fig_0.add_subplot(111)
-ax_0.plot(g[0],h[0], 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_0.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-ax_0.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_0.tick_params(axis="x", labelsize=16)
-ax_0.set_ylabel('Band gap (eV)', fontsize=16, labelpad=10)
-ax_0.tick_params(axis="y", labelsize=16)
-fig_0.tight_layout()
-
-fig_1 = plt.figure(figsize=(6.5,4.5))
-ax_1 = fig_1.add_subplot(111)
-ax_1.plot(g[0],alpha[0], 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_1.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-ax_1.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_1.tick_params(axis="x", labelsize=16)
-ax_1.set_ylabel('Nonparabolic term (eV$^{-1}$)', fontsize=16, labelpad=10)
-ax_1.tick_params(axis="y", labelsize=16)
-fig_1.tight_layout()
-
-fig_2 = plt.figure(figsize=(6.5,4.5))
-ax_2 = fig_2.add_subplot(111)
-ax_2.plot(e[0],DoS[0], 'None', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_2.plot(e[0],dos_nonparabolic[0], 'None', linestyle='-', color='steelblue',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='steelblue',
-          markeredgewidth=1)
-ax_2.plot(e[0],dos_parabolic[0], 'None', linestyle='-', color='olive',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='olive',
-          markeredgewidth=1)
-ax_2.yaxis.set_major_formatter(ScalarFormatter())
-ax_2.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
-ax_2.tick_params(axis="x", labelsize=16)
-ax_2.set_ylabel('Density of state (#/eV/m$^3$)', fontsize=16, labelpad=10)
-ax_2.tick_params(axis="y", labelsize=16)
-ax_2.ticklabel_format(axis="y", style="sci", scilimits=None)
-fig_2.tight_layout()
-
-fig_3 = plt.figure(figsize=(6.5,4.5))
-ax_3 = fig_3.add_subplot(111)
-ax_3.plot(e[0],dos_nonparabolic[0], 'None', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_3.plot(e[0],dos_nonparabolic[-1], 'None', linestyle='-', color='steelblue',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='steelblue',
-          markeredgewidth=1)
-ax_3.yaxis.set_major_formatter(ScalarFormatter())
-ax_3.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
-ax_3.tick_params(axis="x", labelsize=16)
-ax_3.set_ylabel('Density of state (#/eV/m$^3$)', fontsize=16, labelpad=10)
-ax_3.tick_params(axis="y", labelsize=16)
-ax_3.ticklabel_format(axis="y", style="sci", scilimits=None)
-fig_3.tight_layout()
-
-fig_4 = plt.figure(figsize=(6.5,4.5))
-ax_4 = fig_4.add_subplot(111)
-ax_4.plot(e[0],-1*gVel[0]*1e-5, 'None', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_4.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-ax_4.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
-ax_4.tick_params(axis="x", labelsize=16)
-ax_4.set_ylabel('Group velocity (x10$^5$ m/s)', fontsize=16, labelpad=10)
-fig_4.tight_layout()
-
-fig_5 = plt.figure(figsize=(6.5,4.5))
-ax_5 = fig_5.add_subplot(111)
-ax_5.plot(band[1::,], 'None', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_5.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-ax_5.set_xlabel('BZ tour', fontsize=16, labelpad=10)
-ax_5.tick_params(axis="x", labelsize=16)
-ax_5.set_ylabel('Energy (eV)', fontsize=16)
-ax_5.tick_params(axis="y", labelsize=16)
-ax_5.set_xticks([0,199,399,599,799])
-ax_5.set_xticklabels(["W", "L","$\Gamma$", "X", "W"])
-fig_5.tight_layout()
-
-fig_6 = plt.figure(figsize=(6.5,4.5))
-ax_6 = fig_6.add_subplot(111)
-ax_6.plot(e[0],dis[0], 'None', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_6.plot(e[0],dis[-1], 'None', linestyle='-', color='steelblue',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='steelblue',
-          markeredgewidth=1)
-ax_6.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-ax_6.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
-ax_6.tick_params(axis="x", labelsize=16)
-ax_6.set_ylabel('Fermi distribution', fontsize=16, labelpad=10)
-ax_6.tick_params(axis="y", labelsize=16)
-fig_6.tight_layout()
-
-fig_7 = plt.figure(figsize=(6.5,4.5))
-ax_7 = fig_7.add_subplot(111)
-ax_7.plot(e[0],dfdE[0], 'None', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_7.plot(e[0],dfdE[-1], 'None', linestyle='-', color='steelblue',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='steelblue',
-          markeredgewidth=1)
-ax_7.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-ax_7.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
-ax_7.tick_params(axis="x", labelsize=16)
-ax_7.set_ylabel('Fermi window (eV$^{-1}$)', fontsize=16)
-ax_7.tick_params(axis="y", labelsize=16)
-fig_7.tight_layout()
-
-fig_8 = plt.figure(figsize=(6.5,4.5))
-ax_8 = fig_8.add_subplot(111)
-ax_8.plot(g[0],cc[0], 'o', linestyle='None', color='black',
-          markersize=12, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='black',
-          markeredgewidth=1,zorder=0)
-ax_8.plot(g[0],JD_n[0], 'o', linestyle='-', color='steelblue',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='steelblue',
-          markeredgewidth=1)
-
-ax_8.plot(g[0],cc_sc[0], 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-
-ax_8.yaxis.set_major_formatter(ScalarFormatter())
-ax_8.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_8.tick_params(axis="x", labelsize=16)
-ax_8.set_ylabel('Carrier concentration( #/m$^{3}$)', fontsize=16)
-ax_8.tick_params(axis="y", labelsize=16)
-ax_8.ticklabel_format(axis="y", style="sci", scilimits=None)
-fig_8.tight_layout()
-
-fig_9 = plt.figure(figsize=(6.5,4.5))
-ax_9 = fig_9.add_subplot(111)
-ax_9.plot(g[0],fermi[0], 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1,zorder=10)
-ax_9.plot(g[0],JD_f[0], 'o', linestyle='-', color='steelblue',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='steelblue',
-          markeredgewidth=1)
-
-ax_9.yaxis.set_major_formatter(ScalarFormatter())
-ax_9.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_9.tick_params(axis="x", labelsize=16)
-ax_9.set_ylabel('E$_f$ (eV)', fontsize=16)
-ax_9.tick_params(axis="y", labelsize=16)
-ax_9.ticklabel_format(axis="y", style="sci", scilimits=None)
-fig_9.tight_layout()
-
-fig_10 = plt.figure(figsize=(6.5,4.5))
-ax_10 = fig_10.add_subplot(111)
-ax_10.plot(g[0],Coeff[0]*1e-5, 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_10.plot(exp_r[0], np.divide(1, exp_r[1]) * 1e-5, '-o', linestyle='None', color='black',
-        markersize=5, linewidth=4,
-        markerfacecolor='white',
-        markeredgecolor='black',
-        markeredgewidth=1)
-ax_10.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-ax_10.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_10.tick_params(axis="x", labelsize=16)
-ax_10.set_ylabel('Conductivity(x10$^5$ S/m)', fontsize=16)
-ax_10.tick_params(axis="y", labelsize=16)
-fig_10.tight_layout()
-
-fig_11 = plt.figure(figsize=(6.5,4.5))
-ax_11 = fig_11.add_subplot(111)
-ax_11.plot(g[0],Coeff[1]*1e6, 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_11.plot(exp_s[0], exp_s[1] * 1e6, '-o', linestyle='None', color='black',
-          markersize=5, linewidth=4,
-          markerfacecolor='white',
-          markeredgecolor='black',
-          markeredgewidth=1)
-
-ax_11.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-ax_11.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_11.tick_params(axis="x", labelsize=16)
-ax_11.set_ylabel('Seebeck($\mu$V/K)', fontsize=16)
-ax_11.tick_params(axis="y", labelsize=16)
-fig_11.tight_layout()
-
-fig_12 = plt.figure(figsize=(6.5,4.5))
-ax_12 = fig_12.add_subplot(111)
-ax_12.plot(g[0],Coeff[2]*1e3, 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_12.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-ax_12.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_12.tick_params(axis="x", labelsize=16)
-ax_12.set_ylabel('Power factor(mW/mK$^2$)', fontsize=16, labelpad=10)
-ax_12.tick_params(axis="y", labelsize=16)
-fig_12.tight_layout()
-
-
-fig_13 = plt.figure(figsize=(6.5,4.5))
-ax_13 = fig_13.add_subplot(111)
-ax_13.plot(g[0],Coeff[3], 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-
-ax_13.plot(g[0],Coeff[0]*g[0]*Coeff[6], 'o', linestyle='-', color='steelblue',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='steelblue',
-          markeredgewidth=1)
-
-ax_13.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-ax_13.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_13.tick_params(axis="x", labelsize=16)
-ax_13.set_ylabel('$\kappa_e$(W/mK)', fontsize=16, labelpad=10)
-ax_13.tick_params(axis="y", labelsize=16)
-fig_13.tight_layout()
-
-fig_14 = plt.figure(figsize=(6.5,4.5))
-ax_14 = fig_14.add_subplot(111)
-ax_14.plot(g[0],Coeff[4], 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_14.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-ax_14.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_14.tick_params(axis="x", labelsize=16)
-ax_14.set_ylabel('$\Delta_1$(eV)', fontsize=16, labelpad=10)
-ax_14.tick_params(axis="y", labelsize=16)
-fig_14.tight_layout()
-
-fig_15 = plt.figure(figsize=(6.5,4.5))
-ax_15 = fig_15.add_subplot(111)
-ax_15.plot(g[0],Coeff[5], 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_15.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-ax_15.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_15.tick_params(axis="x", labelsize=16)
-ax_15.set_ylabel('$\Delta_2$([eV]$^2$)', fontsize=16, labelpad=10)
-ax_15.tick_params(axis="y", labelsize=16)
-fig_15.tight_layout()
-
-
-fig_16 = plt.figure(figsize=(6.5,4.5))
-ax_16 = fig_16.add_subplot(111)
-ax_16.plot(g[0],Coeff[6]*1e8, 'o', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-
-ax_16.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-ax_16.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_16.tick_params(axis="x", labelsize=16)
-ax_16.set_ylabel('Lorenz number (x$10^{-8}$[V/K]$^2$)', fontsize=16, labelpad=10)
-ax_16.tick_params(axis="y", labelsize=16)
-fig_16.tight_layout()
-
-plt.show()
-exit()
 
 
 # Qpoint = np.array([np.zeros(silicon.numQpoints), np.zeros(silicon.numQpoints), np.linspace(-math.pi / silicon.latticeParameter, math.pi / silicon.latticeParameter, num=silicon.numQpoints)])
@@ -817,4 +448,3 @@ exit()
 # print(dynamicalMatrix)
 # Eig = thermoelectricProperties.phonopyQpointYamlInterface(silicon, '~/Desktop/qpoints.yaml')
 # np.savetxt('EigVec', Eig.real, fmt='%10.5f', delimiter=' ')
-print('done')

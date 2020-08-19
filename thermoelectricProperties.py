@@ -153,6 +153,7 @@ class thermoelectricProperties:
             idx_j += 1
         diff = np.tile(np.transpose(carrierConcentration), (1, np.shape(fermi)[1])) - abs(result_array)
         min_idx = np.argmin(np.abs(diff), axis=1)
+        print("Fermi Level Self Consistent Index ",min_idx)
         Ef = np.empty((1, np.shape(Temp)[1]))
         for Ef_idx in np.arange(len(min_idx)):
             Ef[0,Ef_idx] = fermi[Ef_idx,min_idx[Ef_idx]]
@@ -181,17 +182,20 @@ class thermoelectricProperties:
 
     def tau_p(self, energyRange, alpha, Dv, DA, T, vs, D, rho):
 
-        nonparabolic_term = (1-(alpha.T*energyRange)/(1+2*alpha.T*energyRange)*(1-Dv/DA))**2-8/3*(alpha.T*energyRange)/(1+2*alpha.T*energyRange)*(Dv/DA)
+        nonparabolic_term = (1-((alpha.T*energyRange)/(1+2*alpha.T*energyRange)*(1-Dv/DA)))**2-8/3*(alpha.T*energyRange)*(1+alpha.T*energyRange)/(1+2*alpha.T*energyRange)**2*(Dv/DA)
         tau = rho*vs**2*thermoelectricProperties.hBar/np.pi/thermoelectricProperties.kB/T.T/DA/DA*1e9/thermoelectricProperties.e2C/D
         tau_p = tau/nonparabolic_term
         return [tau,tau_p]
 
-    def tau_ion(self,energyRange, LD, N):
+    def tau_BH(self,energyRange, LD, N):
 
-        g = 8*self.electronEffectiveMass*LD.T**2*energyRange/thermoelectricProperties.hBar**2
+        g = 8*self.electronEffectiveMass*LD.T**2*energyRange/thermoelectricProperties.hBar**2/thermoelectricProperties.e2C
         var_tmp = np.log(1+g)-g/(1+g)
-        tau = 16*np.pi*np.sqrt(2*self.electronEffectiveMass)*(4*np.pi*self.dielectric*thermoelectricProperties.e0)**2/N.T*energyRange**(3/2)*thermoelectricProperties.e2C**(-5/2)
-        print(tau)
+        tau = 16*np.pi*np.sqrt(2*self.electronEffectiveMass)*(4*np.pi*self.dielectric*thermoelectricProperties.e0)**2/N.T/var_tmp*energyRange**(3/2)/thermoelectricProperties.e2C**(5/2)
+        return tau
+
+    def tau_ion(self, D, LD, N):
+        tau = thermoelectricProperties.hBar/N.T/np.pi/D/(LD.T**2/(4*np.pi*self.dielectric*thermoelectricProperties.e0))**2*1/thermoelectricProperties.e2C**2
         return tau
 
     def tau2D_cylinder(self,energyRange, nk, Uo, m, vfrac, valley, dk_len, ro, n=2000):
@@ -266,7 +270,6 @@ class thermoelectricProperties:
             a_axis = np.sqrt(2 / (thermoelectricProperties.hBar**2 * thermoelectricProperties.e2C) * meff[0] * E[u])
             b_axis = np.sqrt(2 / (thermoelectricProperties.hBar**2 * thermoelectricProperties.e2C) * meff[1] * E[u])
             c_axis = np.sqrt(2 / (thermoelectricProperties.hBar**2 * thermoelectricProperties.e2C) * meff[2] * E[u])
-            print(a_axis,b_axis,c_axis)
 
             y = -1 * b_axis * y_ + ko[1]
             x = -1 * a_axis * x_ + ko[0]

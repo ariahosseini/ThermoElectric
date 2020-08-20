@@ -48,7 +48,10 @@ alpha = np.array(0.5*np.tile([1],(1,11)))
 
 dos_nonparabolic, dos_parabolic = SiGe.analyticalDoS(energyRange=e, alpha = alpha)
 
-cc = SiGe.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='Vining_CC_circle', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
+cc_circle = SiGe.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='Vining_CC_circle', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
+cc_square = SiGe.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='Vining_CC_square', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
+cc_diamond = SiGe.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='Vining_CC_diamond', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
+cc_triangle = SiGe.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='Vining_CC_triangle', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
 kp, band = SiGe.electronBandStructure(path2eigenval='EIGENVAL', skipLines=6)
 kp_rl = 2*np.pi*np.matmul(kp,RLv)
 kp_mag = norm(kp_rl, axis=1)
@@ -59,20 +62,37 @@ energy_vel = band[401 + max_band:401 + min_band, 4] - band[401 + min_band, 4]
 enrg_sorted_idx = np.argsort(energy_vel, axis=0)
 gVel = SiGe.electronGroupVelocity(kp=kp_vel[enrg_sorted_idx], energy_kp=energy_vel[enrg_sorted_idx], energyRange=e)
 DoS = SiGe.electronDoS(path2DoS='DOSCAR', headerLines=6, unitcell_volume=2*19.70272e-30, numDoSpoints=2000, valleyPoint=1118, energyRange=e)
-JD_f, JD_n = SiGe.fermiLevel(carrierConcentration=cc, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
-fermi, cc_sc = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f)
-dis, dfdE = SiGe.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi)
+JD_f_circle, JD_n_circle = SiGe.fermiLevel(carrierConcentration=cc_circle, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
+JD_f_diamond, JD_n_diamond = SiGe.fermiLevel(carrierConcentration=cc_diamond, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
+JD_f_square, JD_n_square = SiGe.fermiLevel(carrierConcentration=cc_square, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
+JD_f_triangle, JD_n_triangle = SiGe.fermiLevel(carrierConcentration=cc_triangle, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
 
-LD = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc) # screening length
+fermi_circle, cc_sc_circle = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_circle, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_circle)
+fermi_triangle, cc_sc_triangle = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_triangle, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_triangle)
+fermi_square, cc_sc_square = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_square, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_square)
+fermi_diamond, cc_sc_diamond = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_diamond, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_diamond)
 
+dis_circle, dfdE_circle = SiGe.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_circle)
+dis_triangle, dfdE_triangle = SiGe.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_triangle)
+dis_square, dfdE_square = SiGe.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_square)
+dis_diamond, dfdE_diamond = SiGe.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_diamond)
+
+LD_non_degenerate_circle = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_circle) # screening length
+LD_non_degenerate_triangle = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_triangle) # screening length
+LD_non_degenerate_square = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_square) # screening length
+LD_non_degenerate_diamond = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_diamond) # screening length
+
+exit()
+
+LD = np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
 
 tau_p_type_0 = 220e-15/np.sqrt(np.transpose(g) * e)
 tau_p_pb_type_1, tau_p_npb_type_1 = SiGe.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS, rho=rho)
 tau_p_pb_type_2, tau_p_npb_type_2 = SiGe.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=dos_nonparabolic, rho=rho)
 tau_p_pb_type_3, tau_p_npb_type_3 = SiGe.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=dos_parabolic, rho=rho)
 tau_BH = SiGe.tau_BH(energyRange=e, LD= LD, N= cc)
-tau_ion = SiGe.tau_ion(D=dos_nonparabolic, LD=LD, N=cc)
-tau = 6*SiGe.matthiessen(e, tau_p_npb_type_2,tau_ion)
+tau_ion = SiGe.tau_ion(D=DoS, LD=LD, N=cc)
+tau = SiGe.matthiessen(e, 6*tau_p_npb_type_2,6*tau_ion)
 
 Coeff = SiGe.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi, dfdE=dfdE, Temp=g, tau=tau)
 
@@ -460,75 +480,6 @@ ax_17.plot(e[0],np.log10(tau[0])+15, 'None', linestyle='--', color='gold',
           markerfacecolor='white',
           markeredgecolor='gold',
           markeredgewidth=1)
-ax_17.plot(e[0],np.log10(tau_p[0])+15, 'None', linestyle='-', color='black',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='black',
-          markeredgewidth=1)
-ax_17.plot(e[0],np.log10(tau_p[0]/2)+15, 'None', linestyle='--', color='black',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='black',
-          markeredgewidth=1)
-
-
-
-
 
 plt.show()
 exit()
-
-
-# fig_0 = plt.figure(figsize=(6.5,4.5))
-# ax_0 = fig_0.add_subplot(111)
-# ax_0.plot(e[0],np.log10(tau_p_npb[0]*6)+15, 'None', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-
-# ax_0.plot(e[0],np.log10(tau_p_pb[0]*6)+15, 'None', linestyle='-', color='steelblue',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='steelblue',
-#           markeredgewidth=1)
-
-# ax_0.plot(e[0],np.log10(tau_p[0])+15, 'None', linestyle='-', color='black',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='black',
-#           markeredgewidth=1)
-
-# ax_0.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-# ax_0.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
-# ax_0.tick_params(axis="x", labelsize=16)
-# ax_0.set_ylabel('Lifetime (log$_{10}$[ps])', fontsize=16, labelpad=10)
-# ax_0.tick_params(axis="y", labelsize=16)
-# fig_0.tight_layout()
-
-# fig_1 = plt.figure(figsize=(6.5,4.5))
-# ax_1 = fig_1.add_subplot(111)
-# ax_1.plot(e[0],np.log10(tau_p_npb[0])+15, 'None', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-
-# ax_1.plot(e[0],np.log10(tau_p_npb_type_2[0])+15, 'None', linestyle='-', color='steelblue',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='steelblue',
-#           markeredgewidth=1)
-
-# ax_1.plot(e[0],np.log10(tau_p_npb_type_3[0])+15, 'None', linestyle='-', color='olive',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='olive',
-#           markeredgewidth=1)
-
-# ax_1.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-# ax_1.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
-# ax_1.tick_params(axis="x", labelsize=16)
-# ax_1.set_ylabel('Lifetime (log$_{10}$[ps])', fontsize=16, labelpad=10)
-# ax_1.tick_params(axis="y", labelsize=16)
-# fig_1.tight_layout()

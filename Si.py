@@ -62,7 +62,17 @@ LD_nondegenerate_no_inc = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties
 LD_nondegenerate = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc) # screening length
 LD_no_inc = np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
 LD = LD_nondegenerate/LD_nondegenerate_no_inc*np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
-LD = 1.1*np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
+# LD = 1.1*np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
+
+# Z = 1 # Number of charges per impurity
+# LD_TF_no_inc = 1/np.sqrt(np.trapz(-1*dfdE_no_inc*DoS_no_inc,e,axis=1)*4*np.pi*Z/Si.dielectric*thermoelectricProperties.e2C)
+# LD_TF = 1/np.sqrt(np.trapz(-1*dfdE*DoS,e,axis=1)*4*np.pi*Z/Si.dielectric*thermoelectricProperties.e2C)
+[0.52714794,  0.67497269,  0.81698974,  0.91469745,  1.05287289,1.17058006,  1.25150126,  1.37942373,  1.35794494,  1.33028017, 1.22880213]
+# print("LD_TF_no_inc: ",LD_TF_no_inc)
+# print("LD_TF: ",LD_TF)
+np.savetxt('fermi',fermi_no_inc/thermoelectricProperties.kB/g[0])
+exit()
+
 tau_p_pb_type_1_no_inc, tau_p_npb_type_1_no_inc = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS_no_inc, rho=rho)
 tau_p_pb_type_1, tau_p_npb_type_1 = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS, rho=rho)
 # tau_p_pb_type_2, tau_p_npb_type_2 = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=dos_nonparabolic, rho=rho)

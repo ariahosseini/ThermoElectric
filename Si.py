@@ -67,7 +67,6 @@ LD = LD_nondegenerate/LD_nondegenerate_no_inc*np.array([1.38e-9,1.36e-9,1.36e-9,
 # Z = 1 # Number of charges per impurity
 # LD_TF_no_inc = 1/np.sqrt(np.trapz(-1*dfdE_no_inc*DoS_no_inc,e,axis=1)*4*np.pi*Z/Si.dielectric*thermoelectricProperties.e2C)
 # LD_TF = 1/np.sqrt(np.trapz(-1*dfdE*DoS,e,axis=1)*4*np.pi*Z/Si.dielectric*thermoelectricProperties.e2C)
-[0.52714794,  0.67497269,  0.81698974,  0.91469745,  1.05287289,1.17058006,  1.25150126,  1.37942373,  1.35794494,  1.33028017, 1.22880213]
 # print("LD_TF_no_inc: ",LD_TF_no_inc)
 # print("LD_TF: ",LD_TF)
 np.savetxt('fermi',fermi_no_inc/thermoelectricProperties.kB/g[0])

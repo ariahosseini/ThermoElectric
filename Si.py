@@ -18,7 +18,7 @@ Si = thermoelectricProperties(latticeParameter=5.401803661945516e-10, dopantElec
 vfrac = 0.05
 ml = 0.98*thermoelectricProperties.me # longitudinal effective mass
 mt = 0.19*thermoelectricProperties.me # transverse effective mass
-m_CB = 3/(1/ml+2/mt) # conduction band effective mass
+m_CB = 0.25*thermoelectricProperties.me # conduction band effective mass
 bulk_module = 98 # Bulk module (GPA)
 rho = 2329  # mass density (Kg/m3)
 sp = np.sqrt(bulk_module/rho) # speed of sound
@@ -31,10 +31,10 @@ RLv = np.array([a_rp, b_rp, a_rp])
 
 
 e = Si.energyRange()
-g = Si.temp(TempMin=300, TempMax=1301, dT=100)
+g = Si.temp(TempMin=300, TempMax=1201, dT=100)
 h = Si.bandGap(Eg_o=1.17, Ao=4.73e-4, Bo=636, Temp=g)
 # alpha = (1-m_CB/thermoelectricProperties.me)**2/h
-alpha = np.array(0.5*np.tile([1],(1,11)))
+alpha = np.array(0.5*np.tile([1],(1,len(h[0]))))
 # ro = np.arange(1, 60, 30) * 1e-9
 # tau_cy = Si.tau2D_cylinder(energyRange = e, nk= [21,19,19], Uo = 1.5, m = [0.89, 0.19, 0.19], vfrac = 0.15, valley = [0.85,0,0], dk_len=0.15, ro= ro, n=2000)
 # tau_sp = Si.tau3D_spherical(energyRange = e, nk= [10,8,8], Uo = 1.389, m = [0.89, 0.19, 0.19], vfrac = 0.15, valley = [0.85,0,0], dk_len=0.15, ro= ro, n=32)
@@ -58,19 +58,22 @@ fermi_no_inc, cc_sc_no_inc = Si.fermiLevelSelfConsistent(carrierConcentration=cc
 fermi, cc_sc = Si.fermiLevelSelfConsistent(carrierConcentration=cc, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f)
 dis_no_inc, dfdE_no_inc = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_no_inc)
 dis, dfdE = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi)
+# np.savetxt("Ef-no-inc",fermi_no_inc/g/thermoelectricProperties.kB)
+# np.savetxt("Ef-inc",fermi/g/thermoelectricProperties.kB)
 LD_nondegenerate_no_inc = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_no_inc) # screening length
 LD_nondegenerate = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc) # screening length
-LD_no_inc = np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
-LD = LD_nondegenerate/LD_nondegenerate_no_inc*np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
-# LD = 1.1*np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
-
+# LD_no_inc = np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
+# LD = LD_nondegenerate/LD_nondegenerate_no_inc*np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
+Nc = 2*(m_CB*thermoelectricProperties.kB*g/thermoelectricProperties.hBar**2/2/np.pi/thermoelectricProperties.e2C)**(3/2)
+fermi_int = np.loadtxt("f_inc")
+fermi_no_inc_int = np.loadtxt("f_no_inc")
+LD = np.sqrt(1/(Nc/Si.dielectric/thermoelectricProperties.e0/thermoelectricProperties.kB/g*thermoelectricProperties.e2C*(fermi_int[1]+15*alpha*thermoelectricProperties.kB*g/4*fermi_int[0])))
+LD_no_inc = np.sqrt(1/(Nc/Si.dielectric/thermoelectricProperties.e0/thermoelectricProperties.kB/g*thermoelectricProperties.e2C*(fermi_no_inc_int[1]+15*alpha*thermoelectricProperties.kB*g/4*fermi_no_inc_int[0])))
 # Z = 1 # Number of charges per impurity
 # LD_TF_no_inc = 1/np.sqrt(np.trapz(-1*dfdE_no_inc*DoS_no_inc,e,axis=1)*4*np.pi*Z/Si.dielectric*thermoelectricProperties.e2C)
 # LD_TF = 1/np.sqrt(np.trapz(-1*dfdE*DoS,e,axis=1)*4*np.pi*Z/Si.dielectric*thermoelectricProperties.e2C)
 # print("LD_TF_no_inc: ",LD_TF_no_inc)
 # print("LD_TF: ",LD_TF)
-np.savetxt('fermi',fermi_no_inc/thermoelectricProperties.kB/g[0])
-exit()
 
 tau_p_pb_type_1_no_inc, tau_p_npb_type_1_no_inc = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS_no_inc, rho=rho)
 tau_p_pb_type_1, tau_p_npb_type_1 = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS, rho=rho)
@@ -566,7 +569,7 @@ ax_18.plot(e[0],np.log10(tau_no_np[5])+15, 'None', linestyle='-', color='steelbl
           markerfacecolor='white',
           markeredgecolor='steelblue',
           markeredgewidth=1)
-ax_18.plot(e[0],np.log10(tau_no_np[10])+15, 'None', linestyle='-', color='tan',
+ax_18.plot(e[0],np.log10(tau_no_np[-1])+15, 'None', linestyle='-', color='tan',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='tan',

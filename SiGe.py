@@ -20,14 +20,11 @@ dielectric = 11.7+4.5*x
 SiGe = thermoelectricProperties(latticeParameter=latticeParameter, dopantElectricCharge=1, electronEffectiveMass= meff, energyMin=0.00, energyMax=1.4, dielectric=dielectric, numKpoints=800, numBands=8, numQpoints=201, numEnergySampling=1000)
 
 
-ml = 0.92*thermoelectricProperties.me # longitudinal effective mass
+ml = 0.98*thermoelectricProperties.me # longitudinal effective mass
 mt = 0.19*thermoelectricProperties.me # transverse effective mass
-m_CB = 3/(1/ml+2/mt) # conduction band effective mass
 bulk_module = 98 - 23*x # Bulk module (GPA)
 rho = 2329+3493*x-499*x**2  # mass density (Kg/m3)
 sp = np.sqrt(bulk_module/rho) # speed of sound
-
-
 
 Lv = np.array([[1,1,0],[0,1,1],[1,0,1]])*SiGe.latticeParameter/2
 a_rp = np.cross(Lv[1],Lv[2])/np.dot(Lv[0],np.cross(Lv[1],Lv[2]))
@@ -39,13 +36,8 @@ RLv = np.array([a_rp, b_rp, a_rp])
 e = SiGe.energyRange()
 g = SiGe.temp(TempMin=300, TempMax=1301, dT=100)
 h = SiGe.bandGap(Eg_o=1.17, Ao=4.73e-4, Bo=636, Temp=g)
-# alpha = (1-m_CB/thermoelectricProperties.me)**2/h
 alpha = np.array(0.5*np.tile([1],(1,11)))
-
-# ro = np.arange(1, 60, 30) * 1e-9
-# tau_cy = Si.tau2D_cylinder(energyRange = e, nk= [21,19,19], Uo = 1.5, m = [0.89, 0.19, 0.19], vfrac = 0.15, valley = [0.85,0,0], dk_len=0.15, ro= ro, n=2000)
-# tau_sp = Si.tau3D_spherical(energyRange = e, nk= [10,8,8], Uo = 1.389, m = [0.89, 0.19, 0.19], vfrac = 0.15, valley = [0.85,0,0], dk_len=0.15, ro= ro, n=32)
-
+m_CB = 0.26*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
 dos_nonparabolic, dos_parabolic = SiGe.analyticalDoS(energyRange=e, alpha = alpha)
 
 cc_circle = SiGe.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='Vining_CC_circle', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
@@ -62,52 +54,88 @@ energy_vel = band[401 + max_band:401 + min_band, 4] - band[401 + min_band, 4]
 enrg_sorted_idx = np.argsort(energy_vel, axis=0)
 gVel = SiGe.electronGroupVelocity(kp=kp_vel[enrg_sorted_idx], energy_kp=energy_vel[enrg_sorted_idx], energyRange=e)
 DoS = SiGe.electronDoS(path2DoS='DOSCAR', headerLines=6, unitcell_volume=2*19.70272e-30, numDoSpoints=2000, valleyPoint=1118, energyRange=e)
-JD_f_circle, JD_n_circle = SiGe.fermiLevel(carrierConcentration=cc_circle, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
-JD_f_diamond, JD_n_diamond = SiGe.fermiLevel(carrierConcentration=cc_diamond, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
-JD_f_square, JD_n_square = SiGe.fermiLevel(carrierConcentration=cc_square, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
-JD_f_triangle, JD_n_triangle = SiGe.fermiLevel(carrierConcentration=cc_triangle, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
+JD_f_circle, JD_n_circle = SiGe.fermiLevel(carrierConcentration=cc_circle, energyRange=e, DoS= dos_nonparabolic, Nc=None, Ao=5.3e21, Temp=g)
+JD_f_diamond, JD_n_diamond = SiGe.fermiLevel(carrierConcentration=cc_diamond, energyRange=e, DoS= dos_nonparabolic, Nc=None, Ao=5.3e21, Temp=g)
+JD_f_square, JD_n_square = SiGe.fermiLevel(carrierConcentration=cc_square, energyRange=e, DoS= dos_nonparabolic, Nc=None, Ao=5.3e21, Temp=g)
+JD_f_triangle, JD_n_triangle = SiGe.fermiLevel(carrierConcentration=cc_triangle, energyRange=e, DoS= dos_nonparabolic, Nc=None, Ao=5.3e21, Temp=g)
 
-fermi_circle, cc_sc_circle = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_circle, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_circle)
-fermi_triangle, cc_sc_triangle = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_triangle, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_triangle)
-fermi_square, cc_sc_square = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_square, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_square)
-fermi_diamond, cc_sc_diamond = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_diamond, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_diamond)
+fermi_circle, cc_sc_circle = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_circle, Temp=g, energyRange=e, DoS=dos_nonparabolic[0], fermilevel=JD_f_circle)
+fermi_triangle, cc_sc_triangle = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_triangle, Temp=g, energyRange=e, DoS=dos_nonparabolic[0], fermilevel=JD_f_triangle)
+fermi_square, cc_sc_square = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_square, Temp=g, energyRange=e, DoS=dos_nonparabolic[0], fermilevel=JD_f_square)
+fermi_diamond, cc_sc_diamond = SiGe.fermiLevelSelfConsistent(carrierConcentration=cc_diamond, Temp=g, energyRange=e, DoS=dos_nonparabolic[0], fermilevel=JD_f_diamond)
 
 dis_circle, dfdE_circle = SiGe.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_circle)
 dis_triangle, dfdE_triangle = SiGe.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_triangle)
 dis_square, dfdE_square = SiGe.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_square)
 dis_diamond, dfdE_diamond = SiGe.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_diamond)
 
-LD_non_degenerate_circle = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_circle) # screening length
-LD_non_degenerate_triangle = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_triangle) # screening length
-LD_non_degenerate_square = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_square) # screening length
-LD_non_degenerate_diamond = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_diamond) # screening length
-
-
-LD_circle = np.array([1.58e-9,1.56e-9,1.56e-9,1.56e-9,1.56e-9,1.56e-9,1.55e-9,1.6e-9,1.52e-9,1.4e-9,1.35e-9])[None,:]
-LD_triangle = np.array([2.48e-9,2.46e-9,2.36e-9,2.16e-9,2.06e-9,2.06e-9,1.95e-9,1.7e-9,1.65e-9,1.45e-9,1.36e-9])[None,:]
-LD_square = np.array([1.88e-9,1.86e-9,1.86e-9,1.86e-9,1.86e-9,1.86e-9,1.8e-9,1.85e-9,1.88e-9,1.85e-9,1.86e-9])[None,:]
-LD_diamond = np.array([1.38e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.36e-9,1.4e-9,1.45e-9,1.38e-9,1.25e-9,1.26e-9])[None,:]
-
-# tau_p_type_0 = 220e-15/np.sqrt(np.transpose(g) * e)
-tau_p_pb_type_1, tau_p_npb_type_1 = SiGe.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS, rho=rho)
-# tau_p_pb_type_2, tau_p_npb_type_2 = SiGe.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=dos_nonparabolic, rho=rho)
+# tau_p_pb_type_1, tau_p_npb_type_1 = SiGe.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS, rho=rho)
+tau_p_pb_type_2, tau_p_npb_type_2 = SiGe.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=dos_nonparabolic, rho=rho)
 # tau_p_pb_type_3, tau_p_npb_type_3 = SiGe.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=dos_parabolic, rho=rho)
-tau_ion_circle  = SiGe.tau_ion(D=DoS, LD=LD_circle , N=cc_circle)
-tau_ion_triangle = SiGe.tau_ion(D=DoS, LD=LD_triangle, N=cc_triangle)
-tau_ion_square = SiGe.tau_ion(D=DoS, LD=LD_square, N=cc_square)
-tau_ion_diamond = SiGe.tau_ion(D=DoS, LD=LD_diamond, N=cc_diamond)
+
+U_alloy = 0.7
+tau_alloy = 1/(x*(1-x)*(3*SiGe.latticeParameter**3*np.pi**3*U_alloy**2/8/thermoelectricProperties.hBar)*m_CB.T**(3/2)*np.sqrt(e)/np.sqrt(2)/np.pi**2/thermoelectricProperties.hBar**3/0.75)*thermoelectricProperties.e2C**(3/2)
+
+LD_circle_non_degenerate = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_circle) # screening length
+LD_triangle_non_degenerate = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_triangle) # screening length
+LD_square_non_degenerate = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_square) # screening length
+LD_diamond_non_degenerate = np.sqrt(4*np.pi*SiGe.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_diamond) # screening length
+
+Nc = 2*(m_CB*thermoelectricProperties.kB*g/thermoelectricProperties.hBar**2/2/np.pi/thermoelectricProperties.e2C)**(3/2)
+
+# np.savetxt("Ef_circle",fermi_circle/g/thermoelectricProperties.kB)
+# np.savetxt("Ef_triangle",fermi_triangle/g/thermoelectricProperties.kB)
+# np.savetxt("Ef_square",fermi_square/g/thermoelectricProperties.kB)
+# np.savetxt("Ef_diamond",fermi_diamond/g/thermoelectricProperties.kB)
+
+fermi_int_circle = np.loadtxt("f_circle", delimiter=',')
+fermi_int_triangle= np.loadtxt("f_triangle", delimiter=',')
+fermi_int_square = np.loadtxt("f_square", delimiter=',')
+fermi_int_diamond = np.loadtxt("f_diamond", delimiter=',')
+
+LD_circle_degenerate = np.sqrt(1/(Nc/SiGe.dielectric/thermoelectricProperties.e0/thermoelectricProperties.kB/g*thermoelectricProperties.e2C*(fermi_int_circle[1]+15*alpha*thermoelectricProperties.kB*g/4*fermi_int_circle[0])))
+LD_triangle_degenerate= np.sqrt(1/(Nc/SiGe.dielectric/thermoelectricProperties.e0/thermoelectricProperties.kB/g*thermoelectricProperties.e2C*(fermi_int_triangle[1]+15*alpha*thermoelectricProperties.kB*g/4*fermi_int_triangle[0])))
+LD_square_degenerate = np.sqrt(1/(Nc/SiGe.dielectric/thermoelectricProperties.e0/thermoelectricProperties.kB/g*thermoelectricProperties.e2C*(fermi_int_square[1]+15*alpha*thermoelectricProperties.kB*g/4*fermi_int_square[0])))
+LD_diamond_degenerate = np.sqrt(1/(Nc/SiGe.dielectric/thermoelectricProperties.e0/thermoelectricProperties.kB/g*thermoelectricProperties.e2C*(fermi_int_diamond[1]+15*alpha*thermoelectricProperties.kB*g/4*fermi_int_diamond[0])))
+
+
+tau_Screened_Coulomb_circle = SiGe.tau_Screened_Coulomb(energyRange=e, m_c=m_CB, LD = LD_circle_degenerate, N = cc_circle)
+tau_Screened_Coulomb_triangle = SiGe.tau_Screened_Coulomb(energyRange=e, m_c=m_CB, LD = LD_triangle_degenerate, N = cc_triangle)
+tau_Screened_Coulomb_square = SiGe.tau_Screened_Coulomb(energyRange=e, m_c=m_CB, LD = LD_square_degenerate, N = cc_square)
+tau_Screened_Coulomb_diamond = SiGe.tau_Screened_Coulomb(energyRange=e, m_c=m_CB, LD = LD_diamond_degenerate, N = cc_diamond)
+
+tau_Unscreened_Coulomb_circle = SiGe.tau_Unscreened_Coulomb(energyRange=e, m_c=m_CB, N = cc_circle)
+tau_Unscreened_Coulomb_triangle = SiGe.tau_Unscreened_Coulomb(energyRange=e, m_c=m_CB, N = cc_triangle)
+tau_Unscreened_Coulomb_square = SiGe.tau_Unscreened_Coulomb(energyRange=e, m_c=m_CB, N = cc_square)
+tau_Unscreened_Coulomb_diamond = SiGe.tau_Unscreened_Coulomb(energyRange=e, m_c=m_CB, N = cc_diamond)
+
+
+tau_Strongly_Screened_Coulomb_circle  = SiGe.tau_Strongly_Screened_Coulomb(D=dos_nonparabolic, LD=LD_circle_degenerate, N=cc_circle)
+tau_Strongly_Screened_Coulomb_triangle = SiGe.tau_Strongly_Screened_Coulomb(D=dos_nonparabolic, LD=LD_triangle_degenerate , N=cc_triangle)
+tau_Strongly_Screened_Coulomb_square = SiGe.tau_Strongly_Screened_Coulomb(D=dos_nonparabolic, LD=LD_square_degenerate , N=cc_square)
+tau_Strongly_Screened_Coulomb_diamond = SiGe.tau_Strongly_Screened_Coulomb(D=dos_nonparabolic, LD=LD_diamond_degenerate , N=cc_diamond)
 
 
 
-tau_circle  = SiGe.matthiessen(e, 6*tau_p_npb_type_1,6*tau_ion_circle)
-tau_triangle  = SiGe.matthiessen(e, 6*tau_p_npb_type_1,6*tau_ion_triangle)
-tau_square  = SiGe.matthiessen(e, 6*tau_p_npb_type_1,6*tau_ion_square)
-tau_diamond = SiGe.matthiessen(e, 6*tau_p_npb_type_1,6*tau_ion_diamond)
+tau_circle  = SiGe.matthiessen(e, 6*tau_p_npb_type_2, 6*tau_alloy,6*tau_Strongly_Screened_Coulomb_circle)
+tau_triangle  = SiGe.matthiessen(e, 6*tau_p_npb_type_2, 6*tau_alloy,6*tau_Screened_Coulomb_triangle)
+tau_square  = SiGe.matthiessen(e, 6*tau_p_npb_type_2, 6*tau_alloy,6*tau_Strongly_Screened_Coulomb_square)
+tau_diamond = SiGe.matthiessen(e, 6*tau_p_npb_type_2,6*tau_alloy,6*tau_Screened_Coulomb_diamond)
 
-Coeff_circle = SiGe.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi_circle, dfdE=dfdE_circle, Temp=g, tau=tau_circle)
-Coeff_triangle = SiGe.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi_triangle, dfdE=dfdE_triangle, Temp=g, tau=tau_triangle)
-Coeff_square = SiGe.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi_square, dfdE=dfdE_square, Temp=g, tau=tau_square)
-Coeff_diamond = SiGe.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi_diamond, dfdE=dfdE_diamond, Temp=g, tau=tau_diamond)
+Coeff_circle = SiGe.electricalProperties(E=e, DoS=dos_nonparabolic, vg=gVel, Ef=fermi_circle, dfdE=dfdE_circle, Temp=g, tau=tau_circle)
+Coeff_triangle = SiGe.electricalProperties(E=e, DoS=dos_nonparabolic, vg=gVel, Ef=fermi_triangle, dfdE=dfdE_triangle, Temp=g, tau=tau_triangle)
+Coeff_square = SiGe.electricalProperties(E=e, DoS=dos_nonparabolic, vg=gVel, Ef=fermi_square, dfdE=dfdE_square, Temp=g, tau=tau_square)
+Coeff_diamond = SiGe.electricalProperties(E=e, DoS=dos_nonparabolic, vg=gVel, Ef=fermi_diamond, dfdE=dfdE_diamond, Temp=g, tau=tau_diamond)
+
+# np.savetxt("tau_ion_circle",6*tau_ion_circle)
+# np.savetxt("tau_ion_triangle",6*tau_ion_triangle)
+# np.savetxt("tau_ion_square",6*tau_ion_square)
+# np.savetxt("tau_ion_diamond",6*tau_ion_diamond)
+# np.savetxt("tau_p_npb_type_2",6*tau_p_npb_type_2)
+# np.savetxt("tau_alloy",6*tau_alloy)
+# np.savetxt("energy",e)
+
+# exit()
 
 
 f0 = 'Vining_res_circle'
@@ -216,407 +244,200 @@ fig_3.tight_layout()
 
 fig_4 = plt.figure(figsize=(6.5,4.5))
 ax_4 = fig_4.add_subplot(111)
-ax_4.plot(e[0],-1*gVel[0]*1e-5, 'None', linestyle='-', color='maroon',
+ax_4.plot(g[0],Coeff_circle[0]*1e-5, 'None', linestyle='-', color='maroon',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='maroon',
           markeredgewidth=1)
-ax_4.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-ax_4.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
-ax_4.tick_params(axis="x", labelsize=16)
-ax_4.set_ylabel('Group velocity (x10$^5$ m/s)', fontsize=16, labelpad=10)
-fig_4.tight_layout()
-
-fig_5 = plt.figure(figsize=(6.5,4.5))
-ax_5 = fig_5.add_subplot(111)
-ax_5.plot(band[1::,], 'None', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_5.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-ax_5.set_xlabel('BZ tour', fontsize=16, labelpad=10)
-ax_5.tick_params(axis="x", labelsize=16)
-ax_5.set_ylabel('Energy (eV)', fontsize=16)
-ax_5.tick_params(axis="y", labelsize=16)
-ax_5.set_xticks([0,199,399,599,799])
-ax_5.set_xticklabels(["W", "L","$\Gamma$", "X", "W"])
-fig_5.tight_layout()
-
-# fig_6 = plt.figure(figsize=(6.5,4.5))
-# ax_6 = fig_6.add_subplot(111)
-# ax_6.plot(e[0],dis[0], 'None', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-# ax_6.plot(e[0],dis[-1], 'None', linestyle='-', color='steelblue',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='steelblue',
-#           markeredgewidth=1)
-# ax_6.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-# ax_6.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
-# ax_6.tick_params(axis="x", labelsize=16)
-# ax_6.set_ylabel('Fermi distribution', fontsize=16, labelpad=10)
-# ax_6.tick_params(axis="y", labelsize=16)
-# fig_6.tight_layout()
-
-# fig_7 = plt.figure(figsize=(6.5,4.5))
-# ax_7 = fig_7.add_subplot(111)
-# ax_7.plot(e[0],dfdE[0], 'None', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-# ax_7.plot(e[0],dfdE[-1], 'None', linestyle='-', color='steelblue',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='steelblue',
-#           markeredgewidth=1)
-# ax_7.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-# ax_7.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
-# ax_7.tick_params(axis="x", labelsize=16)
-# ax_7.set_ylabel('Fermi window (eV$^{-1}$)', fontsize=16)
-# ax_7.tick_params(axis="y", labelsize=16)
-# fig_7.tight_layout()
-
-# fig_8 = plt.figure(figsize=(6.5,4.5))
-# ax_8 = fig_8.add_subplot(111)
-# ax_8.plot(g[0],cc[0], 'o', linestyle='None', color='black',
-#           markersize=12, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='black',
-#           markeredgewidth=1,zorder=0)
-# ax_8.plot(g[0],JD_n[0], 'o', linestyle='-', color='steelblue',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='steelblue',
-#           markeredgewidth=1)
-
-# ax_8.plot(g[0],cc_sc[0], 'o', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-
-# ax_8.yaxis.set_major_formatter(ScalarFormatter())
-# ax_8.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-# ax_8.tick_params(axis="x", labelsize=16)
-# ax_8.set_ylabel('Carrier concentration( #/m$^{3}$)', fontsize=16)
-# ax_8.tick_params(axis="y", labelsize=16)
-# ax_8.ticklabel_format(axis="y", style="sci", scilimits=None)
-# fig_8.tight_layout()
-
-# fig_9 = plt.figure(figsize=(6.5,4.5))
-# ax_9 = fig_9.add_subplot(111)
-# ax_9.plot(g[0],fermi[0], 'o', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1,zorder=10)
-# ax_9.plot(g[0],JD_f[0], 'o', linestyle='-', color='steelblue',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='steelblue',
-#           markeredgewidth=1)
-
-# ax_9.yaxis.set_major_formatter(ScalarFormatter())
-# ax_9.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-# ax_9.tick_params(axis="x", labelsize=16)
-# ax_9.set_ylabel('E$_f$ (eV)', fontsize=16)
-# ax_9.tick_params(axis="y", labelsize=16)
-# ax_9.ticklabel_format(axis="y", style="sci", scilimits=None)
-# fig_9.tight_layout()
-
-fig_10 = plt.figure(figsize=(6.5,4.5))
-ax_10 = fig_10.add_subplot(111)
-ax_10.plot(g[0],Coeff_circle[0]*1e-5, 'None', linestyle='-', color='maroon',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='maroon',
-          markeredgewidth=1)
-ax_10.plot(g[0],Coeff_triangle[0]*1e-5, 'None', linestyle='-', color='steelblue',
+ax_4.plot(g[0],Coeff_triangle[0]*1e-5, 'None', linestyle='-', color='steelblue',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='steelblue',
           markeredgewidth=1)
-ax_10.plot(g[0],Coeff_square[0]*1e-5, 'None', linestyle='-', color='olive',
+ax_4.plot(g[0],Coeff_square[0]*1e-5, 'None', linestyle='-', color='olive',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='olive',
           markeredgewidth=1)
-ax_10.plot(g[0],Coeff_diamond[0]*1e-5, 'None', linestyle='-', color='tan',
+ax_4.plot(g[0],Coeff_diamond[0]*1e-5, 'None', linestyle='-', color='tan',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='tan',
           markeredgewidth=1)
 
-ax_10.plot(vining_circle[:,0], np.divide(1, vining_circle[:,1]), '-o', linestyle='None', color='maroon',
+ax_4.plot(vining_circle[:,0], np.divide(1, vining_circle[:,1]), '-o', linestyle='None', color='maroon',
         markersize=5, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='maroon',
         markeredgewidth=1)
 
-ax_10.plot(vining_triangle[:,0], np.divide(1, vining_triangle[:,1]), '-o', linestyle='None', color='steelblue',
+ax_4.plot(vining_triangle[:,0], np.divide(1, vining_triangle[:,1]), '-o', linestyle='None', color='steelblue',
         markersize=5, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='steelblue',
         markeredgewidth=1)
 
-ax_10.plot(vining_square[:,0], np.divide(1, vining_square[:,1]), '-o', linestyle='None', color='olive',
+ax_4.plot(vining_square[:,0], np.divide(1, vining_square[:,1]), '-o', linestyle='None', color='olive',
         markersize=5, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='olive',
         markeredgewidth=1)
 
-ax_10.plot(vining_diamond[:,0], np.divide(1, vining_diamond[:,1]), '-o', linestyle='None', color='tan',
+ax_4.plot(vining_diamond[:,0], np.divide(1, vining_diamond[:,1]), '-o', linestyle='None', color='tan',
         markersize=5, linewidth=4,
         markerfacecolor='white',
         markeredgecolor='tan',
         markeredgewidth=1)
 
-ax_10.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-ax_10.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_10.tick_params(axis="x", labelsize=16)
-ax_10.set_ylabel('Conductivity(x10$^5$ S/m)', fontsize=16)
-ax_10.tick_params(axis="y", labelsize=16)
-ax_10.set_xlim(right=850)
-fig_10.tight_layout()
+ax_4.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+ax_4.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_4.tick_params(axis="x", labelsize=16)
+ax_4.set_ylabel('Conductivity(x10$^5$ S/m)', fontsize=16)
+ax_4.tick_params(axis="y", labelsize=16)
+# ax_4.set_xlim(right=850)
+fig_4.tight_layout()
 
-fig_11 = plt.figure(figsize=(6.5,4.5))
-ax_11 = fig_11.add_subplot(111)
-ax_11.plot(g[0],Coeff_circle[1]*1e6, 'None', linestyle='-', color='maroon',
+fig_5 = plt.figure(figsize=(6.5,4.5))
+ax_5 = fig_5.add_subplot(111)
+ax_5.plot(g[0],Coeff_circle[1]*1e6, 'None', linestyle='-', color='maroon',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='maroon',
           markeredgewidth=1)
-ax_11.plot(g[0],Coeff_triangle[1]*1e6, 'None', linestyle='-', color='steelblue',
+ax_5.plot(g[0],Coeff_triangle[1]*1e6, 'None', linestyle='-', color='steelblue',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='steelblue',
           markeredgewidth=1)
-ax_11.plot(g[0],Coeff_square[1]*1e6, 'None', linestyle='-', color='olive',
+ax_5.plot(g[0],Coeff_square[1]*1e6, 'None', linestyle='-', color='olive',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='olive',
           markeredgewidth=1)
-ax_11.plot(g[0],Coeff_diamond[1]*1e6, 'None', linestyle='-', color='tan',
+ax_5.plot(g[0],Coeff_diamond[1]*1e6, 'None', linestyle='-', color='tan',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='tan',
           markeredgewidth=1)
 
-ax_11.plot(vining_seebeck_circle[:,0], -1*vining_seebeck_circle[:,1], '-o', linestyle='None', color='maroon',
+ax_5.plot(vining_seebeck_circle[:,0], -1*vining_seebeck_circle[:,1], '-o', linestyle='None', color='maroon',
           markersize=5, linewidth=4,
           markerfacecolor='white',
           markeredgecolor='maroon',
           markeredgewidth=1)
-ax_11.plot(vining_seebeck_triangle[:,0], -1*vining_seebeck_triangle[:,1], '-o', linestyle='None', color='steelblue',
+ax_5.plot(vining_seebeck_triangle[:,0], -1*vining_seebeck_triangle[:,1], '-o', linestyle='None', color='steelblue',
           markersize=5, linewidth=4,
           markerfacecolor='white',
           markeredgecolor='steelblue',
           markeredgewidth=1)
-ax_11.plot(vining_seebeck_square[:,0], -1*vining_seebeck_square[:,1], '-o', linestyle='None', color='olive',
+ax_5.plot(vining_seebeck_square[:,0], -1*vining_seebeck_square[:,1], '-o', linestyle='None', color='olive',
           markersize=5, linewidth=4,
           markerfacecolor='white',
           markeredgecolor='olive',
           markeredgewidth=1)
-ax_11.plot(vining_seebeck_diamond[:,0], -1*vining_seebeck_diamond[:,1], '-o', linestyle='None', color='tan',
+ax_5.plot(vining_seebeck_diamond[:,0], -1*vining_seebeck_diamond[:,1], '-o', linestyle='None', color='tan',
           markersize=5, linewidth=4,
           markerfacecolor='white',
           markeredgecolor='tan',
           markeredgewidth=1)
 
-ax_11.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-ax_11.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_11.tick_params(axis="x", labelsize=16)
-ax_11.set_ylabel('Seebeck($\mu$V/K)', fontsize=16)
-ax_11.tick_params(axis="y", labelsize=16)
-ax_11.set_xlim(right=850)
-fig_11.tight_layout()
+ax_5.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+ax_5.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_5.tick_params(axis="x", labelsize=16)
+ax_5.set_ylabel('Seebeck($\mu$V/K)', fontsize=16)
+ax_5.tick_params(axis="y", labelsize=16)
+# ax_5.set_xlim(right=850)
+fig_5.tight_layout()
 
-# fig_12 = plt.figure(figsize=(6.5,4.5))
-# ax_12 = fig_12.add_subplot(111)
-# ax_12.plot(g[0],Coeff[2]*1e3, 'o', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-# ax_12.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-# ax_12.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-# ax_12.tick_params(axis="x", labelsize=16)
-# ax_12.set_ylabel('Power factor(mW/mK$^2$)', fontsize=16, labelpad=10)
-# ax_12.tick_params(axis="y", labelsize=16)
-# fig_12.tight_layout()
-
-
-# fig_13 = plt.figure(figsize=(6.5,4.5))
-# ax_13 = fig_13.add_subplot(111)
-# ax_13.plot(g[0],Coeff[3], 'o', linestyle='-', color='maroon',
+fig_6 = plt.figure(figsize=(6.5,4.5))
+ax_6 = fig_6.add_subplot(111)
+# ax_6.plot(g[0],LD_non_degenerate_circle[0]*1e9, 'o', linestyle='-.', color='maroon',
 #           markersize=6, linewidth=1.5,
 #           markerfacecolor='white',
 #           markeredgecolor='maroon',
 #           markeredgewidth=1)
 
-# ax_13.plot(g[0],Coeff[0]*g[0]*Coeff[6], 'o', linestyle='-', color='steelblue',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='steelblue',
-#           markeredgewidth=1)
-
-# ax_13.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-# ax_13.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-# ax_13.tick_params(axis="x", labelsize=16)
-# ax_13.set_ylabel('$\kappa_e$(W/mK)', fontsize=16, labelpad=10)
-# ax_13.tick_params(axis="y", labelsize=16)
-# fig_13.tight_layout()
-
-# fig_14 = plt.figure(figsize=(6.5,4.5))
-# ax_14 = fig_14.add_subplot(111)
-# ax_14.plot(g[0],Coeff[4], 'o', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-# ax_14.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-# ax_14.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-# ax_14.tick_params(axis="x", labelsize=16)
-# ax_14.set_ylabel('$\Delta_1$(eV)', fontsize=16, labelpad=10)
-# ax_14.tick_params(axis="y", labelsize=16)
-# fig_14.tight_layout()
-
-# fig_15 = plt.figure(figsize=(6.5,4.5))
-# ax_15 = fig_15.add_subplot(111)
-# ax_15.plot(g[0],Coeff[5], 'o', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-# ax_15.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-# ax_15.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-# ax_15.tick_params(axis="x", labelsize=16)
-# ax_15.set_ylabel('$\Delta_2$([eV]$^2$)', fontsize=16, labelpad=10)
-# ax_15.tick_params(axis="y", labelsize=16)
-# fig_15.tight_layout()
-
-
-# fig_16 = plt.figure(figsize=(6.5,4.5))
-# ax_16 = fig_16.add_subplot(111)
-# ax_16.plot(g[0],Coeff[6]*1e8, 'o', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-
-# ax_16.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-# ax_16.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-# ax_16.tick_params(axis="x", labelsize=16)
-# ax_16.set_ylabel('Lorenz number (x$10^{-8}$[V/K]$^2$)', fontsize=16, labelpad=10)
-# ax_16.tick_params(axis="y", labelsize=16)
-# fig_16.tight_layout()
-
-# fig_17 = plt.figure(figsize=(6.5,4.5))
-# ax_17 = fig_17.add_subplot(111)
-# ax_17.plot(e[0],np.log10(tau_p_npb_type_1[0]*6)+15, 'None', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-# ax_17.plot(e[0],np.log10(tau_p_pb_type_1[0]*6)+15, 'None', linestyle='-', color='steelblue',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='steelblue',
-#           markeredgewidth=1)
-# ax_17.plot(e[0],np.log10(tau_p_npb_type_2[0]*6)+15, 'None', linestyle='-', color='tan',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='tan',
-#           markeredgewidth=1)
-# ax_17.plot(e[0],np.log10(tau_p_pb_type_2[0]*6)+15, 'None', linestyle='-', color='olive',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='olive',
-#           markeredgewidth=1)
-# ax_17.plot(e[0],np.log10(tau_p_npb_type_3[0]*6)+15, 'None', linestyle='-', color='indigo',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='indigo',
-#           markeredgewidth=1)
-# ax_17.plot(e[0],np.log10(tau_p_pb_type_3[0]*6)+15, 'None', linestyle='-', color='slateblue',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='slateblue',
-#           markeredgewidth=1)
-# ax_17.plot(e[0],np.log10(tau_ion[0]*6)+15, 'None', linestyle='--', color='gray',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='gray',
-#           markeredgewidth=1)
-# ax_17.plot(e[0],np.log10(tau[0])+15, 'None', linestyle='--', color='gold',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='gold',
-#           markeredgewidth=1)
-fig_18 = plt.figure(figsize=(6.5,4.5))
-ax_18 = fig_18.add_subplot(111)
-ax_18.plot(g[0],LD_non_degenerate_circle[0]*1e9, 'o', linestyle='-.', color='maroon',
+ax_6.plot(g[0],LD_circle_degenerate[0]*1e9, 'o', linestyle='-', color='maroon',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='maroon',
           markeredgewidth=1)
 
-ax_18.plot(g[0],LD_circle[0]*1e9, 'o', linestyle='-', color='maroon',
+ax_6.plot(g[0],LD_circle_non_degenerate[0]*1e9, 'o', linestyle='-.', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='maroon',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+
+
+ax_6.plot(g[0],LD_triangle_degenerate[0]*1e9, 'o', linestyle='-', color='steelblue',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='steelblue',
+          markeredgewidth=1)
+ax_6.plot(g[0],LD_triangle_non_degenerate[0]*1e9, 'o', linestyle='-.', color='steelblue',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='steelblue',
+          markeredgecolor='steelblue',
+          markeredgewidth=1)
+
+
+ax_6.plot(g[0],LD_square_degenerate[0]*1e9, 'o', linestyle='-', color='olive',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='olive',
+          markeredgewidth=1)
+
+ax_6.plot(g[0],LD_square_non_degenerate[0]*1e9, 'o', linestyle='-.', color='olive',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='olive',
+          markeredgecolor='olive',
+          markeredgewidth=1)
+
+# ax_6.plot(g[0],LD_diamond_degenerate[0]*1e9, 'o', linestyle='-', color='tan',
+#           markersize=6, linewidth=1.5,
+#           markerfacecolor='white',
+#           markeredgecolor='tan',
+#           markeredgewidth=1)
+# ax_6.plot(g[0],LD_diamond_non_degenerate[0]*1e9, 'o', linestyle='-', color='tan',
+#           markersize=6, linewidth=1.5,
+#           markerfacecolor='tan',
+#           markeredgecolor='tan',
+#           markeredgewidth=1)
+
+ax_6.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+ax_6.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_6.tick_params(axis="x", labelsize=16)
+ax_6.set_ylabel('Debyle length (nm)', fontsize=16, labelpad=10)
+ax_6.tick_params(axis="y", labelsize=16)
+fig_6.tight_layout()
+
+
+fig_7 = plt.figure(figsize=(6.5,4.5))
+ax_7 = fig_7.add_subplot(111)
+ax_7.plot(e[0],np.log10(tau_Unscreened_Coulomb_circle[10])+15, 'None', linestyle='-', color='maroon',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='maroon',
           markeredgewidth=1)
-
-ax_18.plot(g[0],LD_non_degenerate_triangle[0]*1e9, 'o', linestyle='-.', color='steelblue',
+ax_7.plot(e[0],np.log10(tau_Screened_Coulomb_circle[10])+15, 'None', linestyle='-', color='steelblue',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
           markeredgecolor='steelblue',
           markeredgewidth=1)
-
-ax_18.plot(g[0],LD_triangle[0]*1e9, 'o', linestyle='-', color='steelblue',
+ax_7.plot(e[0],np.log10(tau_Strongly_Screened_Coulomb_circle[10])+15, 'None', linestyle='-', color='indigo',
           markersize=6, linewidth=1.5,
           markerfacecolor='white',
-          markeredgecolor='steelblue',
+          markeredgecolor='indigo',
           markeredgewidth=1)
 
-ax_18.plot(g[0],LD_non_degenerate_square[0]*1e9, 'o', linestyle='-.', color='olive',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='olive',
-          markeredgewidth=1)
-
-ax_18.plot(g[0],LD_square[0]*1e9, 'o', linestyle='-', color='olive',
-          markersize=6, linewidth=1.5,
-          markerfacecolor='white',
-          markeredgecolor='olive',
-          markeredgewidth=1)
-
-# ax_18.plot(g[0],LD_non_degenerate_diamond[0]*1e9, 'o', linestyle='-.', color='tan',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='tan',
-#           markeredgewidth=1)
-
-# ax_18.plot(g[0],LD_diamond[0]*1e9, 'o', linestyle='-', color='tan',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='tan',
-#           markeredgewidth=1)
-
-
-ax_18.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-ax_18.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
-ax_18.tick_params(axis="x", labelsize=16)
-ax_18.set_ylabel('Debyle length (nm)', fontsize=16, labelpad=10)
-ax_18.tick_params(axis="y", labelsize=16)
-fig_18.tight_layout()
-
-
+ax_7.yaxis.set_major_formatter(ScalarFormatter())
+ax_7.set_xlabel('Energy (eV)', fontsize=16, labelpad=10)
+ax_7.tick_params(axis="x", labelsize=16)
+ax_7.set_ylabel('Lifetime (log$_{10}$[fs])', fontsize=16, labelpad=10)
+ax_7.tick_params(axis="y", labelsize=16)
+ax_7.ticklabel_format(axis="y", style="sci", scilimits=None)
+fig_7.tight_layout()
 
 plt.show()
 exit()

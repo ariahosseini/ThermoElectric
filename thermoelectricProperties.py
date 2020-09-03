@@ -187,14 +187,25 @@ class thermoelectricProperties:
         tau_p = tau/nonparabolic_term
         return [tau,tau_p]
 
-    def tau_BH(self,energyRange, LD, N):
+    def tau_Screened_Coulomb(self,energyRange, m_c, LD, N):
 
-        g = 8*self.electronEffectiveMass*LD.T**2*energyRange/thermoelectricProperties.hBar**2/thermoelectricProperties.e2C
+        g = 8*m_c.T*LD.T**2*energyRange/thermoelectricProperties.hBar**2/thermoelectricProperties.e2C
         var_tmp = np.log(1+g)-g/(1+g)
-        tau = 16*np.pi*np.sqrt(2*self.electronEffectiveMass)*(4*np.pi*self.dielectric*thermoelectricProperties.e0)**2/N.T/var_tmp*energyRange**(3/2)/thermoelectricProperties.e2C**(5/2)
+        tau = 16*np.pi*np.sqrt(2*m_c.T)*(4*np.pi*self.dielectric*thermoelectricProperties.e0)**2/N.T/var_tmp*energyRange**(3/2)/thermoelectricProperties.e2C**(5/2)
+        where_are_NaNs = np.isnan(tau)
+        tau[where_are_NaNs] = 0
         return tau
 
-    def tau_ion(self, D, LD, N):
+    def tau_Unscreened_Coulomb(self,energyRange, m_c, N):
+
+        g = 4*np.pi*(4*np.pi*self.dielectric*thermoelectricProperties.e0)*energyRange/N.T**(1/3)/thermoelectricProperties.e2C
+        var_tmp = np.log(1+g**2)
+        tau = 16*np.pi*np.sqrt(2*m_c.T)*(4*np.pi*self.dielectric*thermoelectricProperties.e0)**2/N.T/var_tmp*energyRange**(3/2)/thermoelectricProperties.e2C**(5/2)
+        where_are_NaNs = np.isnan(tau)
+        tau[where_are_NaNs] = 0
+        return tau
+
+    def tau_Strongly_Screened_Coulomb(self, D, LD, N):
         tau = thermoelectricProperties.hBar/N.T/np.pi/D/(LD.T**2/(4*np.pi*self.dielectric*thermoelectricProperties.e0))**2*1/thermoelectricProperties.e2C**2
         return tau
 

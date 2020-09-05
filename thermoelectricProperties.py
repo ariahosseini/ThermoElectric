@@ -396,6 +396,28 @@ class thermoelectricProperties:
         Seebeck = np.delete(_Seebeck, 0, axis = 0)
         return [Conductivity, Seebeck]
 
+    def phenomenological(self, U, tauo, E, DoS, vg, Ef, dfdE, Temp, tau_b):
+
+        tauU = np.ones(len(E[0]))
+        _Conductivity = [np.empty([1, 1])]
+        _Seebeck = [np.empty([1, 1])]
+        for _j in np.arange(len(tauo)):
+            for _i in np.arange(len(U)):
+                tau_ph = tauU
+                tau_ph[E[0]<U[_i]] = tauo[_j]
+                tau = self.matthiessen(E, tau_ph, tau_b)
+                coefficients = self.electricalProperties(E=E, DoS=DoS, vg=vg, Ef=Ef, dfdE=dfdE, Temp=Temp, tau=tau)
+                Sigma = np.expand_dims(coefficients[0],axis=0)
+                S = np.expand_dims(coefficients[1],axis=0)
+                _Conductivity = np.append(_Conductivity, [Sigma], axis=0)
+                _Seebeck = np.append(_Seebeck, [S], axis=0)
+        __Conductivity = np.delete(_Conductivity, 0, axis = 0)
+        __Seebeck = np.delete(_Seebeck, 0, axis = 0)
+        Conductivity = np.reshape(__Conductivity,(len(tauo),len(U)))
+        Seebeck = np.reshape(__Seebeck,(len(tauo),len(U)))
+        return [Conductivity, Seebeck]
+
+
     # def qpoints(self):
     #     qpoints = np.array([np.zeros(self.numQpoints), np.zeros(self.numQpoints), np.linspace(-math.pi / self.latticeParameter, math.pi / self.latticeParameter, num=self.numQpoints)])
     #     return qpoints

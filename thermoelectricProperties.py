@@ -16,8 +16,6 @@ from mpl_toolkits import mplot3d
 from matplotlib.colors import LightSource
 import seaborn as sns
 from accum import accum
-from skimage import measure
-from skimage.draw import ellipsoid
 
 
 class thermoelectricProperties:
@@ -140,7 +138,7 @@ class thermoelectricProperties:
         return DoSFunctionEnergy
 
     def fermiLevelSelfConsistent(self, carrierConcentration, Temp, energyRange, DoS, fermilevel):
-        fermi = np.linspace(fermilevel[0]-0.2, fermilevel[0]+0.2, 1000, endpoint=True).T
+        fermi = np.linspace(fermilevel[0]-0.4, fermilevel[0]+0.2, 4000, endpoint=True).T
         result_array = np.empty((np.shape(Temp)[1], np.shape(fermi)[1]))
         idx_j = 0
         for j in Temp[0]:
@@ -174,6 +172,29 @@ class thermoelectricProperties:
         dEdkFunctionEnergy = dEdkSpline(energyRange)
         groupVel = dEdkFunctionEnergy / thermoelectricProperties.hBar
         return groupVel
+
+    def analyticalGroupVelocity(self,energyRange, nk, m, valley, dk_len, alpha):
+
+        meff = np.array(m)
+        ko = 2 * np.pi / self.latticeParameter * np.array(valley)
+        del_k = 2*np.pi/self.latticeParameter * dk_len * np.array([1, 1, 1])
+        kx = np.linspace(ko[0], ko[0] + del_k[0], nk[0], endpoint=True)  # kpoints mesh
+        ky = np.linspace(ko[1], ko[1] + del_k[1], nk[1], endpoint=True)  # kpoints mesh
+        kz = np.linspace(ko[2], ko[2] + del_k[2], nk[2], endpoint=True)  # kpoints mesh
+        [xk, yk, zk] = np.meshgrid(kx, ky, kz)
+        xk_ = np.reshape(xk, -1)
+        yk_ = np.reshape(yk, -1)
+        zk_ = np.reshape(zk, -1)
+        kpoint = np.array([xk_, yk_, zk_])
+        mag_kpoint = norm(kpoint, axis=0)
+        mc = 3/(1/meff[0]+1/meff[1]+1/meff[2])
+        E = thermoelectricProperties.hBar**2 / 2 * ((kpoint[0] - ko[0])**2 / meff[0] + (kpoint[1] - ko[1])**2 / meff[1] + (kpoint[2] - ko[2]) ** 2 / meff[2]) * thermoelectricProperties.e2C
+        vel = thermoelectricProperties.hBar*np.sqrt((kpoint[0]-ko[0])**2+(kpoint[1]-ko[1])**2+(kpoint[2]-ko[2])**2)/mc/(1+2*alpha*E)*thermoelectricProperties.e2C
+        Ec, indices, return_indices = np.unique(E, return_index=True, return_inverse=True)
+        vg = accum(return_indices, vel, func=np.mean, dtype=float)
+        ESpline = PchipInterpolator(Ec, vg)
+        velFunctionEnergy = ESpline(energyRange)
+        return velFunctionEnergy
 
     def matthiessen(self, *args):
         tau = 1. / sum([1. / arg for arg in args])
@@ -357,24 +378,23 @@ class thermoelectricProperties:
         coefficients = [Sigma, S[0], PF[0], ke[0], delta_1, delta_2, Lorenz[0]]
         return coefficients
 
-    def filteringEffect(self, U0, tau0, tauOff, energyRange, electronBandStructure, temp, electronDoS, electronGroupVelocity, bandGap, carrierConcentration, fermiLevel, fermiDistribution, factor, q, uIncrement=0.05, tauIncrement=1e-15, tempIndex=0):
-        n = 0
-        m = 0
-        sMatrix = np.array([])
-        # rMatrix = np.array([])
-        # pfMatrix = np.array([])
+    def filteringEffect(self, U, E, DoS, vg, Ef, dfdE, Temp, tau_b):
 
-        for _ in np.arange(0.1, U0, uIncrement):
-            m += 1
-            for __ in np.arange(tauIncrement, tau0, tauIncrement):
-                tauInc = np.ones(len(Erange))
-                tauInc[np.where(Erange < _)] = __
-                tau_on = self.matthiessen(energyRange, tauOff, tauInc)
-                s, r, c, pf, X, Y = self.electricalProperties(energyRange, electronBandStructure, temp, electronDoS, electronGroupVelocity, tau_on, bandGap, carrierConcentration, fermiLevel, fermiDistribution, factor, q)
-                sMatrix = np.append(sMatrix, s[tempIndex])
-                n += 1
-        sMatrix = np.reshape(sMatrix, (n, m))
-        return sMatrix
+        tauUo = np.ones(len(E[0]))
+        _Conductivity = [np.empty([1, len(tau_b)])]
+        _Seebeck = [np.empty([1, len(tau_b)])]
+        for i in np.arange(len(U)):
+            tau_idl = tauUo
+            tau_idl[E[0]<U[i]] = 0
+            tau = self.matthiessen(E, tau_idl, tau_b)
+            coefficients = self.electricalProperties(E=E, DoS=DoS, vg=vg, Ef=Ef, dfdE=dfdE, Temp=Temp, tau=tau)
+            Sigma = np.expand_dims(coefficients[0],axis=0)
+            S = np.expand_dims(coefficients[1],axis=0)
+            _Conductivity = np.append(_Conductivity, [Sigma], axis=0)
+            _Seebeck = np.append(_Seebeck, [S], axis=0)
+        Conductivity = np.delete(_Conductivity, 0, axis = 0)
+        Seebeck = np.delete(_Seebeck, 0, axis = 0)
+        return [Conductivity, Seebeck]
 
     # def qpoints(self):
     #     qpoints = np.array([np.zeros(self.numQpoints), np.zeros(self.numQpoints), np.linspace(-math.pi / self.latticeParameter, math.pi / self.latticeParameter, num=self.numQpoints)])

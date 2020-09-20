@@ -25,7 +25,16 @@ My advancements make a significant and novel contribution to the field of TE, sh
 <p>In P-doped silicon Fermi level depends strongly on the carrier concentration, which varies non-monotonically with temperature as the solubility of the dopant changes. For a given carrier concentration, we used a self-consistent approach to compute E<sub>f</sub> by setting the conduction band edge as the reference frame and computing E<sub>f</sub> that gives the same carrier population in DFT computed band and the given carrier population. This circumvents the problem that DFT underestimates the band gap as the Fermi level is computed self-consistently from the conduction band using the conduction band edge to set the reference frame. In this method Joyce and Dixon approximation of E<sub>f</sub> for degenerate semiconductors ((E<sub>f</sub>-E<sub>c</sub>)/k<sub>B</sub> ≅ln⁡[(n/N<sub>c</sub>)+1/(√8)]n/N<sub>c</sub> -(3/16-√3/9) (n/N<sub>c</sub>)<sup>2</sup>) is used as the initial guess. The E<sub>f</sub> iterates to meet the relation between charge density and density of state, n=∫<sub>E<sub>c</sub></sub>D(E)f(E)dE.</p>
 </div>
 
-
-
+### Electron lifetime
+<div align="justify">
+Semiconductor thermoelectrics are generally doped to beyond their saturation level (supersaturate solutions). In these materials, strongly screened Columbic force induced by ionized impurities is the main source of scattering. The transition rate between initial and final energy states has S(E_i,E_f )=(2πN_i e^4 L_D^4)/((4πϵϵ_o )^2 ℏΩ) δ(E_f-E_i). In this case, the electron lifetime is defined as
+█(τ_im (E)=ℏ/(πN_i ((e^2 L_D^2)/(4πϵϵ_o ))^2 D(E)),#(…) )
+For the strongly screened Columbic potential L_D is small so that 1/(L_D^4 ) in equation (…) is pivotal. In nondegenerate semiconductors the Debye length has generalized form of 
+█(L_D=(e^2 N_c)/(4πϵϵ_o k_B T) [F_(-1/2) (η)+(15αk_B T)/4 F_(1/2) (η)],#(…) )
+Where N_c=2((m_c k_B T)/〖2πℏ〗^2 )^(3/2). While the electron lifetime in equation serves reasonably well for many semiconductors, one should note two shortcomings of the Born approximation failures for slow moving electrons in Coulomb potential and deficiency of simply computing scattering from a single impurity and then multiplying it by number of impurities in capturing interference effects occur as electron wave propagate through random distribution of impurities in deriving equation (…). We model the conduction band effective mass variation with temperature using m_c (T)=m_c^* (1+5αk_B T). This model assumes linear dependency on temperature and does not count for degeneracy in high carrier population. A better model that captures dopant concentration needs further study.
+The second important scattering mechanism specially at high temperature in nonpolar semiconductors like Si is the acoustic phonon deformation potential. For electron phonon interaction, Ravich defined the lifetime as
+█(τ_p (E)=(ρν^2 ℏ)/(πD_A^2 k_B TD(E) ) {[1-αE/(1+2αE) (1-D_v/D_A )]^2-8/3  αE(1+αE)/(1+2αE)^2   D_v/D_A }^(-1),#(…) )
+This equation accounts for both absorption and emission of phonons. Note that the electron lifetime is strongly dominated by ion scattering and has weak dependency on phonon scattering. The other scattering terms of electron-electron and electron intervalley scattering has negligible importance in determining the electron lifetime and are excluded in calculations without loss of accuracy.
+</div>
 
 

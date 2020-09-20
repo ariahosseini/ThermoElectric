@@ -12,7 +12,7 @@ My advancements make a significant and novel contribution to the field of TE, sh
 
 ### Silicon band structure
 
-<img src="Figures/Figure_1.png" align="right" alt="drawing" width="600px"/> 
+<img src="Figures/Figure_1.png" align="left" alt="drawing" width="600px"/> 
 <p>Probability of pathway activities as computed by PUMA vs. enrichment ratios for the human urine sample. Each data point is marked as either statistically enriched (red) or non-statistically enriched (blue) based on a Fisher’s Exact Test p-values of 0.05.</p>
 
 

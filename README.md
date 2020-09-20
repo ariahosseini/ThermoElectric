@@ -7,3 +7,14 @@ My second design study using thermoelectric.py focused on how to design the nano
 One currently very active area research in TEs is to engineer materials to contain nanoscale porosity. These impede heat transport and can dramatically increase ZT by reducing the denominator κ; However, porosity also impedes electrical transport, reducing the thermoelectric power factor, σS<sup>2</sup>, in the numerator of ZT. I have used thermoelectric.py to find design strategies to this problem. I have found that the detrimental effect of pores can be largely mitigated in the thermoelectric design by subtly tuning the doping concentration to higher carrier concentration compared to bulk materials. I have surveyed different shape and size of pores and shown that as a design strategy, for the largest enhancement in Seebeck one needs to get in pores of any shape, if you can make them as small as possible. I have shown that in a n-type thermoelectric the highest practical filtering threshold that can be provided by a dispersion of spherical nanopores with characteristic length around 16 nm giving a theoretical maximum power factor as high as 89% of the maximum power factor that can be obtained in bulk Si at room temperature. The results presented in this study form a complementary design principle for optimizing the electrical transport properties in nanoengineered thermoelectrics.
 My advancements make a significant and novel contribution to the field of TE, showing that the conventional paradigm is overly restrictive, and there are whole other class of materials can be good TE. The thermoelectric.py tools is made available to for public.
 </div>
+## Case Study: Si based TE nanocomposite
+
+### Silicon band structure
+
+<img src="Figures/Figure_1.png" alt="drawing" width="600px"/> 
+<p>Probability of pathway activities as computed by PUMA vs. enrichment ratios for the human urine sample. Each data point is marked as either statistically enriched (red) or non-statistically enriched (blue) based on a Fisher’s Exact Test p-values of 0.05.</p>
+
+
+
+
+

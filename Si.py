@@ -11,6 +11,7 @@ from matplotlib.ticker import ScalarFormatter
 from mpl_toolkits import mplot3d
 from matplotlib.colors import LightSource
 import seaborn as sns
+from accum import accum
 from thermoelectricProperties import thermoelectricProperties
 
 ExpData_SiCfra_0pct_direction_up = np.loadtxt('ExpData_SiCfrac-0pct_direction-up.txt', delimiter=None, skiprows=1)
@@ -58,17 +59,17 @@ kp_vel = kp_mag[401 + max_band:401 + min_band]
 energy_vel = band[401 + max_band:401 + min_band, 4] - band[401 + min_band, 4]
 enrg_sorted_idx = np.argsort(energy_vel, axis=0)
 gVel = Si.electronGroupVelocity(kp=kp_vel[enrg_sorted_idx], energy_kp=energy_vel[enrg_sorted_idx], energyRange=e)
-DoS_no_inc = Si.electronDoS(path2DoS='DOSCAR', headerLines=6, unitcell_volume=2*19.70272e-30, numDoSpoints=2000, valleyPoint=1118, energyRange=e)
+
 DoS = (1+vfrac)*Si.electronDoS(path2DoS='DOSCAR', headerLines=6, unitcell_volume=2*19.70272e-30, numDoSpoints=2000, valleyPoint=1118, energyRange=e)
-DoS_1pct = (1+0.01)*Si.electronDoS(path2DoS='DOSCAR', headerLines=6, unitcell_volume=2*19.70272e-30, numDoSpoints=2000, valleyPoint=1118, energyRange=e)
-JD_f_no_inc, JD_n_no_inc = Si.fermiLevel(carrierConcentration=cc_no_inc, energyRange=e, DoS= DoS_no_inc, Nc=None, Ao=5.3e21, Temp=g)
+
+JD_f_no_inc, JD_n_no_inc = Si.fermiLevel(carrierConcentration=cc_no_inc, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
 JD_f, JD_n = Si.fermiLevel(carrierConcentration=cc, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
 JD_f_direction_down, JD_n_direction_down = Si.fermiLevel(carrierConcentration=cc_direction_down, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
-JD_f_1pct, JD_n_1pct = Si.fermiLevel(carrierConcentration=cc_1pct, energyRange=e, DoS= DoS_1pct, Nc=None, Ao=5.3e21, Temp=g)
-fermi_no_inc, cc_sc_no_inc = Si.fermiLevelSelfConsistent(carrierConcentration=cc_no_inc, Temp=g, energyRange=e, DoS=DoS_no_inc, fermilevel=JD_f_no_inc)
+JD_f_1pct, JD_n_1pct = Si.fermiLevel(carrierConcentration=cc_1pct, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
+fermi_no_inc, cc_sc_no_inc = Si.fermiLevelSelfConsistent(carrierConcentration=cc_no_inc, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_no_inc)
 fermi, cc_sc = Si.fermiLevelSelfConsistent(carrierConcentration=cc, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f)
 fermi_direction_down, cc_sc_direction_down = Si.fermiLevelSelfConsistent(carrierConcentration=cc_direction_down, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_direction_down)
-fermi_1pct, cc_sc_1pct = Si.fermiLevelSelfConsistent(carrierConcentration=cc_1pct, Temp=g, energyRange=e, DoS=DoS_1pct, fermilevel=JD_f_1pct)
+fermi_1pct, cc_sc_1pct = Si.fermiLevelSelfConsistent(carrierConcentration=cc_1pct, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_1pct)
 dis_no_inc, dfdE_no_inc = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_no_inc)
 dis, dfdE = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi)
 dis_direction_down, dfdE_direction_down = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_direction_down)
@@ -77,14 +78,15 @@ dis_1pct, dfdE_1pct = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fer
 # np.savetxt("Ef-inc",fermi/g/thermoelectricProperties.kB)
 # np.savetxt("Ef-inc_direction_down",fermi_direction_down/g/thermoelectricProperties.kB)
 # np.savetxt("Ef-inc_1pct",fermi_1pct/g/thermoelectricProperties.kB)
+# exit()
 LD_nondegenerate_no_inc = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_sc_no_inc) # screening length
 LD_nondegenerate = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_sc) # screening length
 LD_nondegenerate_direction_down = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_sc_direction_down) # screening length
 LD_nondegenerate_1pct = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_sc_1pct) # screening length
 m_CB_no_inc = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
-m_CB_inc = 0.21*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
+m_CB_inc = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
 m_CB_inc_direction_down = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
-m_CB_inc_1pct = 0.24*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
+m_CB_inc_1pct = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
 Nc_no_inc = 2*(m_CB_no_inc*thermoelectricProperties.kB*g/thermoelectricProperties.hBar**2/2/np.pi/thermoelectricProperties.e2C)**(3/2)
 Nc_inc = 2*(m_CB_inc*thermoelectricProperties.kB*g/thermoelectricProperties.hBar**2/2/np.pi/thermoelectricProperties.e2C)**(3/2)
 Nc_inc_direction_down = 2*(m_CB_inc_direction_down*thermoelectricProperties.kB*g/thermoelectricProperties.hBar**2/2/np.pi/thermoelectricProperties.e2C)**(3/2)
@@ -97,33 +99,36 @@ LD = np.sqrt(1/(Nc_inc/Si.dielectric/thermoelectricProperties.e0/thermoelectricP
 LD_no_inc = np.sqrt(1/(Nc_no_inc/Si.dielectric/thermoelectricProperties.e0/thermoelectricProperties.kB/g*thermoelectricProperties.e2C*(fermi_no_inc_int[1]+15*alpha*thermoelectricProperties.kB*g/4*fermi_no_inc_int[0])))
 LD_direction_down  = np.sqrt(1/(Nc_inc_direction_down /Si.dielectric/thermoelectricProperties.e0/thermoelectricProperties.kB/g*thermoelectricProperties.e2C*(fermi_int_direction_down[1]+15*alpha*thermoelectricProperties.kB*g/4*fermi_int_direction_down[0])))
 LD_int_1pct = np.sqrt(1/(Nc_inc_1pct/Si.dielectric/thermoelectricProperties.e0/thermoelectricProperties.kB/g*thermoelectricProperties.e2C*(fermi_int_1pct[1]+15*alpha*thermoelectricProperties.kB*g/4*fermi_int_1pct[0])))
-tau_p_pb_type_1_no_inc, tau_p_npb_type_1_no_inc = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS_no_inc, rho=rho)
-tau_p_pb_type_1, tau_p_npb_type_1 = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS, rho=rho)
-tau_p_pb_type_1_1pct, tau_p_npb_type_1_1pct = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS_1pct, rho=rho)
-tau_ion_no_inc = Si.tau_Strongly_Screened_Coulomb(D=DoS_no_inc, LD=LD_no_inc, N=cc_sc_no_inc)
+
+tau_p_pb, tau_p_npb = Si.tau_p(energyRange=e, alpha=alpha, Dv=2.94, DA=9.5, T=g, vs=sp, D=DoS, rho=rho)
+
+tau_ion_no_inc = Si.tau_Strongly_Screened_Coulomb(D=DoS, LD=LD_no_inc, N=cc_sc_no_inc)
 tau_ion = Si.tau_Strongly_Screened_Coulomb(D=DoS, LD=LD, N=cc_sc)
 tau_ion_direction_down = Si.tau_Strongly_Screened_Coulomb(D=DoS, LD=LD_direction_down, N=cc_sc_direction_down)
 tau_ion_1pct = Si.tau_Strongly_Screened_Coulomb(D=DoS, LD=LD_int_1pct, N=cc_sc_1pct)
 lifetime_nanoparticle = np.loadtxt('lifetime_np', delimiter=None, skiprows=0)
 energy_nanoparticle = np.loadtxt('energy_np', delimiter=None, skiprows=0)
-nanoparticle_Spline = PchipInterpolator(energy_nanoparticle[1::4], lifetime_nanoparticle[2,1::4])
+E_energy_nanoparticle, indices_energy_nanoparticle, return_indices_energy_nanoparticle = np.unique(energy_nanoparticle, return_index=True, return_inverse=True)
+lf_nanoparticle = accum(return_indices_energy_nanoparticle, lifetime_nanoparticle[1], func=np.mean, dtype=float)
+nanoparticle_Spline = PchipInterpolator(E_energy_nanoparticle[1::], lf_nanoparticle[1::])
 tau_np= nanoparticle_Spline(e)
-tau_no_inc = Si.matthiessen(e, 6*tau_p_pb_type_1_no_inc,6*tau_ion_no_inc)
-tau_no_np = Si.matthiessen(e, 6*tau_p_npb_type_1,6*tau_ion)
-tau = Si.matthiessen(e, 6*tau_p_pb_type_1,6*tau_ion, tau_np)
-tau_direction_down = Si.matthiessen(e, 6*tau_p_pb_type_1,6*tau_ion_direction_down, tau_np)
-tau_no_np_direction_down = Si.matthiessen(e, 6*tau_p_npb_type_1,6*tau_ion_direction_down)
-tau_no_np_1pct = Si.matthiessen(e, 6*tau_p_npb_type_1_1pct,6*tau_ion_1pct)
-tau_1pct = Si.matthiessen(e, 6*tau_p_pb_type_1_1pct,6*tau_ion_1pct, 5*tau_np)  # 5 counts for 1% porosity instead of 5%
-Coeff_no_inc = Si.electricalProperties(E=e, DoS=DoS_no_inc, vg=gVel, Ef=fermi_no_inc, dfdE=dfdE_no_inc, Temp=g, tau=tau_no_inc)
+tau_no_inc = Si.matthiessen(e, 6*tau_p_pb, 6*tau_ion_no_inc)
+tau_no_np = Si.matthiessen(e, 6*tau_p_npb, 6*tau_ion)
+tau = Si.matthiessen(e, 6*tau_p_npb,6*tau_ion, tau_np)
+tau_direction_down = Si.matthiessen(e, 6*tau_p_npb, 6*tau_ion_direction_down, tau_np)
+tau_no_np_direction_down = Si.matthiessen(e, 6*tau_p_npb, 6*tau_ion_direction_down)
+tau_no_np_1pct = Si.matthiessen(e, 6*tau_p_npb, 6*tau_ion_1pct)
+tau_1pct = Si.matthiessen(e, 6*tau_p_pb, 6*tau_ion_1pct, 5*tau_np)  # 5 counts for 1% porosity instead of 5%
+
+# vg_analetical = Si.analyticalGroupVelocity(energyRange = e, nk = [40,38,38], m = [ml, mt, mt], valley = [0.85,0,0], dk_len = 0.15, alpha = alpha, temperature =g)
+
+Coeff_no_inc = Si.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi_no_inc, dfdE=dfdE_no_inc, Temp=g, tau=tau_no_inc)
 Coeff_no_np = Si.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi, dfdE=dfdE, Temp=g, tau=tau_no_np)
 Coeff = Si.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi, dfdE=dfdE, Temp=g, tau=tau)
-
 Coeff_direction_down = Si.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi_direction_down, dfdE=dfdE_direction_down, Temp=g, tau=tau_direction_down)
 Coeff_direction_down_no_np = Si.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi_direction_down, dfdE=dfdE_direction_down, Temp=g, tau=tau_no_np_direction_down)
-Coeff_no_np_1pct  = Si.electricalProperties(E=e, DoS=DoS_1pct, vg=gVel, Ef=fermi_1pct, dfdE=dfdE_1pct, Temp=g, tau=tau_no_np_1pct)
-Coeff_1pct  = Si.electricalProperties(E=e, DoS=DoS_1pct, vg=gVel, Ef=fermi_1pct, dfdE=dfdE_1pct, Temp=g, tau=tau_1pct)
-
+Coeff_no_np_1pct  = Si.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi_1pct, dfdE=dfdE_1pct, Temp=g, tau=tau_no_np_1pct)
+Coeff_1pct  = Si.electricalProperties(E=e, DoS=DoS, vg=gVel, Ef=fermi_1pct, dfdE=dfdE_1pct, Temp=g, tau=tau_1pct)
 
 print("done")
 
@@ -222,21 +227,21 @@ sns.set_style("ticks", {"xtick.major.size": 2, "ytick.major.size": 2})
 # ax_4.set_ylabel('Group velocity (x10$^5$ m/s)', fontsize=16, labelpad=10)
 # fig_4.tight_layout()
 
-# fig_5 = plt.figure(figsize=(6.5,4.5))
-# ax_5 = fig_5.add_subplot(111)
-# ax_5.plot(band[1::,], 'None', linestyle='-', color='maroon',
-#           markersize=6, linewidth=1.5,
-#           markerfacecolor='white',
-#           markeredgecolor='maroon',
-#           markeredgewidth=1)
-# ax_5.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
-# ax_5.set_xlabel('BZ tour', fontsize=16, labelpad=10)
-# ax_5.tick_params(axis="x", labelsize=16)
-# ax_5.set_ylabel('Energy (eV)', fontsize=16)
-# ax_5.tick_params(axis="y", labelsize=16)
-# ax_5.set_xticks([0,199,399,599,799])
-# ax_5.set_xticklabels(["W", "L","$\Gamma$", "X", "W"])
-# fig_5.tight_layout()
+fig_5 = plt.figure(figsize=(6.5,4.5))
+ax_5 = fig_5.add_subplot(111)
+ax_5.plot(band[1::,], 'None', linestyle='-', color='maroon',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1)
+ax_5.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+ax_5.set_xlabel('BZ tour', fontsize=16, labelpad=10)
+ax_5.tick_params(axis="x", labelsize=16)
+ax_5.set_ylabel('Energy (eV)', fontsize=16)
+ax_5.tick_params(axis="y", labelsize=16)
+ax_5.set_xticks([0,199,399,599,799])
+ax_5.set_xticklabels(["W", "L","$\Gamma$", "X", "W"])
+fig_5.tight_layout()
 
 # fig_6 = plt.figure(figsize=(6.5,4.5))
 # ax_6 = fig_6.add_subplot(111)
@@ -460,6 +465,40 @@ ax_9_2.set_ylabel('E$_f$ (eV)', fontsize=16)
 ax_9_2.tick_params(axis="y", labelsize=16)
 ax_9_2.ticklabel_format(axis="y", style="sci", scilimits=None)
 fig_9_2.tight_layout()
+
+fig_9_3 = plt.figure(figsize=(6.5,4.5))
+ax_9_3 = fig_9_3.add_subplot(111)
+ax_9_3.plot(g[0],m_CB_no_inc[0]/Si.me, 'o', linestyle='-', color='maroon',
+          markersize=12, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='maroon',
+          markeredgewidth=1,zorder=10)
+ax_9_3.plot(g[0],m_CB_inc[0]/Si.me, 'o', linestyle='-', color='steelblue',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='steelblue',
+          markeredgewidth=1,zorder=10)
+ax_9_3.plot(g[0],m_CB_inc_direction_down[0]/Si.me, 'o', linestyle='-', color='indigo',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='indigo',
+          markeredgewidth=1,zorder=10)
+ax_9_3.plot(g[0],m_CB_inc_1pct[0]/Si.me, 'o', linestyle='-', color='olive',
+          markersize=6, linewidth=1.5,
+          markerfacecolor='white',
+          markeredgecolor='olive',
+          markeredgewidth=1,zorder=10)
+
+ax_9_3.yaxis.set_major_formatter(ScalarFormatter())
+ax_9_3.set_xlabel('Temperature (K)', fontsize=16, labelpad=10)
+ax_9_3.tick_params(axis="x", labelsize=16)
+ax_9_3.set_ylabel('Effective mass (kg)', fontsize=16)
+ax_9_3.tick_params(axis="y", labelsize=16)
+ax_9_3.ticklabel_format(axis="y", style="sci", scilimits=None)
+fig_9_3.tight_layout()
+
+
+
 
 fig_10 = plt.figure(figsize=(6.5,4.5))
 ax_10 = fig_10.add_subplot(111)

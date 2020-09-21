@@ -15,6 +15,7 @@ My advancements make a significant and novel contribution to the field of TE, sh
 <img src="Figures/Figure_1.png" align="center" alt="drawing" width="600px"/> 
 <div align="justify">
 <p>The terms D(E), and ν(E) for Si were derived from the conduction band of Si computed with density functional theory (DFT) using the Vienna Ab initio Simulation Package (VASP) using generalized gradient approximation (GGA) with the Perdew-Burke-Erzerhof exchange correlation functional (PBE). Projector augmented wave (PAW) pseudopotentials is used represent the ion cores. The Kohm-Sham wave functions constructed using a planewave basis set with 700 eV energy cutoff. The Brillouin zone was sampled using 12×12×12 Monkhorst-Pack k-point grid. The forces on the atoms minimized to better than 10<sup>-6</sup> eV/Å to relax the Si primitive cell. The electronic band structure used to compute D(E) on a 45×45×45 k-point grid. The group velocity was obtained from the conduction band curvature, ν=1/ℏ|∇<sub>κ</sub> E| along the〈100〉directions on the Γ to X Brillouin zone path.</p>
+<img src="Figures/Figure_0.png" align="center" alt="drawing" width="600px"/> 
 </div>
 
 ### Self consistant Fermi level calculation
@@ -35,6 +36,8 @@ For the strongly screened Columbic potential L_D is small so that 1/(L_D^4 ) in 
 Where N<sub>c</sub>=2((m<sub>c</sub> k<sub>B</sub> T)/(2πℏ)<sup>2</sup>)<sup>(3/2)</sup>. While the electron lifetime in equation serves reasonably well for many semiconductors, one should note two shortcomings of the Born approximation failures for slow moving electrons in Coulomb potential and deficiency of simply computing scattering from a single impurity and then multiplying it by number of impurities in capturing interference effects occur as electron wave propagate through random distribution of impurities in deriving this equation. We model the conduction band effective mass variation with temperature using m<sub>c</sub>(T)=m<sub>c</sub><sup>*</sup>(1+5αk<sub>B</sub> T). This model assumes linear dependency on temperature and does not count for degeneracy in high carrier population. A better model that captures dopant concentration needs further study.
 The second important scattering mechanism specially at high temperature in nonpolar semiconductors like Si is the acoustic phonon deformation potential. For electron phonon interaction, Ravich defined the lifetime as (τ<sub>p</sub>(E)=(ρν<sup>2</sup>ℏ)/(πD<sub>A</sub><sup>2</sup>k<sub>B</sub> TD(E) ) {[1-αE/(1+2αE) (1-D<sub>v</sub>/D<sub>A</sub>)]<sup>2</sup>-8/3  αE(1+αE)/(1+2αE)<sup>2</sup> D<sub>v</sub>/D<sub>A</sub>}<sup>(-1)</sup>)
 This equation accounts for both absorption and emission of phonons. Note that the electron lifetime is strongly dominated by ion scattering and has weak dependency on phonon scattering. The other scattering terms of electron-electron and electron intervalley scattering has negligible importance in determining the electron lifetime and are excluded in calculations without loss of accuracy.
+<img src="Figures/Figure_4.png" align="center" alt="drawing" width="600px"/> 
+<img src="Figures/Figure_15.png" align="center" alt="drawing" width="600px"/> 
 </div>
 
 

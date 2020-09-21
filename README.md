@@ -36,6 +36,7 @@ My advancements make a significant and novel contribution to the field of TE, sh
   
 <img src="Figures/Figure_4.png" align="center" alt="drawing" width="600px"/> 
 <img src="Figures/Figure_15.png" align="center" alt="drawing" width="600px"/> 
+<img src="Figures/Figure_16.png" align="center" alt="drawing" width="600px"/> 
 </div>
 
 

@@ -44,9 +44,7 @@ The band bending at the interface of pores presents a large potential energy bar
 Introducing pores into Si will not change the concentration of carrier concentration locally in the remaining Si (nor the Fermi energy), but it will change the volume averaged carrier concentration due to the reduction in the volume averaged density of states. This will impact the conductivity, and thus the effective electrical conductivity of porous materials is modeled as σ<sub>eff</sub>=(1-φ) σ<sub>np</sub>. This change does not affect the Seebeck coefficient since the changes in density of state cancels out for the denominator and numerator of S equation. We assumed that pores do not change the band structure of the Si. This is a reasonable assumption for low porosity, so we limit our study to the pores taking up 5% volume fraction — a level that is still sufficient to reduce the thermal conductivity of Si by an order of magnitude. We assume that electron-pore scattering is independent of the electron-phonon and electron-ion scatterings thus Matthiessen rule can be used to sum the scattering rate from the three processes giving total scattering rate, τ<sup>(-1)</sup>= τ<sub>b</sub><sup>(-1)</sup>+τ<sub>np</sub><sup>(-1)</sup>, where τ<sub>b</sub> is the electron lifetime in bulk Si because of the ionic and phononic scattering terms (τ<sub>b</sub><sup>(-1)</sup>= τ<sub>ion</sub><sup>(-1)</sup>+τ<sub>phonon</sub><sup>(-1)</sup>).
 
   
-<img src="Figures/Figure_4.png" align="center" alt="drawing" width="600px"/> 
-<img src="Figures/Figure_15.png" align="center" alt="drawing" width="600px"/> 
-<img src="Figures/Figure_16.png" align="center" alt="drawing" width="600px"/> 
+<img src="Figures/FPicture3.jpg" align="center" alt="drawing" width="600px"/> 
 </div>
 
 

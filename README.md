@@ -47,5 +47,12 @@ Introducing pores into Si will not change the concentration of carrier concentra
 <img src="Figures/Figure_17.png" align="center" alt="drawing" width="600px"/> 
 </div>
 
+### Model prediction for bulk Si
+<div align="justify">
+  
+We have validated the transport model in bulk materials against a set of phosphorous-doped Si. The experimentally measured values are marked with open circles and the solid lines show the prediction of the semiclassical BTE model informed by the experimentally measured carrier population. The model gives a good fit to the experimental data across the full range of temperatures. 
+<img src="Figures/Picture2.jpg" align="center" alt="drawing" width="600px"/> 
+  
+</div> 
 
 

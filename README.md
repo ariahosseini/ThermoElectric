@@ -50,9 +50,19 @@ Introducing pores into Si will not change the concentration of carrier concentra
 ### Model prediction for bulk Si
 <div align="justify">
   
-We have validated the transport model in bulk materials against a set of phosphorous-doped Si. The experimentally measured values are marked with open circles and the solid lines show the prediction of the semiclassical BTE model informed by the experimentally measured carrier population. The model gives a good fit to the experimental data across the full range of temperatures. 
+<p>We have validated the transport model in bulk materials against a set of phosphorous-doped Si. The experimentally measured values are marked with open circles and the solid lines show the prediction of the semiclassical BTE model informed by the experimentally measured carrier population. The model gives a good fit to the experimental data across the full range of temperatures. </p>
+
 <img src="Figures/Picture2.jpg" align="center" alt="drawing" width="600px"/> 
   
 </div> 
+
+### Maximum enhancement in power factor 
+<div align="justify">
+  
+<p> This panel shows the model prediction for the variation in larges achievable TE power factor with carrier concentration in Si based porous materials with optimal characteristic lengths at 300 K. The best power factor performance using ideal filtering model is plotted in green. The power factor in bulk Si is plotted in black. In the narrow carrier concentration window with the highest power factor, bulk Si shows slightly better performance. The large energy difference between the conduction band edge in the Si and the vacuum level in the pore (about 4.15 eV electron affinity of bulk Si) causes strong electron scattering with countervailing response of reduction in the electrical conductivity and enhancement of Seebeck coefficient that cancel out each other, leading to an overall unchanged PF value. The maximum PF in porous structures takes place at carrier concentrations higher than the optimal carrier concentration in bulk Si. This is a key insight for the design of thermoelectrics at room temperature: If one is planning to engineer porous thermoelectrics to reduce phonon conduction, then one should also plan to increase the carrier concentration above the optimal level for the bulk semiconductor. In the Si model the maximum power factor of porous materials takes place at 8×10<sup>19</sup> cm<sup>-3</sup> carrier concentration and is slightly less than the maximum power factor in bulk Si occurs at 6.3x10<sup>19</sup> cm<sup>-3</sup> (~25% increase in doing concentration is needed for the best performance in porous Si).  </p>
+<img src="Figures/Figure_18.png" align="center" alt="drawing" width="600px"/> 
+  
+</div> 
+
 
 

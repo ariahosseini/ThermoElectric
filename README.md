@@ -1,4 +1,27 @@
 # Themoelectric.py — a Python tool for design of high ZT nanoengineered thermoelectrics
+Configurable Curriculum Learning Domain for Reinforcement Learning Agents
+
+- [Curriculum Learning](#curriculum-learning)
+- [Grid World Domain](#grid-world-domain)
+- [Installation](#installation)
+- [Grid World Generation](#grid-world-generation)
+  * [Degrees of freedom](#degrees-of-freedom)
+  * [Rules](#rules)
+- [Basic Usage](#basic-usage)
+  * [Grid World Generation](#grid-world-generation-1)
+    + [Complete Spec (key, lock, and pit)](#complete-spec--key--lock--and-pit-)
+    + [Key Only](#key-only)
+    + [Lock and Pit](#lock-and-pit)
+  * [Example Agents](#example-agents)
+- [Gym Environment](#gym-environment)
+  * [Observations, State Space](#observations--state-space)
+  * [Action Space](#action-space)
+- [Todo](#todo)
+- [Contributing](#contributing)
+- [Running the Tests](#running-the-tests)
+- [Authors](#authors)
+- [License](#license)
+- [References](#references)
 <div align="justify">
 Thermoelectrics (TE) are a class of materials that convert heat directly into electricity. If made sufficiently efficient and inexpensive, these materials could be used to recapturing low-grade waste heat from industrial process as useful electrical energy. The potential energy savings this are vast. Recent studies have suggested that recuperating only 10% of heat lost into electricity can improve fuel energy efficiency by 20% while other studies has reported that more than 68% of U.S. energy consumption escaped as waste heat. My studies have sought strategies to make energy harvesting more efficient by using nanoengineering to improve the performance of TEs. To achieve this, I have developed a python design package called thermoelectric.py for modeling thermoelectric performance.
 The performance of TE materials at a given temperature, 𝑇, is quantified by a dimensionless figure of merit ZT=(σS<sup>2</sup>)/κ T, where κ, σ and S are the material’s thermal conductivity, electrical conductivity and Seebeck coefficient, respectively. The power factor (σS<sup>2</sup>) in ZT depends on a combination of strongly interdependent electrical transport properties, that have a countervailing dependence of the charge carrier concentration. The tradeoff of these parameters is well understood, and it has become an accepted truth that optimal TE performance can only be obtained in semiconductors that are highly doped to a narrow window of optimized charge carrier concentration. My design tool, thermoelectric.py, consists of a series of sub tools that model the thermal and electrical transport properties that contribute to ZT. The design tool was initially developed to model Si based thermoelectric nanocomposites developed in the Mangolini group that have a carefully engineered nanostructure to enhance both the thermal and electrical contributions to ZT. My tool was validated against these experimental measurements and was able to successfully predict the thermoelectric coefficients in Si across a wide range of temperatures. 

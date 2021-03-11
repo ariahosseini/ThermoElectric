@@ -3,8 +3,8 @@
 
 - [INSTALLATION](#INSTALATION)
 - [THEORY](#THEORY)
-  * [Model Electron Transport Coefficients In Bulk Thermoelectrics](# METCIBT)
-  * [Model Electron Lifetime](##grid-world-generation-1)
+  * [Model Electron Transport Coefficients In Bulk Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Bulk-Thermoelectrics)
+  * [Model Electron Lifetime](#grid-world-generation-1)
   * [Model Fermi Level](#grid-world-generation-1)
 - [CASE STUDY](#CASE STUDY)
   * [Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si](#grid-world-generation-1)

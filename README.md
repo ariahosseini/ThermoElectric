@@ -3,7 +3,7 @@
 
 - [INSTALLATION](#INSTALATION)
 - [THEORY](#THEORY)
-  * [Model Electron Transport Coefficients In Bulk Thermoelectrics](# Model-Electron-Transport-Coefficients-In-Bulk-Thermoelectrics)
+  * [Model Electron Transport Coefficients In Bulk Thermoelectrics](# METCIBT)
   * [Model Electron Lifetime](##grid-world-generation-1)
   * [Model Fermi Level](#grid-world-generation-1)
 - [CASE STUDY](#CASE STUDY)

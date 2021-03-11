@@ -51,13 +51,13 @@ The electrical conductivity and thermopower of a population of independent charg
 </p>
  
 <p align="center">
- <img src="Figures/eq-ke.png" align="center" alt="drawing" width="400px"/>  
+ <img src="Figures/eq-ke.png" align="center" alt="drawing" width="600px"/>  
 </p>
 
 <p>
 Here the function χ(E,T)= ν(E)<sup>2</sup>∂f(E<sub>f</sub>,E,T)/∂E D(E), lumps together the materials density of carrier states, D(E), and group velocity, ν(E), with the energy derivative of the Fermi-Dirac occupancy, f(E,c,T), where <sub>f</sub> is the Fermi level. The functions γ(E,T)=(E-E<sub>f</sub>)χ(E,T) and ζ(E,T)=(E-E<sub>f</sub>)<sup>2</sup> χ(E,T). These equations also express the relationship between the transport properties and Δ<sub>n</sub>, the moments of the distribution of conductivity over carriers with different energy, defined as </p>
 <p align="center">
-<img src="Figures/eq-delta.png" align="center" alt="drawing" width="500px"/>
+<img src="Figures/eq-delta.png" align="center" alt="drawing" width="300px"/>
 </p>
 The Seebeck coefficient obtains its largest magnitude by maximizing the asymmetry of product Dτν<sup>2</sup> about the Fermi level to move its center of current, Δ<sub>1</sub>, away from the Fermi level.
 

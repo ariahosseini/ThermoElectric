@@ -44,7 +44,7 @@ Thermoelectrics (TE) are a class of materials that convert heat directly into el
  
  <img src="Figures/eq-s.png" align="center" alt="drawing" width="500px"/>
  
- <img src="Figures/eq-ke.png" align="center" alt="drawing" width="500px"/>
+ <img src="Figures/eq-ke.png" align="center" alt="drawing" width="700px"/>
 </p>
  
  (σ=-1/3 e<sup>2</sup> ∫χ(E,T)τ(E,T)dE), where e is electron charge, τ(E,T) is momentum relaxation time of electrons with energy E at temperature T in n-doped semiconductors. The kernel χ includes all the intrinsic non-scattering terms and is given by (χ(E,T)= ν(E)<sup>2</sup>∂f(E<sub>f</sub>,E,T)/∂E D(E)). Here E<sub>f</sub> is the Fermi level, ν(E) the carrier group velocity, f(E<sub>f</sub>,E,T) the Fermi-Dirac distribution, and D(E) is density of states available for charge carriers. The Seebeck coefficient, S, in ZT describes the diffusion of electrons due to temperature gradient and is related to the difference between the average energy at which current flows and the Fermi energy level. In bulk material, with negative charge carrier, the Seebeck coefficient is given by (S=(-k<sub>B</sub>/e)((E<sub>c</sub>-E<sub>f</sub>)/(k<sub>B</sub>T)+δ)), where k<sub>B</sub>, E<sub>c</sub> are Boltzmann constant and conduction band edge, respectively. The dimensionless parameter δ describes how far the average energy of the current carrying electrons is from the conduction band edge. It is defined as δ=Δ<sub>1</sub>/(k<sub>B</sub>T), where Δ<sub>1</sub>=E<sub>σ</sub>-E<sub>c</sub>, and E<sub>σ</sub> is the average energy of the charge carrier weighted by their contribution to electrical conductivity (Δ<sub>n</sub>=(∫χ(E,T)τ(E,T) E<sub>n</sub> dE)/(∫χ(E,T) τ(E,T)dE))

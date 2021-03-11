@@ -1,5 +1,5 @@
 # Themoelectric.py — a Python tool for design of high ZT nanoengineered thermoelectrics
-Configurable Curriculum Learning Domain for Reinforcement Learning Agents
+*Thermoelectric.py* is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance thermoelectric performance through electron energy filtering.
 
 - [Installation](#installation)
 - [Theory](#theory)

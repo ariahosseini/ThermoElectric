@@ -1,7 +1,7 @@
 # Themoelectric.py — a Python tool for design of high ZT nanoengineered thermoelectrics
 *Thermoelectric.py* is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance thermoelectric performance through electron energy filtering.
 
-- [Installation](#installation)
+- [Installation](#Installation)
 - [Theory](#theory)
 - [Examples](#basic-usage)
   * [Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si](#grid-world-generation-1)
@@ -9,10 +9,10 @@
     + [Key Only](#key-only)
     + [Lock and Pit](#lock-and-pit)
   * [Example Agents](#example-agents)
-- [Citation](#contributing)
+- [Citation](#Citation)
 
 
-# installation
+# Installation
 
 Compatible with python 3.6 and upwards
 
@@ -90,6 +90,9 @@ Introducing pores into Si will not change the concentration of carrier concentra
 <img src="Figures/Figure_18.png" align="center" alt="drawing" width="600px"/> 
   
 </div> 
+
+# Citation
+[1] Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si, Hosseini, S. Aria and Romano, Giuseppe and Greaney, P. Alex, ACS Applied Energy Materials,2021, doi:10.1021/acsaem.0c02640.
 
 
 

@@ -1,8 +1,11 @@
-# Themoelectric.py — a Python tool for design of high ZT nanoengineered thermoelectrics
+# Themoelectric.py — A Python Tool for Design of High ZT Nanoengineered Thermoelectrics
 *Thermoelectric.py* is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance thermoelectric performance through electron energy filtering.
 
 - [Installation](#Installation)
 - [Theory](#theory)
+  * [Electron Boltzmann Transport Model](#grid-world-generation-1)
+  * [Model Electron Lifetime](#grid-world-generation-1)
+  * [Model Fermi Level](#grid-world-generation-1)
 - [Examples](#basic-usage)
   * [Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si](#grid-world-generation-1)
     + [Complete Spec (key, lock, and pit)](#complete-spec--key--lock--and-pit-)

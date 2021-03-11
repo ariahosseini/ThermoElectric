@@ -38,7 +38,7 @@ Thermoelectrics (TE) are a class of materials that convert heat directly into el
 
 <div align="justify">
  
-<p>The electrical transport properties that appear in ZT can be derived from the semiclassical Boltzmann transport equation using the single relaxation time approximation. In this model, the electrical conductivity, σ, is written as
+<p>The electrical transport properties that appear in ZT can be derived from the semiclassical Boltzmann transport equation using the single relaxation time approximation. In this model, the electrical conductivity, σ, is written as </p>
  
  <img src="Figures/eq-sigma.png" align="center" alt="drawing" width="600px"/> 
  

@@ -71,11 +71,11 @@ The Fermi level depends strongly on the carrier concentration, which varies non-
 
 <p align="center">
 <img src="Figures/Figure_2.png" align="center" alt="drawing" width="600px"/> 
-<\p>
+</p>
  
 <p align="center">
 <img src="Figures/Figure_3.png" align="center" alt="drawing" width="600px"/> 
-<\p>
+</p>
  
 </div>
 

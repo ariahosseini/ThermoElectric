@@ -4,8 +4,8 @@
 - [INSTALLATION](#INSTALATION)
 - [THEORY](#THEORY)
   * [Model Electron Transport Coefficients In Bulk Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Bulk-Thermoelectrics)
+  * [Model Fermi Level](#Model-Ferm-Level)
   * [Model Electron Lifetime](#grid-world-generation-1)
-  * [Model Fermi Level](#grid-world-generation-1)
 - [CASE STUDY](#CASE STUDY)
   * [Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si](#grid-world-generation-1)
     + [Complete Spec (key, lock, and pit)](#complete-spec--key--lock--and-pit-)
@@ -60,6 +60,18 @@ Here the function χ(E,T)= ν(E)<sup>2</sup>∂f(E<sub>f</sub>,E,T)/∂E D(E), l
 <img src="Figures/eq-delta.png" align="center" alt="drawing" width="300px"/>
 </p>
 The Seebeck coefficient obtains its largest magnitude by maximizing the asymmetry of product Dτν<sup>2</sup> about the Fermi level to move its center of current, Δ<sub>1</sub>, away from the Fermi level.
+
+## Model Fermi Level
+
+<img src="Figures/Figure_2.png" align="center" alt="drawing" width="600px"/> 
+<div align="justify">
+  
+<p>
+The Fermi level depends strongly on the carrier concentration, which varies non-monotonically with temperature as the solubility of the dopant changes. For a given carrier concentration, a self-consistent approach is developed to compute E<sub>f</sub> by setting the conduction band edge as the reference frame and computing E<sub>f</sub> that gives the same carrier population in DFT computed band and the given carrier population. This circumvents the problem that DFT underestimates the band gap. In this method Joyce and Dixon approximation of E<sub>f</sub> for degenerate semiconductors ((E<sub>f</sub>-E<sub>c</sub>)/k<sub>B</sub> ≅ln⁡[(n/N<sub>c</sub>)+1/(√8)]n/N<sub>c</sub> -(3/16-√3/9) (n/N<sub>c</sub>)<sup>2</sup>) is used as the initial guess. The E<sub>f</sub> iterates to meet the relation between charge density and density of state, n=∫<sub>E<sub>c</sub></sub>D(E)f(E)dE.</p>
+
+<img src="Figures/Figure_3.png" align="center" alt="drawing" width="600px"/> 
+
+</div>
 
  (σ=-1/3 e<sup>2</sup> ∫χ(E,T)τ(E,T)dE), where e is electron charge, τ(E,T) is momentum relaxation time of electrons with energy E at temperature T in n-doped semiconductors. The kernel χ includes all the intrinsic non-scattering terms and is given by (χ(E,T)= ν(E)<sup>2</sup>∂f(E<sub>f</sub>,E,T)/∂E D(E)). Here E<sub>f</sub> is the Fermi level, ν(E) the carrier group velocity, f(E<sub>f</sub>,E,T) the Fermi-Dirac distribution, and D(E) is density of states available for charge carriers. The Seebeck coefficient, S, in ZT describes the diffusion of electrons due to temperature gradient and is related to the difference between the average energy at which current flows and the Fermi energy level. In bulk material, with negative charge carrier, the Seebeck coefficient is given by (S=(-k<sub>B</sub>/e)((E<sub>c</sub>-E<sub>f</sub>)/(k<sub>B</sub>T)+δ)), where k<sub>B</sub>, E<sub>c</sub> are Boltzmann constant and conduction band edge, respectively. The dimensionless parameter δ describes how far the average energy of the current carrying electrons is from the conduction band edge. It is defined as δ=Δ<sub>1</sub>/(k<sub>B</sub>T), where Δ<sub>1</sub>=E<sub>σ</sub>-E<sub>c</sub>, and E<sub>σ</sub> is the average energy of the charge carrier weighted by their contribution to electrical conductivity (Δ<sub>n</sub>=(∫χ(E,T)τ(E,T) E<sub>n</sub> dE)/(∫χ(E,T) τ(E,T)dE))
 The central concept of energy filtering is to provide sources of scattering that selectively impede low energy electrons so as to increase Δ<sub>1</sub> by reshaping product χ(E,T)  τ(E,T) so that it is more strongly asymmetric about the fermi energy. For ideal or perfect filetring all the electrons with energy lower than a threshold, U<sub>o</sub> would be completely imobalized. The calculated change in the room temperature power factor (σS<sup>2</sup>) of n-doped silicon that would be provided by with ideal filtering is plotted in Figure as a function of filtering threshold, U<sub>o</sub>, and carrier concentration (the detail of this calculation are explained in next section). The key result of this calculation is that if one can control the filtering threshold, the best power performance is to be found at high carreir concentration—ideal filtering breaks the conventional wisdom that there is a carreir concentration that provides the best compromise between condctivity and thermopower to optimize the power factor. It would provid game changing scope for enhancing thermoelectric power factor by exploiting the carreir population in the tail of the Fermi distribution. In this manuscript we examine the electron energy filtering effect provided in Si by nanoscale porous of variouse sizes and shapes. Our study shows while fltering by nanoscale pores are far from the ideal model, they can provide sufficient enhancement in Seebeck to contervail the degraded electrical conductivity, leaving power factor untoughed. In the sections that follow we describe electron scattering from discrete pores with different shapes, and the parameter-free semiclassical model that we use to model n-type Si (and its validation). Then we elucidate the effect of nanopores on extended pores will system size prependicular to transport direction. We conclude the discussion by a breif discussion on Lorenz number and TE performance at high temperature.</p>

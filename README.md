@@ -4,7 +4,7 @@
 - [INSTALLATION](#INSTALATION)
 - [THEORY](#THEORY)
   * [Model Electron Transport Coefficients In Bulk Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Bulk-Thermoelectrics)
-  * [Model Fermi Level](#Model-Ferm-Level)
+  * [Model Fermi Level](#Model-Fermi-Level)
   * [Model Electron Lifetime](#grid-world-generation-1)
 - [CASE STUDY](#CASE STUDY)
   * [Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si](#grid-world-generation-1)

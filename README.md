@@ -86,7 +86,7 @@ Semiconductor TEs are generally doped to beyond their saturation level. In these
 </p>
  
 <p align="center">
-<img src="Figures/eq-tau-ion.png" align="center" alt="drawing" width="600px"/> 
+<img src="Figures/eq-tau-ion.png" align="center" alt="drawing" width="500px"/> 
 </p>
 
 <p>
@@ -104,7 +104,7 @@ where N<sub>c</sub>=2((m<sub>c</sub> k<sub>B</sub>T)/(2πℏ)<sup>2</sup>)<sup>(
 The second important scattering mechanism specially at high temperature in nonpolar semiconductors like Si is the acoustic phonon deformation potential. For electron phonon interaction, Ravich defined the lifetime as 
  
  <p align="center">
-<img src="Figures/eq-tau-p.png" align="center" alt="drawing" width="600px"/> 
+<img src="Figures/eq-tau-p.png" align="center" alt="drawing" width="800px"/> 
 </p>
  
 <p> 

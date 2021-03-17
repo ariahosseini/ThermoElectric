@@ -1,6 +1,6 @@
 # Themoelectric.py — A Python Tool for Design of High ZT Nanoengineered Thermoelectrics
 <div align="justify">
-*Thermoelectric.py* is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance thermoelectric performance through electron energy filtering.
+**Thermoelectric.py** is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance thermoelectric performance through electron energy filtering.
 </div>
 
 - [INSTALLATION](#INSTALATION)

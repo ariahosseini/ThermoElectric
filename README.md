@@ -47,7 +47,7 @@ The electrical conductivity and thermopower of a population of independent charg
 </p>
 
 <p align="center">
-<img src=https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cdpi%7B300%7D%20%7B%5Ccolor%7BWhite%7D%20S%20%3D%20%5Cdfrac%7B-1%7D%7BeT%7D%5Cdfrac%7B%5Cint%5Cgamma%28E%2CT%29%5Ctau%28E%2CT%29dE%7D%7B%5Cint%5Cchi%28E%2CT%29%5Ctau%28E%2CT%29dE%7D%3D%5Cdfrac%7B-1%7D%7BeT%7D%28%5CDelta_1-E_f%29%7D align="center" alt="drawing" width="400px"/>
+<img src=https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20%7B%5Ccolor%7BRed%7D%20S%20%3D%20%5Cdfrac%7B-1%7D%7BeT%7D%5Cdfrac%7B%5Cint%5Cgamma%28E%2CT%29%5Ctau%28E%2CT%29dE%7D%7B%5Cint%5Cchi%28E%2CT%29%5Ctau%28E%2CT%29dE%7D%3D%5Cdfrac%7B-1%7D%7BeT%7D%28%5CDelta_1-E_f%29%7D align="center" alt="drawing" width="400px"/>
 </p>
 
 <p align="center">

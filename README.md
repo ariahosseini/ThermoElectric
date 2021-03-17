@@ -9,6 +9,7 @@
   * [Model Electron Transport Coefficients In Bulk Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Bulk-Thermoelectrics)
   * [Model Fermi Level](#Model-Fermi-Level)
   * [Model Electron Lifetime](#Model-Electron-Lifetime)
+  * [Model Electron Transport Coefficients In Nanostructured Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Nanostructured-Thermoelectrics)
 - [CASE STUDY](#CASE STUDY)
   * [Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si](#grid-world-generation-1)
     + [Complete Spec (key, lock, and pit)](#complete-spec--key--lock--and-pit-)
@@ -142,6 +143,55 @@ where x is the atomic fraction of alloy, a is the lattice parameter and the term
 <p>
 This panel show the magnitude of electrical conductivity and Seebeck coefficient in phosphorus-doped bulk silicon. The solid blue line shows the model prediction for electrical conductivity, and the red line shows the prediction for the Seebeck coefficient. The experimentally measured σ and S are marked with open circles.
 </p>
+
+## Model Electron Transport Coefficients In Nanostructured Thermoelectrics
+
+In the nanostructured Si\textsubscript{0.8}Ge\textsubscript{0.2} of interest in this study, there are two additional electron scattering processes that arise as a result of the morphology: electron scattering at grain boundaries, and scattering from pores. The rate of electron momentum relaxation due to elastic scattering from a uniform dispersion of pores can be modeled as \cite{lee2010effects}
+\begin{equation}\label{eq:taunp}
+\tau_{np}(s)^{-1} = \frac{N}{8\pi^3} \int SR_{kk'} (1-\cos(\theta_{kk'}))\delta\left(E-E'\right)dk'.
+\end{equation}
+Here $N$ is the number density of pores, and the term $SR_{kk'}$ is the rate of transition of an electron from an initial state with wave vector $k$ and energy $E$ to a state $k'$ with energy $E'$ due to a single pore. 
+The $1-\cos(\theta_{kk'})$ term accounts for the change in momentum that accompanies this transition, with $\theta_{kk'}$ the angle between initial and scattered wavevectors, and $\delta$ is the Dirac delta function.
+For a time-invariant potential, the transition rate $SR_{kk'}$ is given by Fermi’s golden rule, $SR_{kk'}=\frac{2\pi}{\hbar}\left|M_{kk'}\right|^2\delta(E-E')$, where the matrix element operator $M_{kk'}$ describes the strength which the pore couples the initial and final states and the number of ways the transition can occur.  For Bloch waves, $M_{kk'}$ is given by the integral of the overlap of the initial and final state with the pore potential $U(r)$ so that \cite{nag2012electron} 
+\begin{equation}\label{eq:M}
+M_{kk'}= \int e^{i(k'-k).r} U(r)dr.
+\end{equation}
+For energy conservative (elastic) scattering between eigenstates with the same energy equation \ref{eq:taunp} can be recast as a surface integral over the isoenergetic k-space contour $\Gamma$ that satisfies $E(k')=E(k)$ 
+% \begin{multline}
+\begin{equation}
+\label{eq:taunp2}
+\tau_{np}^{-1}(s) = \frac{N}{(2\pi)^2\hbar}\oint_{\Gamma}\frac{\left|M_{kk'}\right|^2}{\nabla E(k')}(1-\cos\theta)dS(k'),
+%\tau_{np}^{-1}(s) = \frac{N}{(2\pi)^2\hbar}\\\times\int_{E(k')=0}\frac{M_{kk'}\overline{M}_{kk'}}{\nabla E(k')}(1-\cos\theta)dS(k'),
+\end{equation}
+% \end{multline}
+where $dS$ is the incremental area of the isoenergetic k-space surface. In most indirect bandgap semiconductors such as Si\textsubscript{0.8}Ge\textsubscript{0.2} the contours of isoenergy states near to conduction band valley have ellipsoidal shape in momentum space that can be approximated as $E(k)=\hbar^2 [(\frac{(k_l-k_{ol} )^2}{2m_l^*} +\frac{(k_t-k_{ot} )^2}{m_t^*}]$, where $E(k)$, $k_o  = (k_{ol}, k_{ot}, k_{ot})$, $m_l^*$, $m_t^*$ are energy level from conduction band edge, the location of the conduction band minimum, longitudinal and transverse effective masses, respectively. We used $m_l^*=0.98 m_o$, $m_t^*=0.19 m_o$ where $m_o$ is free electron rest mass, and $k_o=2\pi/a(0,0,0.85)$, where $a$ is the lattice parameter. The pore potential, $U(r)$, in equation \ref{eq:M} is assumed to be 
+\begin{equation}\label{eq:upore}
+    U(r) =\left\{\begin{matrix}
+ U_o & \text{for r inside the pore} \\ 
+ 0& \text{otherwise}
+\end{matrix}\right.,
+\end{equation}
+where U\textsubscript{o} = 4.05 eV is the electron affinity of bulk Si\textsubscript{0.8}Ge\textsubscript{0.2}. For an infinitely long cylindrical pores with radius $r_o$, and aligned with axis parallel to $z$, this gives the scattering matrix element operator
+\begin{equation}\label{eq:Mnp}
+M_{kk'}^{cylinder}=2\pi r_o U_o l_z \left( \frac{J_1 (r_o q_r)}{q_r} \right)\delta_k(q_z).
+\end{equation}
+In this equation, $q=k-k'$ is the scattering vector, and $q_z$ and $q_r$ are the components of $q$ parallel and perpendicular to the cylinder axis. The term $\delta_k$ is the Kronecker delta function, and
+$J_1$ is the first-order Bessel function of the first kind, and $l_z$ is the pore's length perpendicular to transport direction. We have previously computed the scattering matrix operators for pores with rectangular and triangular cross-sections and these can be found in reference \cite{hosseini2020mitigating}. The number density of pores is related to porosity, $\phi$, and the pore size through the relationship $N=\phi/V_p$, where $V_p$ is the volume of the pores.  
+
+A similar use of Fermi's Golden rule can be used to model the rate of electron scattering by grain boundaries. 
+Minnich et al have suggested that grain boundaries provide a scattering potential of magnitude $U_{GB}$ that decays away from the grain boundary over distance $z_o$ \cite{minnich2009modeling}. From this, they derived the scattering operator matrix element for a small disc of grain boundary with radius $r_o$ as
+
+\begin{equation}\label{eq:mg}
+    M_{kk'}=4\pi U_g \left[ \frac{z_o}{1+(q_zz_o)^2} \right]r_o^2\left[ \frac{J_1(q_rr_o)}{q_rr_o} \right],
+\end{equation}
+where $q_r$ and $q_z$ are the components of the scattering vector $q$ that are parallel and perpendicular to the boundary, respectively. The scattering potential, $U_{GB}$, is defined as
+\begin{equation}\label{eq:ugb}
+    U_{GB}(r) =\left\{\begin{matrix}
+ U_g e^{\frac{-|z|}{z_o}} & r<r_{GB} \\ 
+ 0& \text{otherwise}
+\end{matrix}\right..
+\end{equation}
+In this equation $z_o$ is a constant related to the thickness of the depletion region at the grain boundary, and $U_g$ was proposed to be $U_g=\frac{e^2 N_t^2}{8 \epsilon \epsilon_o N_i}$. Here, $\epsilon$ is the permittivity, and $N_t$ is the number density per area of electron traps in the depletion region. To compute the total scattering rate from all boundaries the number density of grain boundary scattering centers is defined as $N=4f/(l_g r_0^2 )$, where $0<f<1$. Unfortunately, exact values of $r_o$, $z_o$, $f$, $N_t$ are unknown. In this manuscript we use the values proposed by Minnich et al in their original paper on Si\textsubscript{0.8}Ge\textsubscript{0.2} ($r_o=1$ nm, $z_o=2$ nm, $f=0.7$, $N_t=10^{13}$ 1/cm\textsuperscript{2}, and we refer the reader to their work for the full details of the approach \cite{minnich2009modeling}.
 
 The band bending at the interface of pores presents a large potential energy barrier to electron transport with height, U<sub>o</sub>, equal to the semiconductor’s electron affinity. This potential impedes transport of the low energy electrons while presenting little extra resistance to electrons in high energy states. This scattering, which occurs in addition to the intrinsic scattering from phonons and impurities, changes the electron lifetime by introducing a perturbation potential that for a single pore can be described as U=U<sub>o</sub>∏(r), where, ∏(r) is a dimensionless boxcar function equal to unity inside the pore and zero outside of it. For uniform distribution of pores, the electron momentum relaxation time is defined as (τ<sub>np</sub><sup>(-1)</sup>(s)=N/(8π<sup>3</sup>) ∫SR<sub>kk'</sub>(1-cosθ)dk'), where N, is the number density of pores. This is related to porosity through N=φ/V<sub>pore</sub>, where φ is the porosity and V<sub>pore</sub> is the volume of the pores. The term SR<sub>kk'</sub> in this equation is the probability of transition from an initial state with wave vector k and energy E to a state k’ with energy E'. The (1-cosθ) term accounts for the change in momentum that accompanies this transition, with θ the angel between initial and scattered wavevectors. For a time-invariant potential, the transition rate SR<sub>kk'</sub> is given by Fermi’s golden rule, SR<sub>kk'</sub> = 2π/ℏ (M<sub>kk'</sub> M<sup>+</sup><sub>kk'</sub>)δ(E'-E). In this expression M<sub>kk'</sub> is the matrix element operator that describes the strength of the coupling between initial and final states and the number of ways that the transition between states can occur. For the Bloch waves, M<sub>kk'</sub> is defined as (M<sub>kk'</sub>=∫exp(i(k'-k).r) U(r)dr). For energy conservative (elastic) electron-pore scattering only transmission to eigenstates with the same energy level is possible so the Brillouin zone integral in the equation can be written as a surface integral over the isoenergetic k space contour (τ<sub>np</sub><sup>(-1)</sup>(s)=N/(4π<sup>2</sup> ℏ) ∮<sub>(E(k')=E(k))</sub> (M<sub>kk'</sub> M<sup>+</sup>)/|∇E(k')|  (1-cosθ)dS(k')) where S(k') is the electron isoenergy state for a given wavevector. In most semiconductors isoenergy states close to the conduction valley have ellipsoid shape in momentum space that can be approximates as E(k)=ℏ<sup>2</sup>/2 [(k<sub>x</sub>-k<sub>ox</sub>)<sup>2</sup>/(m<sub>x</sub><sup>o</sup>)+(k<sub>y</sub>-k<sub>oy</sub>)<sup>2</sup>/(m<sub>y</sub><sup>o</sup>)+(k<sub>z</sub>-k<sub>oz</sub>)<sup>2</sup>/(m<sub>z</sub><sup>o</sup>)], where E(k), k<sub>o</sub>=(k<sub>ox</sub>,k<sub>oy</sub>,k<sub>oz</sub>), m<sub>x</sub><sup>o</sup>, m<sub>y</sub><sup>o</sup>, m<sub>z</sub><sup>o</sup> are energy level from conduction band edge, conduction band minimum, effective masses along k<sub>x</sub>, k<sub>y</sub> and k<sub>z</sub>, respectively. For Silicon the conduction band minimum is located at k<sub>o</sub> = 2π/a(0.85,0,0), where a is the lattice parameter equal to 5.43 Å, and m<sub>x</sub><sup>o</sup>= 0.98 m<sub>o</sub>, m<sub>y</sub><sup>o</sup>=m<sub>z</sub><sup>o</sup>=0.19m<sub>o</sub> where m<sub>o</sub> is electron rest mass equal to 9.11×10<sup>-31</sup>kg. In spite of the poor thermoelectric efficiency of bulk silicon due to its high thermal conductivity, it provides an excellent platform for studying the role of design parameters on transport properties, since its bulk properties are extremely well characterized.
 Introducing pores into Si will not change the concentration of carrier concentration locally in the remaining Si (nor the Fermi energy), but it will change the volume averaged carrier concentration due to the reduction in the volume averaged density of states. This will impact the conductivity, and thus the effective electrical conductivity of porous materials is modeled as σ<sub>eff</sub>=(1-φ) σ<sub>np</sub>. This change does not affect the Seebeck coefficient since the changes in density of state cancels out for the denominator and numerator of S equation. We assumed that pores do not change the band structure of the Si. This is a reasonable assumption for low porosity, so we limit our study to the pores taking up 5% volume fraction — a level that is still sufficient to reduce the thermal conductivity of Si by an order of magnitude. We assume that electron-pore scattering is independent of the electron-phonon and electron-ion scatterings thus Matthiessen rule can be used to sum the scattering rate from the three processes giving total scattering rate, τ<sup>(-1)</sup>= τ<sub>b</sub><sup>(-1)</sup>+τ<sub>np</sub><sup>(-1)</sup>, where τ<sub>b</sub> is the electron lifetime in bulk Si because of the ionic and phononic scattering terms (τ<sub>b</sub><sup>(-1)</sup>= τ<sub>ion</sub><sup>(-1)</sup>+τ<sub>phonon</sub><sup>(-1)</sup>).

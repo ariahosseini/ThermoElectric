@@ -47,13 +47,12 @@ The electrical conductivity and thermopower of a population of independent charg
 </p>
 
 <p align="center">
-<img src=https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20%7B%5Ccolor%7BRed%7D%20S%20%3D%20%5Cdfrac%7B-1%7D%7BeT%7D%5Cdfrac%7B%5Cint%5Cgamma%28E%2CT%29%5Ctau%28E%2CT%29dE%7D%7B%5Cint%5Cchi%28E%2CT%29%5Ctau%28E%2CT%29dE%7D%3D%5Cdfrac%7B-1%7D%7BeT%7D%28%5CDelta_1-E_f%29%7D align="center" alt="drawing" width="400px"/>
-</p>
-
-<p align="center">
 <img src=https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20%7B%5Ccolor%7BWhite%7D%20%5Ckappa_e%20%3D%20%5Cdfrac%7B-1%7D%7B3T%7De%5E2%20%5Cleft%28%5Cint%5Czeta%28E%2CT%29%20%5Ctau%28E%2CT%29%20dE%20-%5Cdfrac%7B%28%5Cint%5Cgamma%28E%2CT%29%20%5Ctau%28E%2CT%29%20dE%29%5E2%7D%7B%5Cint%5Cchi%28E%2CT%29%5Ctau%28E%2CT%29%20dE%7D%5Cright%29%20%5C%5C%20%3D%5Cdfrac%7B-1%7D%7B3T%7D%5CDelta_0%28%5CDelta_2-%5CDelta_1%5E2%29%7D align="center" alt="drawing" width="700px"/>
 </p>
 
+<p align="center">
+<img src=https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20%7B%5Ccolor%7BRed%7D%20S%20%3D%20%5Cdfrac%7B-1%7D%7BeT%7D%5Cdfrac%7B%5Cint%5Cgamma%28E%2CT%29%5Ctau%28E%2CT%29dE%7D%7B%5Cint%5Cchi%28E%2CT%29%5Ctau%28E%2CT%29dE%7D%3D%5Cdfrac%7B-1%7D%7BeT%7D%28%5CDelta_1-E_f%29%7D align="center" alt="drawing" width="400px"/>
+</p>
 
 <p>
 Here the function χ(E,T)= ν(E)<sup>2</sup>∂f(E<sub>f</sub>,E,T)/∂E D(E), lumps together the materials density of carrier states, D(E), and group velocity, ν(E), with the energy derivative of the Fermi-Dirac occupancy, f(E,c,T), where <sub>f</sub> is the Fermi level. The functions γ(E,T)=(E-E<sub>f</sub>)χ(E,T) and ζ(E,T)=(E-E<sub>f</sub>)<sup>2</sup> χ(E,T). These equations also express the relationship between the transport properties and Δ<sub>n</sub>, the moments of the distribution of conductivity over carriers with different energy, defined as </p>

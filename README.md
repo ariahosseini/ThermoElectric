@@ -83,11 +83,11 @@ The Fermi level depends strongly on the carrier concentration, which varies non-
 <div align="justify">
 
 <p>
-Semiconductor TEs are generally doped to beyond their saturation level. In these materials, strongly screened Columbic force induced by ionized impurities is the main source of scattering. The transition rate between initial and final energy states has S(E<sub>i</sub>,E<sub>f</sub>)=(2πN<sub>i</sub> e<sup>4</sup> L<sub>D</sub><sup>4</sup>)/((4πϵϵ_o )<sup>2</sup>ℏΩ)δ(E<sub>f</sub>-E<sub>i</sub>). In this case, the electron lifetime is defined as 
+Semiconductor TEs are generally doped to beyond their saturation level. In these materials, strongly screened Columbic force induced by ionized impurities is the main source of scattering. The transition rate between initial and final energy states has S(E<sub>i</sub>,E<sub>f</sub>)=(2πN<sub>i</sub> e<sup>4</sup> L<sub>D</sub><sup>4</sup>)/((4πϵϵ<sub>o</sub> )<sup>2</sup>ℏΩ)δ(E<sub>f</sub>-E<sub>i</sub>). In this case, the electron lifetime is defined as 
 </p>
  
 <p align="center">
-<img src="Figures/eq-tau-ion.png" align="center" alt="drawing" width="500px"/> 
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20%5Ctau_%7Bim%7D%28E%29%3D%5Cfrac%7B%5Chbar%7D%7B%5Cpi%20N_i%20%5Cleft%28%5Cfrac%7Be%5E2%20L_D%5E2%7D%7B4%5Cpi%20%5Cepsilon%20%5Cepsilon_o%7D%5Cright%29%5E2%20D%28E%29%7D" align="center" alt="drawing" width="500px"/> 
 </p>
 
 <p>
@@ -95,7 +95,7 @@ For the strongly screened Columbic potential L<sub>D</sub> is small so that 1/(L
 </p>
 
 <p align="center">
-<img src="Figures/eq-L.png" align="center" alt="drawing" width="600px"/> 
+<img src="L_D=\frac{e^2 N_c}{4 \pi \epsilon \epsilon_o k_B T} \left [F_{-\frac{1}{2}}(\eta)+\frac{15 \alpha k_B T}{4} F_{\frac{1}{2}}(\eta)\right]" align="center" alt="drawing" width="600px"/> 
 </p>
 
 <p>

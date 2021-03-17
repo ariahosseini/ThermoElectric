@@ -73,13 +73,12 @@ The Fermi level depends strongly on the carrier concentration, which varies non-
 <p align="center">
 <img src="Figures/Figure_2.png" align="center" alt="drawing" width="500px"/> 
 </p>
-The experimental measurements are noisy and so for the transport model,  the  carrier  concentration  was  represented  with the continuous smoothing function fit through the experimental data. This panel shows the Baysian interpolation fitted to the temperature dependence of the experimentally measured carrier concentration.  
+The experimental measurements are noisy and so for the transport model,  the  carrier  concentration  was  represented  with the continuous smoothing function fit through the experimental data. This panel shows the Bayesian interpolation fitted to the temperature dependence of the experimentally measured carrier concentration.  
  
 <p align="center">
 <img src="Figures/Figure_3.png" align="center" alt="drawing" width="500px"/> 
 </p>
-
-In this pane, the Fermi level is plotted for different carrerir concentrations using self consistant method described above.
+In this pane, the Fermi level is plotted for different carrier concentrations using self-consistent method described above.
 
 
 ## Model Electron Lifetime

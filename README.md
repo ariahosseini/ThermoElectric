@@ -42,9 +42,9 @@ Thermoelectrics (TE) are a class of materials that convert heat directly into el
 The electrical conductivity and thermopower of a population of independent charge carriers can be derived from the Boltzmann transport equation by integrating the contribution from all carrier states. In an isotropic system where the states can be enumerated by their energy, and using the single relaxation time approximation for the collision operator, these can be written as integrals over the carrier energy, E, so that σ, S, and κ<sub>e</sub> are given by
 </p>
 
-
+<p align="center">
 ![eq-Sigma](https://latex.codecogs.com/gif.latex?%5Cinline%20%5Cdpi%7B300%7D%20%5Csigma%20%3D%20%5Cdfrac%7B-1%7D%7B3%7De%5E2%5Cint%5Cchi%28E%2CT%29%5Ctau%28E%2CT%29dE%3D%5Cdfrac%7B-1%7D%7B3%7De%5E2%5CDelta_0)
-
+</p>
 
 <p align="center">
  <img src="Figures/eq-sigma.png" align="center" alt="drawing" width="400px"/>

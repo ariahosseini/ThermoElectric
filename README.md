@@ -137,7 +137,7 @@ where x is the atomic fraction of alloy, a is the lattice parameter and the term
 </p>
 
 <p align="center">
-<img src="Figures/Picture2.pdf" align="center" alt="drawing" width="500px"/> 
+<img src="Figures/Picture2.jpg" align="center" alt="drawing" width="500px"/> 
 </p>
 <p>
 This panel show the magnitude of electrical conductivity and Seebeck coefficient in phosphorus-doped bulk silicon. The solid blue line shows the model prediction for electrical conductivity, and the red line shows the prediction for the Seebeck coefficient. The experimentally measured σ and S are marked with open circles.

@@ -4,7 +4,6 @@
 *Thermoelectric.py* is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance thermoelectric performance through electron energy filtering.
 </div>
 
-- [INSTALLATION](#INSTALATION)
 - [THEORY](#THEORY)
   * [Model Electron Transport Coefficients In Bulk Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Bulk-Thermoelectrics)
   * [Model Fermi Level](#Model-Fermi-Level)

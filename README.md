@@ -68,8 +68,6 @@ The Seebeck coefficient obtains its largest magnitude by maximizing the asymmetr
 
 | fermiLevelSelfConsistent(self, carrierConcentration, Temp, energyRange, DoS, fermilevel)|
 | --------------------------------------------------------------------------------------- |
-  fermiLevel(self, carrierConcentration, energyRange, DoS, Nc=None, Ao=None, Temp=None)
-| --------------------------------------------------------------------------------------- |
 <div align="justify">
   
 <p>
@@ -89,10 +87,20 @@ In this pane, the Fermi level is plotted for different carrier concentrations us
 
 ## Model Electron Lifetime
 
-| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
-| -------------------------------------- |
-| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
-| -------------------------------------- |
+| tau_Screened_Coulomb(self,energyRange, m_c, LD, N)|
+| ------------------------------------------------- |
+
+| tau_Unscreened_Coulomb(self,energyRange, m_c, N)|
+| ----------------------------------------------------- |
+
+| tau_Strongly_Screened_Coulomb(self, D, LD, N)|
+| ----------------------------------------------------- |
+
+| tau_p(self, energyRange, alpha, Dv, DA, T, vs, D, rho)|
+| ----------------------------------------------------- |
+
+| tau_p(self, energyRange, alpha, Dv, DA, T, vs, D, rho)|
+| ----------------------------------------------------- |
 
 <div align="justify">
 

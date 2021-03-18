@@ -66,8 +66,19 @@ The Seebeck coefficient obtains its largest magnitude by maximizing the asymmetr
 
 ## Model Fermi Level
 
+| carrierConcentration(self, path2extrinsicCarrierConcentration, bandGap, Ao=None, Bo=None, Nc=None, Nv=None, Temp=None) |
+| ---------------------------------------------------------------------------------------------------------------------- |
+
+| fermiLevel(self, carrierConcentration, energyRange, DoS, Nc=None, Ao=None, Temp=None)|
+| ------------------------------------------------------------------------------------ |
+
 | fermiLevelSelfConsistent(self, carrierConcentration, Temp, energyRange, DoS, fermilevel)|
 | --------------------------------------------------------------------------------------- |
+
+| fermiDistribution(self, energyRange, fermiLevel, Temp=None)|
+| ---------------------------------------------------------- |
+
+
 <div align="justify">
   
 <p>
@@ -87,20 +98,24 @@ In this pane, the Fermi level is plotted for different carrier concentrations us
 
 ## Model Electron Lifetime
 
-| tau_Screened_Coulomb(self,energyRange, m_c, LD, N)|
+| tau_Screened_Coulomb(self, energyRange, m_c, LD, N)|
 | ------------------------------------------------- |
 
-| tau_Unscreened_Coulomb(self,energyRange, m_c, N)|
-| ----------------------------------------------------- |
+| tau_Unscreened_Coulomb(self, energyRange, m_c, N)|
+| ----------------------------------------------- |
 
 | tau_Strongly_Screened_Coulomb(self, D, LD, N)|
-| ----------------------------------------------------- |
+| ---------------------------------------------|
 
 | tau_p(self, energyRange, alpha, Dv, DA, T, vs, D, rho)|
 | ----------------------------------------------------- |
 
 | tau_p(self, energyRange, alpha, Dv, DA, T, vs, D, rho)|
 | ----------------------------------------------------- |
+
+| matthiessen(self, *args)|
+| ----------------------- |
+
 
 <div align="justify">
 
@@ -160,10 +175,13 @@ This panel show the magnitude of electrical conductivity and Seebeck coefficient
 </p>
 
 ## Model Electron Transport Coefficients In Nanostructured Thermoelectrics
-| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
-| -------------------------------------- |
-| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
-| -------------------------------------- |
+
+| tau2D_cylinder(self, energyRange, nk, Uo, m, vfrac, valley, dk_len, ro, n=2000) |
+| ------------------------------------------------------------------------------- |
+
+| tau3D_spherical(self, energyRange, nk, Uo, m, vfrac, valley, dk_len, ro, n=32) |
+| ------------------------------------------------------------------------------ |
+
 
 <p>
 In the nanostructured of interest in this study, there are two additional electron scattering processes that arise as a result of the morphology: electron scattering at grain boundaries, and scattering from pores. The rate of electron momentum relaxation due to elastic scattering from a uniform dispersion of pores can be modeled as
@@ -246,8 +264,23 @@ The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scatte
 
 ### Silicon band structure
 
-| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| electronBandStructure(self, path2eigenval, skipLines)|
+| ---------------------------------------------------- |
+
+| bandGap(self, Eg_o, Ao, Bo, Temp=None)|
+| --------------------------------------|
+
+| electronDoS(self, path2DoS, headerLines, numDoSpoints, unitcell_volume, valleyPoint, energyRange)|
+| ------------------------------------------------------------------------------------------------ |
+
+| analyticalDoS(self, energyRange, alpha)|
 | -------------------------------------- |
+
+| electronGroupVelocity(self, kp, energy_kp, energyRange)|
+| ------------------------------------------------------ |
+
+| analyticalGroupVelocity(self, energyRange, nk, m, valley, dk_len, alpha, temperature)|
+| ------------------------------------------------------------------------------------ |
 
 
 <div align="justify">
@@ -265,8 +298,8 @@ The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scatte
 
 ### Model prediction for bulk Si
 
-| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
-| -------------------------------------- |
+| electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau)|
+| ---------------------------------------------------------- |
 
 
 <div align="justify">
@@ -287,7 +320,7 @@ shows the variation of highest Seebeck (thermopower) and PF modeled in this stud
 
 ### Ideal Electron Filtering
 
-| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| filteringEffect(self, U0, tau0, tauOff, energyRange, electronBandStructure, temp, electronDoS, electronGroupVelocity, bandGap, carrierConcentration, fermiLevel, fermiDistribution, factor, q, uIncrement=0.05, tauIncrement=1e-15, tempIndex=0)|
 | -------------------------------------- |
 
 For ideal or perfect filtering, a high rate of additional scattering would be applied to all the electrons with energy lower than a certain threshold, Uo, so as to reduce their drift velocity to zero. The calculated change in the room temperature PF of n-doped silicon that would be provided by with ideal
@@ -299,9 +332,6 @@ filtering is plotted in Figure 1 as a function of filtering threshold, U , and c
   
 
 ### Effect of Nanopores on Lorenz Number
-
-| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
-| -------------------------------------- |
 
 <div align="justify">
  

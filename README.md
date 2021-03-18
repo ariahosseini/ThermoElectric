@@ -215,7 +215,7 @@ We remark that for nanoparticels the band alignment should be used instead of el
 </p>
 
 <p align="center">
-<img src=""Figures/Picture2.jpg" align="center" alt="drawing" width="500px"/> 
+<img src="Figures/Figure_e2.png" align="center" alt="drawing" width="600px"/> 
 </p>
 
 </div>

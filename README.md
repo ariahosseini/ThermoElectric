@@ -249,6 +249,11 @@ shows the variation of highest Seebeck (thermopower) and PF modeled in this stud
 <img src="Figures/Picture10.pdf" align="center" alt="drawing" width="700px"/> 
 </p>
 
+
+<p align="center">
+<img src="Figures/Picture10.pdf" align="center" alt="drawing" width="700px"/> 
+</p>
+
   
 </div> 
 

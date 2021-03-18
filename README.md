@@ -66,9 +66,10 @@ The Seebeck coefficient obtains its largest magnitude by maximizing the asymmetr
 
 ## Model Fermi Level
 
-| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
-| -------------------------------------- |
-
+| fermiLevelSelfConsistent(self, carrierConcentration, Temp, energyRange, DoS, fermilevel)|
+| --------------------------------------------------------------------------------------- |
+  fermiLevel(self, carrierConcentration, energyRange, DoS, Nc=None, Ao=None, Temp=None)
+| --------------------------------------------------------------------------------------- |
 <div align="justify">
   
 <p>

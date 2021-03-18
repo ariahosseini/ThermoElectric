@@ -231,22 +231,27 @@ The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scatte
 <div align="justify">
 <p>The terms D(E), and ν(E) for Si were derived from the conduction band of Si computed with density functional theory (DFT) using the Vienna Ab initio Simulation Package (VASP) using generalized gradient approximation (GGA) with the Perdew-Burke-Erzerhof exchange correlation functional (PBE). Projector augmented wave (PAW) pseudopotentials is used represent the ion cores. The Kohm-Sham wave functions constructed using a planewave basis set with 700 eV energy cutoff. The Brillouin zone was sampled using 12×12×12 Monkhorst-Pack k-point grid. The forces on the atoms minimized to better than 10<sup>-6</sup> eV/Å to relax the Si primitive cell. The electronic band structure used to compute D(E) on a 45×45×45 k-point grid. The group velocity was obtained from the conduction band curvature, ν=1/ℏ|∇<sub>κ</sub> E| along the〈100〉directions on the Γ to X Brillouin zone path.</p>
  
- <p align="center">
- <img src="Figures/Figure_1.png" align="center" alt="drawing" width="600px"/> 
- </p>
+<p align="center">
+<img src="Figures/Figure_1.png" align="center" alt="drawing" width="700px"/> 
+</p>
  
-  <p align="center">
-<img src="Figures/Figure_0.png" align="center" alt="drawing" width="600px"/> 
- </p>
+<p align="center">
+<img src="Figures/Figure_0.png" align="center" alt="drawing" width="700px"/> 
+</p>
  
 </div>
 
 ### Model prediction for bulk Si
 <div align="justify">
   
-<p>We have validated the transport model in bulk materials against a set of phosphorous-doped Si. The experimentally measured values are marked with open circles and the solid lines show the prediction of the semiclassical BTE model informed by the experimentally measured carrier population. The model gives a good fit to the experimental data across the full range of temperatures. </p>
+<p>
+shows the variation of highest Seebeck (thermopower) and PF modeled in this study with carrier concentrations for pores with different shapes at 500 K and 1300 K. The bulk properties are shown in solid black lines. 
+</p>
 
-<img src="Figures/Figure_e2.png" align="center" alt="drawing" width="600px"/> 
+<p align="center">
+<img src="Figures/Picture10.pdf" align="center" alt="drawing" width="700px"/> 
+</p>
+
   
 </div> 
 

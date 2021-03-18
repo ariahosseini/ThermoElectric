@@ -81,12 +81,12 @@ The experimental measurements are noisy and so for the transport model,  the  ca
 </p>
 In this pane, the Fermi level is plotted for different carrier concentrations using self-consistent method described above.
 
+<p align="center">
+ 
+| First Header  |
+| ------------- |
 
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
-
+</p>
 
 ## Model Electron Lifetime
 

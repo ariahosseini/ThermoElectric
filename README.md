@@ -9,11 +9,11 @@
   * [Model Fermi Level](#Model-Fermi-Level)
   * [Model Electron Lifetime](#Model-Electron-Lifetime)
   * [Model Electron Transport Coefficients In Nanostructured Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Nanostructured-Thermoelectrics)
-- [Case Study Si based TE nanocomposite](#Case-Study-Si-based-TE-nanocomposite)
-  * [Silicon band structure](#Silicon-band-structure)
-  * [Model prediction for bulk Si](#Model-prediction-for-bulk-Si)
+- [CASE STUDY SI BASED NANOCOMPOSITE](#CASE-STUDY-SI-BASED-NANOCOMPOSITE)
+  * [Silicon Band Structure](#Silicon-Band-Structure)
+  * [Model Prediction For Bulk Si](#Model-Prediction-For-Bulk-Si)
   * [Ideal Electron Filtering](#Ideal-Electron-Filtering)
-  * [Effect of Nanopores on Lorenz Number](#Effect-of-Nanopores-on-Lorenz-Number)
+  * [Effect Of Nanopores On Lorenz Number](#Effect-Of-Nanopores-On-Lorenz-Number)
 - [CITATION](#Citation)
 
 
@@ -260,9 +260,9 @@ The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scatte
 </div>
 
 
-## Case Study Si based TE nanocomposite
+## CASE STUDY SI BASED NANOCOMPOSITE
 
-### Silicon band structure
+### Silicon Band Structure
 
 | electronBandStructure(self, path2eigenval, skipLines)|
 | ---------------------------------------------------- |
@@ -296,7 +296,7 @@ The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scatte
  
 </div>
 
-### Model prediction for bulk Si
+### Model Prediction For Bulk Si
 
 | electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau)|
 | ---------------------------------------------------------- |
@@ -306,10 +306,6 @@ The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scatte
   
 <p>
 shows the variation of highest Seebeck (thermopower) and PF modeled in this study with carrier concentrations for pores with different shapes at 500 K and 1300 K. The bulk properties are shown in solid black lines. 
-</p>
-
-<p align="center">
-<img src="Figures/Picture10.pdf" align="center" alt="drawing" width="700px"/> 
 </p>
 
 <p align="center">
@@ -331,7 +327,7 @@ filtering is plotted in Figure 1 as a function of filtering threshold, U , and c
 </p>
   
 
-### Effect of Nanopores on Lorenz Number
+### Effect Of Nanopores On Lorenz Number
 
 <div align="justify">
  

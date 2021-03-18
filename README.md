@@ -214,7 +214,9 @@ We remark that for nanoparticels the band alignment should be used instead of el
 <img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%3D4%5Cpi%20U_g%20%5Cleft%5B%20%5Cfrac%7Bz_o%7D%7B1&plus;%28q_zz_o%29%5E2%7D%20%5Cright%5Dr_o%5E2%5Cleft%5B%20%5Cfrac%7BJ_1%28q_rr_o%29%7D%7Bq_rr_o%7D%20%5Cright%5D" align="center" alt="drawing" width="500px"/> 
 </p>
 
-
+<p align="center">
+<img src=""Figures/Picture2.jpg" align="center" alt="drawing" width="500px"/> 
+</p>
 
 </div>
 
@@ -234,7 +236,7 @@ We remark that for nanoparticels the band alignment should be used instead of el
   
 <p>We have validated the transport model in bulk materials against a set of phosphorous-doped Si. The experimentally measured values are marked with open circles and the solid lines show the prediction of the semiclassical BTE model informed by the experimentally measured carrier population. The model gives a good fit to the experimental data across the full range of temperatures. </p>
 
-<img src="Figures/Picture2.jpg" align="center" alt="drawing" width="600px"/> 
+<img src="Figures/Figure_e2.png" align="center" alt="drawing" width="600px"/> 
   
 </div> 
 

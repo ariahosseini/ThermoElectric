@@ -159,7 +159,7 @@ Here N is the number density of pores, and the term SR<sub>kk'</sub> is the rate
 </p>
 
 <p align="center">
-<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20SR_%7Bkk%27%7D%3D%5Cfrac%7B2%5Cpi%7D%7B%5Chbar%7D%5Cleft%7CM_%7Bkk%27%7D%5Cright%7C%5E2%5Cdelta%28E-E%27%29" align="center" alt="drawing" width="400px"/> 
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20SR_%7Bkk%27%7D%3D%5Cfrac%7B2%5Cpi%7D%7B%5Chbar%7D%5Cleft%7CM_%7Bkk%27%7D%5Cright%7C%5E2%5Cdelta%28E-E%27%29" align="center" alt="drawing" width="350px"/> 
 </p>
 
 <p>
@@ -167,7 +167,7 @@ where the matrix element operator M describes the strength which the pore couple
 <p> 
 
 <p align="center">
-<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%3D%20%5Cint%20e%5E%7Bi%28k%27-k%29.r%7D%20U%28r%29dr" align="center" alt="drawing" width="400px"/> 
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%3D%20%5Cint%20e%5E%7Bi%28k%27-k%29.r%7D%20U%28r%29dr" align="center" alt="drawing" width="350px"/> 
 </p>
 
 For energy conservative (elastic) scattering between eigenstates with the same energy equation scattering can be recast as a surface integral over the isoenergetic k-space contour that satisfies E(k')=E(k) 
@@ -181,7 +181,7 @@ where dS is the incremental area of the isoenergetic k-space surface. In most in
 </p>
 
 <p align="center">
-<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20E%28k%29%3D%5Chbar%5E2%20%5B%28%5Cfrac%7B%28k_l-k_%7Bol%7D%20%29%5E2%7D%7B2m_l%5E*%7D%20&plus;%5Cfrac%7B%28k_t-k_%7Bot%7D%20%29%5E2%7D%7Bm_t%5E*%7D%5D" align="center" alt="drawing" width="400px"/> 
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20E%28k%29%3D%5Chbar%5E2%20%5B%28%5Cfrac%7B%28k_l-k_%7Bol%7D%20%29%5E2%7D%7B2m_l%5E*%7D%20&plus;%5Cfrac%7B%28k_t-k_%7Bot%7D%20%29%5E2%7D%7Bm_t%5E*%7D%5D" align="center" alt="drawing" width="350px"/> 
 </p>
 
 <p>
@@ -189,7 +189,7 @@ The pore potential, U(r), is assumed to be
 </p>
 
 <p align="center">
-<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20U%28r%29%20%3D%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%20U_o%20%26%20%5Ctext%7Bfor%20r%20inside%20the%20pore%7D%20%5C%5C%200%26%20%5Ctext%7Botherwise%7D%20%5Cend%7Bmatrix%7D%5Cright." align="center" alt="drawing" width="400px"/> 
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20U%28r%29%20%3D%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%20U_o%20%26%20%5Ctext%7Bfor%20r%20inside%20the%20pore%7D%20%5C%5C%200%26%20%5Ctext%7Botherwise%7D%20%5Cend%7Bmatrix%7D%5Cright." align="center" alt="drawing" width="350px"/> 
 </p>
 
 <p>
@@ -203,7 +203,7 @@ where U<sub>o</sub> is the electron affinity. For an infinitely long cylindrical
 or for the spherical pores/ nanoparticles we have
 
 <p align="center">
-<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%5E%7Bspherical%7D%3D%5Cfrac%7B4%5Cpi%20U_o%7D%7Bq%5E2%7D%5Cleft%28%20%5Cfrac%7B1%7D%7Bq%7D%5Csin%28r_oq%29-r_o%5Ccos%28r_oq%29%5Cright%29" align="center" alt="drawing" width="400px"/> 
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%5E%7Bspherical%7D%3D%5Cfrac%7B4%5Cpi%20U_o%7D%7Bq%5E2%7D%5Cleft%28%20%5Cfrac%7B1%7D%7Bq%7D%5Csin%28r_oq%29-r_o%5Ccos%28r_oq%29%5Cright%29" align="center" alt="drawing" width="450px"/> 
 </p>
 
 <p>

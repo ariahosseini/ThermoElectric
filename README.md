@@ -10,7 +10,7 @@
   * [Model Fermi Level](#Model-Fermi-Level)
   * [Model Electron Lifetime](#Model-Electron-Lifetime)
   * [Model Electron Transport Coefficients In Nanostructured Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Nanostructured-Thermoelectrics)
-- [CASE STUDY](#CASE STUDY)
+- [Case Study: Si based TE nanocomposite](#Case-Study:-Si-based-TE-nanocomposite)
   * [Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si](#grid-world-generation-1)
     + [Complete Spec (key, lock, and pit)](#complete-spec--key--lock--and-pit-)
     + [Key Only](#key-only)
@@ -249,7 +249,7 @@ shows the variation of highest Seebeck (thermopower) and PF modeled in this stud
 </p>
 
 <p align="center">
-<img src="Figures/Picture10.pdf" align="center" alt="drawing" width="700px"/> 
+<img src="Figures/Picture10.pdf" align="center" alt="drawing" width="700px"> 
 </p>
 
   

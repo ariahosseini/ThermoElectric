@@ -75,12 +75,12 @@ The Fermi level depends strongly on the carrier concentration, which varies non-
 </p>
 
 <p align="center">
-<img src="Figures/Figure_2.png" align="center" alt="drawing" width="500px"/> 
+<img src="Figures/Figure_2.png" align="center" alt="drawing" width="700px"/> 
 </p>
 The experimental measurements are noisy and so for the transport model,  the  carrier  concentration  was  represented  with the continuous smoothing function fit through the experimental data. This panel shows the Bayesian interpolation fitted to the temperature dependence of the experimentally measured carrier concentration.  
  
 <p align="center">
-<img src="Figures/Figure_3.png" align="center" alt="drawing" width="500px"/> 
+<img src="Figures/Figure_3.png" align="center" alt="drawing" width="700px"/> 
 </p>
 In this pane, the Fermi level is plotted for different carrier concentrations using self-consistent method described above.
 
@@ -110,7 +110,7 @@ where N<sub>c</sub>=2((m<sub>c</sub> k<sub>B</sub>T)/(2πℏ)<sup>2</sup>)<sup>(
 </p>
 
 <p align="center">
-<img src="Figures/Figure_15.png" align="center" alt="drawing" width="500px"/> 
+<img src="Figures/Figure_15.png" align="center" alt="drawing" width="700px"/> 
 </p>
 
 This panel shows the Debye length for two different carrier concentrations. The solid lines show the model prediction using degenerate form while the dash lines are for the cases in which degeneracy is neglected.
@@ -138,7 +138,7 @@ where x is the atomic fraction of alloy, a is the lattice parameter and the term
 </p>
 
 <p align="center">
-<img src="Figures/Picture2.jpg" align="center" alt="drawing" width="500px"/> 
+<img src="Figures/Picture2.jpg" align="center" alt="drawing" width="700px"/> 
 </p>
 <p>
 This panel show the magnitude of electrical conductivity and Seebeck coefficient in phosphorus-doped bulk silicon. The solid blue line shows the model prediction for electrical conductivity, and the red line shows the prediction for the Seebeck coefficient. The experimentally measured σ and S are marked with open circles.
@@ -217,7 +217,7 @@ We remark that for nanoparticels the band alignment should be used instead of el
 The electron liftime in Si<sub>0.8</sub>0.2<sub>o</sub> due to different scattering terms are shown in the panel below.
 
 <p align="center">
-<img src="Figures/Figure_e2.png" align="center" alt="drawing" width="600px"/> 
+<img src="Figures/Figure_e2.png" align="center" alt="drawing" width="700px"/> 
 </p>
 
 </div>

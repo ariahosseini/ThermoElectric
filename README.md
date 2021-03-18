@@ -214,7 +214,7 @@ We remark that for nanoparticels the band alignment should be used instead of el
 <img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%3D4%5Cpi%20U_g%20%5Cleft%5B%20%5Cfrac%7Bz_o%7D%7B1&plus;%28q_zz_o%29%5E2%7D%20%5Cright%5Dr_o%5E2%5Cleft%5B%20%5Cfrac%7BJ_1%28q_rr_o%29%7D%7Bq_rr_o%7D%20%5Cright%5D" align="center" alt="drawing" width="400px"/> 
 </p>
 
-The electron liftime in Si<sub>0.8</sub>0.2<sub>o</sub> due to different scattering terms are shown in the panel below.
+The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scattering terms are shown in the panel below.
 
 <p align="center">
 <img src="Figures/Figure_e2.png" align="center" alt="drawing" width="700px"/> 

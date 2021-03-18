@@ -12,7 +12,8 @@
 - [Case Study Si based TE nanocomposite](#Case-Study-Si-based-TE-nanocomposite)
   * [Silicon band structure](#Silicon-band-structure)
   * [Model prediction for bulk Si](#Model-prediction-for-bulk-Si)
-  * [Maximum enhancement in power factor](#Maximum-enhancement-in-power-factor)
+  * [Ideal Electron Filtering](#Ideal-Electron-Filtering)
+  * [Effect of Nanopores on Lorenz Number](#Effect-of-Nanopores-on-Lorenz-Number)
 - [CITATION](#Citation)
 
 
@@ -65,6 +66,9 @@ The Seebeck coefficient obtains its largest magnitude by maximizing the asymmetr
 
 ## Model Fermi Level
 
+| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| -------------------------------------- |
+
 <div align="justify">
   
 <p>
@@ -81,14 +85,13 @@ The experimental measurements are noisy and so for the transport model,  the  ca
 </p>
 In this pane, the Fermi level is plotted for different carrier concentrations using self-consistent method described above.
 
-<p align="center">
- 
-| First Header  |
-| ------------- |
-
-</p>
 
 ## Model Electron Lifetime
+
+| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| -------------------------------------- |
+| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| -------------------------------------- |
 
 <div align="justify">
 
@@ -148,6 +151,10 @@ This panel show the magnitude of electrical conductivity and Seebeck coefficient
 </p>
 
 ## Model Electron Transport Coefficients In Nanostructured Thermoelectrics
+| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| -------------------------------------- |
+| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| -------------------------------------- |
 
 <p>
 In the nanostructured of interest in this study, there are two additional electron scattering processes that arise as a result of the morphology: electron scattering at grain boundaries, and scattering from pores. The rate of electron momentum relaxation due to elastic scattering from a uniform dispersion of pores can be modeled as
@@ -230,6 +237,9 @@ The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scatte
 
 ### Silicon band structure
 
+| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| -------------------------------------- |
+
 
 <div align="justify">
 <p>The terms D(E), and ν(E) for Si were derived from the conduction band of Si computed with density functional theory (DFT) using the Vienna Ab initio Simulation Package (VASP) using generalized gradient approximation (GGA) with the Perdew-Burke-Erzerhof exchange correlation functional (PBE). Projector augmented wave (PAW) pseudopotentials is used represent the ion cores. The Kohm-Sham wave functions constructed using a planewave basis set with 700 eV energy cutoff. The Brillouin zone was sampled using 12×12×12 Monkhorst-Pack k-point grid. The forces on the atoms minimized to better than 10<sup>-6</sup> eV/Å to relax the Si primitive cell. The electronic band structure used to compute D(E) on a 45×45×45 k-point grid. The group velocity was obtained from the conduction band curvature, ν=1/ℏ|∇<sub>κ</sub> E| along the〈100〉directions on the Γ to X Brillouin zone path.</p>
@@ -245,6 +255,11 @@ The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scatte
 </div>
 
 ### Model prediction for bulk Si
+
+| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| -------------------------------------- |
+
+
 <div align="justify">
   
 <p>
@@ -261,7 +276,10 @@ shows the variation of highest Seebeck (thermopower) and PF modeled in this stud
   
 </div> 
 
-### Ideal electron filtering
+### Ideal Electron Filtering
+
+| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| -------------------------------------- |
 
 For ideal or perfect filtering, a high rate of additional scattering would be applied to all the electrons with energy lower than a certain threshold, Uo, so as to reduce their drift velocity to zero. The calculated change in the room temperature PF of n-doped silicon that would be provided by with ideal
 filtering is plotted in Figure 1 as a function of filtering threshold, U , and carrier concentration. The key result of this calculation is that if one can control the filtering threshold, the best power performance is to be found at high carrier.
@@ -271,7 +289,11 @@ filtering is plotted in Figure 1 as a function of filtering threshold, U , and c
 </p>
   
 
-### effect of nanopores on Lorenz number
+### Effect of Nanopores on Lorenz Number
+
+| bandGap(self, Eg_o, Ao, Bo, Temp=None) |
+| -------------------------------------- |
+
 <div align="justify">
  
 When advocating for increased carrier concentration in TEs, it is important to determine whether this will cause a significant increase to the denominator of ZT. Hence, we finish our examination of the effect of pores on the room-temperature electrical transport coefficients by briefly discussing the electronic thermal conductivity (κe). The κe is related to σ by Wiedemann Franz law as κe = LTσ. Here, L is the Lorenz number that conventionally varies from 2 × (kB/e)2 ≈
@@ -280,7 +302,6 @@ Lorenz number is related to the moments of the charge carriers, Δn, through L =
 1.53 × 10−8 (V2/K2) at 1019 1/cm3 to 2.39 × 10−8 (V2/K2) at 1021 1/cm3 . Figure 6 shows the variation of Lorenz number The objective of adding porosity is to lower the lattice thermal conductivity, and prior studies by Romano3 and others32 have shown that the lattice thermal conductivity in nanoporous Si with the geometries modeled here can be as low as ∼30 W/m/ K at room temperature. At bulk room temperature, Si with the carrier concentration tuned to optimize ZT, the electronic thermal conductivity is ∼0.3 W/m/Kstill 2 orders of magnitude lower than the lattice conductivity.
   
 
-  
 </div> 
 
 # CITATION

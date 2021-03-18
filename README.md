@@ -81,8 +81,9 @@ The experimental measurements are noisy and so for the transport model,  the  ca
 </p>
 In this pane, the Fermi level is plotted for different carrier concentrations using self-consistent method described above.
 
-<div class="text-purple">
-  This text is purple
+
+<div class="text-white bg-blue mb-2">
+  .text-white on .bg-blue
 </div>
 
 

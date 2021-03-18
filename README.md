@@ -252,15 +252,28 @@ shows the variation of highest Seebeck (thermopower) and PF modeled in this stud
 <p align="center">
 <img src="Figures/Picture10.png" align="center" alt="drawing" width="700px"/> 
 </p>
-
   
 </div> 
 
-### Maximum enhancement in power factor 
-<div align="justify">
+### Ideal electron filtering
+
+For ideal or perfect filtering, a high rate of additional scattering would be applied to all the electrons with energy lower than a certain threshold, Uo, so as to reduce their drift velocity to zero. The calculated change in the room temperature PF of n-doped silicon that would be provided by with ideal
+filtering is plotted in Figure 1 as a function of filtering threshold, U , and carrier concentration. The key result of this calculation is that if one can control the filtering threshold, the best power performance is to be found at high carrier.
+
+<p align="center">
+<img src="Figures/Picture1.jpg" align="center" alt="drawing" width="700px"/> 
+</p>
   
-<p> This panel shows the model prediction for the variation in larges achievable TE power factor with carrier concentration in Si based porous materials with optimal characteristic lengths at 300 K. The best power factor performance using ideal filtering model is plotted in green. The power factor in bulk Si is plotted in black. In the narrow carrier concentration window with the highest power factor, bulk Si shows slightly better performance. The large energy difference between the conduction band edge in the Si and the vacuum level in the pore (about 4.15 eV electron affinity of bulk Si) causes strong electron scattering with countervailing response of reduction in the electrical conductivity and enhancement of Seebeck coefficient that cancel out each other, leading to an overall unchanged PF value. The maximum PF in porous structures takes place at carrier concentrations higher than the optimal carrier concentration in bulk Si. This is a key insight for the design of thermoelectrics at room temperature: If one is planning to engineer porous thermoelectrics to reduce phonon conduction, then one should also plan to increase the carrier concentration above the optimal level for the bulk semiconductor. In the Si model the maximum power factor of porous materials takes place at 8×10<sup>19</sup> cm<sup>-3</sup> carrier concentration and is slightly less than the maximum power factor in bulk Si occurs at 6.3x10<sup>19</sup> cm<sup>-3</sup> (~25% increase in doing concentration is needed for the best performance in porous Si).  </p>
-<img src="Figures/Figure_18.png" align="center" alt="drawing" width="600px"/> 
+
+### effect of nanopores on Lorenz number
+<div align="justify">
+ 
+When advocating for increased carrier concentration in TEs, it is important to determine whether this will cause a significant increase to the denominator of ZT. Hence, we finish our examination of the effect of pores on the room-temperature electrical transport coefficients by briefly discussing the electronic thermal conductivity (κe). The κe is related to σ by Wiedemann Franz law as κe = LTσ. Here, L is the Lorenz number that conventionally varies from 2 × (kB/e)2 ≈
+1.48 × 10−8(V2/K2) up to π2/3 × (kB/e)2 ≈ 2.44 × 10−8(V2/K2) for the low carrier concentration and degenerate (free electron) limit, respectively.
+Lorenz number is related to the moments of the charge carriers, Δn, through L = 1/(eT)2(Δ2 −Δ21). In bulk Si, the Lorenz number varies monotonically from
+1.53 × 10−8 (V2/K2) at 1019 1/cm3 to 2.39 × 10−8 (V2/K2) at 1021 1/cm3 . Figure 6 shows the variation of Lorenz number The objective of adding porosity is to lower the lattice thermal conductivity, and prior studies by Romano3 and others32 have shown that the lattice thermal conductivity in nanoporous Si with the geometries modeled here can be as low as ∼30 W/m/ K at room temperature. At bulk room temperature, Si with the carrier concentration tuned to optimize ZT, the electronic thermal conductivity is ∼0.3 W/m/Kstill 2 orders of magnitude lower than the lattice conductivity.
+  
+
   
 </div> 
 

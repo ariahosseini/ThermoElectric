@@ -170,30 +170,43 @@ where the matrix element operator M describes the strength which the pore couple
 <img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%3D%20%5Cint%20e%5E%7Bi%28k%27-k%29.r%7D%20U%28r%29dr" align="center" alt="drawing" width="500px"/> 
 </p>
 
-For energy conservative (elastic) scattering between eigenstates with the same energy equation \ref{eq:taunp} can be recast as a surface integral over the isoenergetic k-space contour $\Gamma$ that satisfies $E(k')=E(k)$ 
-% \begin{multline}
-\begin{equation}
-\label{eq:taunp2}
-\tau_{np}^{-1}(s) = \frac{N}{(2\pi)^2\hbar}\oint_{\Gamma}\frac{\left|M_{kk'}\right|^2}{\nabla E(k')}(1-\cos\theta)dS(k'),
-%\tau_{np}^{-1}(s) = \frac{N}{(2\pi)^2\hbar}\\\times\int_{E(k')=0}\frac{M_{kk'}\overline{M}_{kk'}}{\nabla E(k')}(1-\cos\theta)dS(k'),
-\end{equation}
-% \end{multline}
-where $dS$ is the incremental area of the isoenergetic k-space surface. In most indirect bandgap semiconductors such as Si\textsubscript{0.8}Ge\textsubscript{0.2} the contours of isoenergy states near to conduction band valley have ellipsoidal shape in momentum space that can be approximated as $E(k)=\hbar^2 [(\frac{(k_l-k_{ol} )^2}{2m_l^*} +\frac{(k_t-k_{ot} )^2}{m_t^*}]$, where $E(k)$, $k_o  = (k_{ol}, k_{ot}, k_{ot})$, $m_l^*$, $m_t^*$ are energy level from conduction band edge, the location of the conduction band minimum, longitudinal and transverse effective masses, respectively. We used $m_l^*=0.98 m_o$, $m_t^*=0.19 m_o$ where $m_o$ is free electron rest mass, and $k_o=2\pi/a(0,0,0.85)$, where $a$ is the lattice parameter. The pore potential, $U(r)$, in equation \ref{eq:M} is assumed to be 
-\begin{equation}\label{eq:upore}
-    U(r) =\left\{\begin{matrix}
- U_o & \text{for r inside the pore} \\ 
- 0& \text{otherwise}
-\end{matrix}\right.,
-\end{equation}
-where U\textsubscript{o} = 4.05 eV is the electron affinity of bulk Si\textsubscript{0.8}Ge\textsubscript{0.2}. For an infinitely long cylindrical pores with radius $r_o$, and aligned with axis parallel to $z$, this gives the scattering matrix element operator
-\begin{equation}\label{eq:Mnp}
-M_{kk'}^{cylinder}=2\pi r_o U_o l_z \left( \frac{J_1 (r_o q_r)}{q_r} \right)\delta_k(q_z).
-\end{equation}
-In this equation, $q=k-k'$ is the scattering vector, and $q_z$ and $q_r$ are the components of $q$ parallel and perpendicular to the cylinder axis. The term $\delta_k$ is the Kronecker delta function, and
-$J_1$ is the first-order Bessel function of the first kind, and $l_z$ is the pore's length perpendicular to transport direction. We have previously computed the scattering matrix operators for pores with rectangular and triangular cross-sections and these can be found in reference \cite{hosseini2020mitigating}. The number density of pores is related to porosity, $\phi$, and the pore size through the relationship $N=\phi/V_p$, where $V_p$ is the volume of the pores.  
+For energy conservative (elastic) scattering between eigenstates with the same energy equation scattering can be recast as a surface integral over the isoenergetic k-space contour that satisfies E(k')=E(k) 
 
-A similar use of Fermi's Golden rule can be used to model the rate of electron scattering by grain boundaries. 
-Minnich et al have suggested that grain boundaries provide a scattering potential of magnitude $U_{GB}$ that decays away from the grain boundary over distance $z_o$ \cite{minnich2009modeling}. From this, they derived the scattering operator matrix element for a small disc of grain boundary with radius $r_o$ as
+<p align="center">
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20%5Ctau_%7Bnp%7D%5E%7B-1%7D%28s%29%20%3D%20%5Cfrac%7BN%7D%7B%282%5Cpi%29%5E2%5Chbar%7D%5Coint_%7B%5CGamma%7D%5Cfrac%7B%5Cleft%7CM_%7Bkk%27%7D%5Cright%7C%5E2%7D%7B%5Cnabla%20E%28k%27%29%7D%281-%5Ccos%5Ctheta%29dS%28k%27%29" align="center" alt="drawing" width="500px"/> 
+</p>
+
+<p>
+where dS is the incremental area of the isoenergetic k-space surface. In most indirect bandgap semiconductors such as Si, the contours of isoenergy states near to conduction band valley have ellipsoidal shape in momentum space that can be approximated as
+</p>
+
+<p align="center">
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20E%28k%29%3D%5Chbar%5E2%20%5B%28%5Cfrac%7B%28k_l-k_%7Bol%7D%20%29%5E2%7D%7B2m_l%5E*%7D%20&plus;%5Cfrac%7B%28k_t-k_%7Bot%7D%20%29%5E2%7D%7Bm_t%5E*%7D%5D" align="center" alt="drawing" width="500px"/> 
+</p>
+
+<p>
+The pore potential, U(r), is assumed to be 
+</p>
+
+<p align="center">
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20U%28r%29%20%3D%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%20U_o%20%26%20%5Ctext%7Bfor%20r%20inside%20the%20pore%7D%20%5C%5C%200%26%20%5Ctext%7Botherwise%7D%20%5Cend%7Bmatrix%7D%5Cright." align="center" alt="drawing" width="500px"/> 
+</p>
+
+<p>
+where U<sub>o</sub> is the electron affinity. For an infinitely long cylindrical pores with radius r<sub>o</sub>, and aligned with axis parallel to z, this gives the scattering matrix element operator
+</p>
+
+<p align="center">
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%5E%7Bcylinder%7D%3D2%5Cpi%20r_o%20U_o%20l_z%20%5Cleft%28%20%5Cfrac%7BJ_1%20%28r_o%20q_r%29%7D%7Bq_r%7D%20%5Cright%29%5Cdelta_k%28q_z%29" align="center" alt="drawing" width="500px"/> 
+</p>
+
+or for the spherical pores/ nanoparticles we have
+
+<p align="center">
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%5E%7Bspherical%7D%3D%5Cfrac%7B4%5Cpi%20U_o%7D%7Bq%5E2%7D%5Cleft%28%20%5Cfrac%7B1%7D%7Bq%7D%5Csin%28r_oq%29-r_o%5Ccos%28r_oq%29%5Cright%29" align="center" alt="drawing" width="500px"/> 
+</p>
+
+We remark that for nanoparticels the band alignment should be used instead of electron affinity. A similar use of Fermi's Golden rule can be used to model the rate of electron scattering by grain boundaries. Minnich et al have suggested that grain boundaries provide a scattering potential of magnitude $U_{GB}$ that decays away from the grain boundary over distance $z_o$ \cite{minnich2009modeling}. From this, they derived the scattering operator matrix element for a small disc of grain boundary with radius $r_o$ as
 
 \begin{equation}\label{eq:mg}
     M_{kk'}=4\pi U_g \left[ \frac{z_o}{1+(q_zz_o)^2} \right]r_o^2\left[ \frac{J_1(q_rr_o)}{q_rr_o} \right],
@@ -209,19 +222,6 @@ In this equation $z_o$ is a constant related to the thickness of the depletion r
 
 </div>
 
-
-
-
-
-
- 
-</div>
-
- (σ=-1/3 e<sup>2</sup> ∫χ(E,T)τ(E,T)dE), where e is electron charge, τ(E,T) is momentum relaxation time of electrons with energy E at temperature T in n-doped semiconductors. The kernel χ includes all the intrinsic non-scattering terms and is given by (χ(E,T)= ν(E)<sup>2</sup>∂f(E<sub>f</sub>,E,T)/∂E D(E)). Here E<sub>f</sub> is the Fermi level, ν(E) the carrier group velocity, f(E<sub>f</sub>,E,T) the Fermi-Dirac distribution, and D(E) is density of states available for charge carriers. The Seebeck coefficient, S, in ZT describes the diffusion of electrons due to temperature gradient and is related to the difference between the average energy at which current flows and the Fermi energy level. In bulk material, with negative charge carrier, the Seebeck coefficient is given by (S=(-k<sub>B</sub>/e)((E<sub>c</sub>-E<sub>f</sub>)/(k<sub>B</sub>T)+δ)), where k<sub>B</sub>, E<sub>c</sub> are Boltzmann constant and conduction band edge, respectively. The dimensionless parameter δ describes how far the average energy of the current carrying electrons is from the conduction band edge. It is defined as δ=Δ<sub>1</sub>/(k<sub>B</sub>T), where Δ<sub>1</sub>=E<sub>σ</sub>-E<sub>c</sub>, and E<sub>σ</sub> is the average energy of the charge carrier weighted by their contribution to electrical conductivity (Δ<sub>n</sub>=(∫χ(E,T)τ(E,T) E<sub>n</sub> dE)/(∫χ(E,T) τ(E,T)dE))
-The central concept of energy filtering is to provide sources of scattering that selectively impede low energy electrons so as to increase Δ<sub>1</sub> by reshaping product χ(E,T)  τ(E,T) so that it is more strongly asymmetric about the fermi energy. For ideal or perfect filetring all the electrons with energy lower than a threshold, U<sub>o</sub> would be completely imobalized. The calculated change in the room temperature power factor (σS<sup>2</sup>) of n-doped silicon that would be provided by with ideal filtering is plotted in Figure as a function of filtering threshold, U<sub>o</sub>, and carrier concentration (the detail of this calculation are explained in next section). The key result of this calculation is that if one can control the filtering threshold, the best power performance is to be found at high carreir concentration—ideal filtering breaks the conventional wisdom that there is a carreir concentration that provides the best compromise between condctivity and thermopower to optimize the power factor. It would provid game changing scope for enhancing thermoelectric power factor by exploiting the carreir population in the tail of the Fermi distribution. In this manuscript we examine the electron energy filtering effect provided in Si by nanoscale porous of variouse sizes and shapes. Our study shows while fltering by nanoscale pores are far from the ideal model, they can provide sufficient enhancement in Seebeck to contervail the degraded electrical conductivity, leaving power factor untoughed. In the sections that follow we describe electron scattering from discrete pores with different shapes, and the parameter-free semiclassical model that we use to model n-type Si (and its validation). Then we elucidate the effect of nanopores on extended pores will system size prependicular to transport direction. We conclude the discussion by a breif discussion on Lorenz number and TE performance at high temperature.</p>
-  <img src="Figures/Picture1.jpg" align="center" alt="drawing" width="600px"/> 
-  
-</div>
 
 ## Case Study: Si based TE nanocomposite
 

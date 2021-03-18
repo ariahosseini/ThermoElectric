@@ -1,7 +1,7 @@
 # Themoelectric.py — A python tool for design of high ZT nanoengineered thermoelectrics
 <div align="justify">
  
-*Thermoelectric.py* is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance thermoelectric performance through electron energy filtering. It includes unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance thermoelectric performance through electron energy filtering. The code uses the semiclassical Boltzmann transport equation to compute the TE properties of electrical conductivity, Seebeck coefficient, electron contribution to thermal conductivity, etc. under single relaxation time approximation. The code has an interface with the VASP ab initio simulation package. What distinguishes Thermoelectric.py from other software such as BoltzTrap is sets of sub-tools that are implemented assist in modeling electron transport in semiconductors. These include a tool for self-consistent calculation of the Fermi level from a given carrier concentration, and a fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering rate due nanoparticles, pores and grain boundaries. The first of these subtools circumvent the problem that DFT underestimates the band gaps, and the second performs isosurface integrals to enable very dense but numerically efficient Brillouin Zone mesh sampling. The package is publicly available at my
+*Thermoelectric.py* is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance performance through electron energy filtering. The code uses the semiclassical Boltzmann transport equation to compute the TE properties of electrical conductivity, Seebeck coefficient, electron contribution to thermal conductivity, etc., under relaxation time approximation. The code has an interface with the VASP ab initio simulation package. What distinguishes *Thermoelectric.py* from other software such as *BoltzTrap* is sets of subtools that are implemented assist in modeling electron transport in semiconductors. These include a tool for self-consistent calculation of the Fermi level from a given carrier concentration, and a fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering rate due nanoparticles, pores and grain boundaries. The first of these subtools circumvent the problem that DFT underestimates the band gaps, and the second performs isosurface integrals to enable very dense but numerically efficient Brillouin Zone mesh sampling.
 </div>
 
 - [THEORY](#THEORY)
@@ -9,7 +9,7 @@
   * [Model Fermi Level](#Model-Fermi-Level)
   * [Model Electron Lifetime](#Model-Electron-Lifetime)
   * [Model Electron Transport Coefficients In Nanostructured Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Nanostructured-Thermoelectrics)
-- [Case Study: Si based TE nanocomposite](#Case-Study:-Si-based-TE-nanocomposite)
+- [Case Study Si based TE nanocomposite](#Case-Study-Si-based-TE-nanocomposite)
   * [Silicon band structure](#Silicon-band-structure)
   * [Model prediction for bulk Si](#Model-prediction-for-bulk-Si)
   * [Maximum enhancement in power factor](#Maximum-enhancement-in-power-factor)
@@ -220,7 +220,7 @@ The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scatte
 </div>
 
 
-## Case Study: Si based TE nanocomposite
+## Case Study Si based TE nanocomposite
 
 ### Silicon band structure
 

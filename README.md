@@ -206,19 +206,15 @@ or for the spherical pores/ nanoparticles we have
 <img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%5E%7Bspherical%7D%3D%5Cfrac%7B4%5Cpi%20U_o%7D%7Bq%5E2%7D%5Cleft%28%20%5Cfrac%7B1%7D%7Bq%7D%5Csin%28r_oq%29-r_o%5Ccos%28r_oq%29%5Cright%29" align="center" alt="drawing" width="500px"/> 
 </p>
 
-We remark that for nanoparticels the band alignment should be used instead of electron affinity. A similar use of Fermi's Golden rule can be used to model the rate of electron scattering by grain boundaries. Minnich et al have suggested that grain boundaries provide a scattering potential of magnitude $U_{GB}$ that decays away from the grain boundary over distance $z_o$ \cite{minnich2009modeling}. From this, they derived the scattering operator matrix element for a small disc of grain boundary with radius $r_o$ as
+<p>
+We remark that for nanoparticels the band alignment should be used instead of electron affinity. A similar use of Fermi's Golden rule can be used to model the rate of electron scattering by grain boundaries. Minnich et al have suggested that grain boundaries provide a scattering potential of magnitude U<sub>GB</sub> that decays away from the grain boundary over distance z<sub>o</sub>. From this, they derived the scattering operator matrix element for a small disc of grain boundary with radius r<sub>o</sub> as
+</p>
 
-\begin{equation}\label{eq:mg}
-    M_{kk'}=4\pi U_g \left[ \frac{z_o}{1+(q_zz_o)^2} \right]r_o^2\left[ \frac{J_1(q_rr_o)}{q_rr_o} \right],
-\end{equation}
-where $q_r$ and $q_z$ are the components of the scattering vector $q$ that are parallel and perpendicular to the boundary, respectively. The scattering potential, $U_{GB}$, is defined as
-\begin{equation}\label{eq:ugb}
-    U_{GB}(r) =\left\{\begin{matrix}
- U_g e^{\frac{-|z|}{z_o}} & r<r_{GB} \\ 
- 0& \text{otherwise}
-\end{matrix}\right..
-\end{equation}
-In this equation $z_o$ is a constant related to the thickness of the depletion region at the grain boundary, and $U_g$ was proposed to be $U_g=\frac{e^2 N_t^2}{8 \epsilon \epsilon_o N_i}$. Here, $\epsilon$ is the permittivity, and $N_t$ is the number density per area of electron traps in the depletion region. To compute the total scattering rate from all boundaries the number density of grain boundary scattering centers is defined as $N=4f/(l_g r_0^2 )$, where $0<f<1$. Unfortunately, exact values of $r_o$, $z_o$, $f$, $N_t$ are unknown. In this manuscript we use the values proposed by Minnich et al in their original paper on Si\textsubscript{0.8}Ge\textsubscript{0.2} ($r_o=1$ nm, $z_o=2$ nm, $f=0.7$, $N_t=10^{13}$ 1/cm\textsuperscript{2}, and we refer the reader to their work for the full details of the approach \cite{minnich2009modeling}.
+<p align="center">
+<img src="https://latex.codecogs.com/png.latex?%5Cinline%20%5Cdpi%7B300%7D%20M_%7Bkk%27%7D%3D4%5Cpi%20U_g%20%5Cleft%5B%20%5Cfrac%7Bz_o%7D%7B1&plus;%28q_zz_o%29%5E2%7D%20%5Cright%5Dr_o%5E2%5Cleft%5B%20%5Cfrac%7BJ_1%28q_rr_o%29%7D%7Bq_rr_o%7D%20%5Cright%5D" align="center" alt="drawing" width="500px"/> 
+</p>
+
+
 
 </div>
 

@@ -234,7 +234,7 @@ where U<sub>o</sub> is the electron affinity. For an infinitely long cylindrical
 </p>
 
 <p align="center">
-<img src="https://latex.codecogs.com/png.latex?%5Cdpi%7B300%7D%20%5Ctiny%20M_%7Bkk%27%7D%5E%7Bcylinder%7D%3D2%5Cpi%20r_o%20U_o%20l_z%20%5Cleft%28%20%5Cfrac%7BJ_1%20%28r_o%20q_r%29%7D%7Bq_r%7D%20%5Cright%29%5Cdelta_k%28q_z%29" align="center" alt="drawing"> 
+<img src="https://latex.codecogs.com/png.latex?%5Cdpi%7B300%7D%20%5Ctiny%20M_%7Bkk%27%7D%3D2%5Cpi%20r_o%20U_o%20l_z%20%5Cleft%28%20%5Cfrac%7BJ_1%20%28r_o%20q_r%29%7D%7Bq_r%7D%20%5Cright%29%5Cdelta_k%28q_z%29" align="center" alt="drawing"> 
 </p>
 
 or for the spherical pores/ nanoparticles we have

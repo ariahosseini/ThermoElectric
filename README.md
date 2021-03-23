@@ -4,6 +4,9 @@
 *Thermoelectric.py* is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance performance through electron energy filtering. The code uses the semiclassical Boltzmann transport equation to compute the TE properties of electrical conductivity, Seebeck coefficient, electron contribution to thermal conductivity, etc., under relaxation time approximation. The code has an interface with the VASP ab initio simulation package. What distinguishes *Thermoelectric.py* from other software such as *BoltzTrap* is sets of subtools that are implemented assist in modeling electron transport in semiconductors. These include a tool for self-consistent calculation of the Fermi level from a given carrier concentration, and a fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering rate due nanoparticles, pores and grain boundaries. The first of these subtools circumvent the problem that DFT underestimates the band gaps, and the second performs isosurface integrals to enable very dense but numerically efficient Brillouin Zone mesh sampling.
 </div>
 
+
+- [INSTALLATION](#INSTALLATION)
+- [OUTREACH](#OUTREACH)
 - [THEORY](#THEORY)
   * [Model Electron Transport Coefficients In Bulk Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Bulk-Thermoelectrics)
   * [Model Fermi Level](#Model-Fermi-Level)
@@ -16,7 +19,6 @@
   * [Effect Of Nanopores On Lorenz Number](#Effect-Of-Nanopores-On-Lorenz-Number)
 - [CITATION](#Citation)
 
-
 # INSTALLATION
 
 Compatible with python 3.0 and upwards
@@ -26,6 +28,30 @@ git clone https://github.com/...
 cd ...
 pip install -e .
 ```
+
+# OUTREACH
+
+
+<div align="justify">
+
+</p>
+Thermoelectrics (TE) are a class of materials that convert heat directly into electricity. The performance of TE materials at a given temperature, 𝑇, is quantified by a dimensionless figure of merit ZT=(σS<sup>2</sup>)/κ T, where κ, σ and S are the material’s thermal conductivity, electrical conductivity and Seebeck coefficient, respectively. The power factor (σS<sup>2</sup>) in ZT depends on a combination of strongly interdependent electrical transport properties, that have a countervailing dependence of the charge carrier concentration. The tradeoff of these parameters is well understood, and it has become an accepted truth that optimal TE performance can only be obtained in semiconductors that are highly doped to a narrow window of optimized charge carrier concentration. If made sufficiently efficient and inexpensive, these materials could be used to recapturing low-grade waste heat from industrial process as useful electrical energy. The potential energy savings are vast. Recent studies have suggested that recuperating only 10% of heat lost into electricity can improve fuel energy efficiency by 20% while other studies has reported that more than 68% of U.S. energy consumption escaped as waste heat. 
+</p>
+
+<p align="center">
+<img src="Figures/TOC_1.png" align="center" alt="drawing" width="700px"> 
+</p>
+
+<p align="center">
+<img src="Figures/TOC_2.png" align="center" alt="drawing" width="700px"> 
+</p>
+
+<p align="center">
+<img src="Figures/TOC_3.png" align="center" alt="drawing" width="700px"> 
+</p>
+
+</div>
+
 
 
 # THEORY

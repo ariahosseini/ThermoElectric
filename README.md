@@ -1,8 +1,5 @@
 # Themoelectric.py — A Python Tool for Design of High ZT Nanoengineered Thermoelectrics
 
-|Release| |CI| |Maintainability| |Coverage| |Donate| |DOI|
-
-|PyPI| |Packages| |Brew| |Conda| |Choco| |Snap|
 
 <div align="justify">
  

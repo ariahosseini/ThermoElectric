@@ -9,6 +9,8 @@
 
 - [INSTALLATION](#INSTALLATION)
 - [OUTREACH](#OUTREACH)
+  * [The enhancement to thermoelectric performance that could be obtained by designing the electron scattering to optimally harness the mechanism of electron energy filtering](#The-enhancement-to-thermoelectric-performance-that-could-be-obtained-by-designing-the-electron-scattering-to-optimally-harness-the-mechanism-of-electron-energy-filtering)
+  * [Design the nanoscale morphology of a thermoelectric to obtain favorable electron scattering](#Design-the-nanoscale-morphology-of-a-thermoelectric-to-obtain-favorable-electron-scattering)
 - [THEORY](#THEORY)
   * [Model Electron Transport Coefficients In Bulk Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Bulk-Thermoelectrics)
   * [Model Fermi Level](#Model-Fermi-Level)
@@ -35,9 +37,17 @@ pip install -e .
 
 
 <div align="justify">
+ 
+## The enhancement to thermoelectric performance that could be obtained by designing the electron scattering to optimally harness the mechanism of electron energy filtering
 
+<p>
+*Thermoelectric.py8 shows that using electron energy filtering can completely free engineers from the established paradigm that the optimal carrier concentration is constrained and that only semiconductors can make good thermoelectrics. The model demonstrates that if one applies perfect energy filtering then one can obtain greatly enhanced power factor by doping the material to push the Fermi energy even deep into the conduction band. In fact, it is possible to make TE with optimal performance that are metallic! 
 </p>
-Thermoelectrics (TE) are a class of materials that convert heat directly into electricity. The performance of TE materials at a given temperature, 𝑇, is quantified by a dimensionless figure of merit ZT=(σS<sup>2</sup>)/κ T, where κ, σ and S are the material’s thermal conductivity, electrical conductivity and Seebeck coefficient, respectively. The power factor (σS<sup>2</sup>) in ZT depends on a combination of strongly interdependent electrical transport properties, that have a countervailing dependence of the charge carrier concentration. The tradeoff of these parameters is well understood, and it has become an accepted truth that optimal TE performance can only be obtained in semiconductors that are highly doped to a narrow window of optimized charge carrier concentration. If made sufficiently efficient and inexpensive, these materials could be used to recapturing low-grade waste heat from industrial process as useful electrical energy. The potential energy savings are vast. Recent studies have suggested that recuperating only 10% of heat lost into electricity can improve fuel energy efficiency by 20% while other studies has reported that more than 68% of U.S. energy consumption escaped as waste heat. 
+
+## Design the nanoscale morphology of a thermoelectric to obtain favorable electron scattering
+
+<p>
+*Thermoelectric.py* tool computes the quantum mechanically predicted rates of electron scattering from heterogeneities with a variety of different geometries to find design strategies to this problem. I have found that the detrimental effect of pores can be largely mitigated in the thermoelectric design by subtly tuning the doping concentration to higher carrier concentration compared to bulk materials. As a design strategy, for the largest enhancement in Seebeck one needs to get in pores of any shape, if one can make them as small as possible. 
 </p>
 
 <p align="center">

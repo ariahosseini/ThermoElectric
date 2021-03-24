@@ -216,7 +216,7 @@ In the nanostructured of interest in this study, there are two additional electr
 </p>
 
 <p align="center">
-<img src="https://latex.codecogs.com/png.latex?%5Cdpi%7B300%7D%20%5Ctiny%20%5Ctau_%7Bnp%7D%28s%29%5E%7B-1%7D%20%3D%20%5Cfrac%7BN%7D%7B8%5Cpi%5E3%7D%20%5Cint%20SR_%7Bkk%27%7D%20%281-%5Ccos%28%5Ctheta_%7Bkk%27%7D%29%29%5Cdelta%5Cleft%28E-E%27%5Cright%29dk%27" align="center" alt="drawing"> 
+<img src="https://latex.codecogs.com/gif.latex?%5Cdpi%7B300%7D%20%5Ctiny%20%5Ctau_%7Bnp%7D%28s%29%5E%7B-1%7D%20%3D%20%5Cfrac%7BN%7D%7B8%5Cpi%5E3%7D%20%5Cint%20SR_%7Bkk%27%7D%20%281-%5Ccos%28%5Ctheta_%7Bkk%27%7D%29%29%5Cdelta%5Cleft%28E-E%27%5Cright%29dk%27" align="center" alt="drawing"> 
 </p>
 
 <p>

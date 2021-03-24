@@ -9,18 +9,18 @@
 
 - [INSTALLATION](#INSTALLATION)
 - [OUTREACH](#OUTREACH)
-  * [The enhancement to thermoelectric performance that could be obtained by designing the electron scattering to optimally harness the mechanism of electron energy filtering](#The-enhancement-to-thermoelectric-performance-that-could-be-obtained-by-designing-the-electron-scattering-to-optimally-harness-the-mechanism-of-electron-energy-filtering)
-  * [Design the nanoscale morphology of a thermoelectric to obtain favorable electron scattering](#Design-the-nanoscale-morphology-of-a-thermoelectric-to-obtain-favorable-electron-scattering)
+  * [The Enhancement to Thermoelectric Performance That Could Be Obtained by Designing the Electron Scattering to Optimally Harness the Mechanism of Electron Energy Filtering](#The-Enhancement-to-Thermoelectric-Performance-That-Could-Be-Obtained-by-Designing-the-Electron-Scattering-to-Optimally-Harness-the-Mechanism-of-Electron-Energy-Filtering)
+  * [Design the Nanoscale Morphology of a Thermoelectric to Obtain Favorable Electron Scattering](#Design-the-Nanoscale-Morphology-of-a-Thermoelectric-to-Obtain-Favorable-Electron-Scattering)
 - [THEORY](#THEORY)
   * [Model Electron Transport Coefficients In Bulk Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Bulk-Thermoelectrics)
   * [Model Fermi Level](#Model-Fermi-Level)
   * [Model Electron Lifetime](#Model-Electron-Lifetime)
-  * [Model Electron Transport Coefficients In Nanostructured Thermoelectrics](#Model-Electron-Transport-Coefficients-In-Nanostructured-Thermoelectrics)
+  * [Model Electron Transport Coefficients in Nanostructured Thermoelectrics](#Model-Electron-Transport-Coefficients-in-Nanostructured-Thermoelectrics)
 - [CASE STUDY SI BASED NANOCOMPOSITE](#CASE-STUDY-SI-BASED-NANOCOMPOSITE)
   * [Silicon Band Structure](#Silicon-Band-Structure)
-  * [Model Prediction For Bulk Si](#Model-Prediction-For-Bulk-Si)
+  * [Model Prediction for Bulk Si](#Model-Prediction-for-Bulk-Si)
   * [Ideal Electron Filtering](#Ideal-Electron-Filtering)
-  * [Effect Of Nanopores On Lorenz Number](#Effect-Of-Nanopores-On-Lorenz-Number)
+  * [Effect of Nanopores on Lorenz Number](#Effect-of-Nanopores-on-Lorenz-Number)
 - [CITATION](#Citation)
 
 # INSTALLATION
@@ -38,7 +38,7 @@ pip install -e .
 
 <div align="justify">
  
-## The enhancement to thermoelectric performance that could be obtained by designing the electron scattering to optimally harness the mechanism of electron energy filtering
+## The Enhancement to Thermoelectric Performance That Could Be Obtained by Designing the Electron Scattering to Optimally Harness the Mechanism of Electron Energy Filtering
 
 <p>
 *Thermoelectric.py8 shows that using electron energy filtering can completely free engineers from the established paradigm that the optimal carrier concentration is constrained and that only semiconductors can make good thermoelectrics. The model demonstrates that if one applies perfect energy filtering then one can obtain greatly enhanced power factor by doping the material to push the Fermi energy even deep into the conduction band. In fact, it is possible to make TE with optimal performance that are metallic! 
@@ -52,7 +52,7 @@ pip install -e .
 <img src="Figures/TOC_3.png" align="center" alt="drawing" width="700px"> 
 </p>
 
-## Design the nanoscale morphology of a thermoelectric to obtain favorable electron scattering
+## Design the Nanoscale Morphology of a Thermoelectric to Obtain Favorable Electron Scattering
 
 <p>
 *Thermoelectric.py* tool computes the quantum mechanically predicted rates of electron scattering from heterogeneities with a variety of different geometries to find design strategies to this problem. I have found that the detrimental effect of pores can be largely mitigated in the thermoelectric design by subtly tuning the doping concentration to higher carrier concentration compared to bulk materials. As a design strategy, for the largest enhancement in Seebeck one needs to get in pores of any shape, if one can make them as small as possible. 
@@ -74,7 +74,7 @@ Thermoelectrics (TE) are a class of materials that convert heat directly into el
 
 </div>
 
-## Model Electron Transport Coefficients In Bulk Thermoelectrics
+## Model Electron Transport Coefficients in Bulk Thermoelectrics
 
 <div align="justify">
  
@@ -212,7 +212,7 @@ where x is the atomic fraction of alloy, a is the lattice parameter and the term
 This panel show the magnitude of electrical conductivity and Seebeck coefficient in phosphorus-doped bulk silicon. The solid blue line shows the model prediction for electrical conductivity, and the red line shows the prediction for the Seebeck coefficient. The experimentally measured σ and S are marked with open circles.
 </p>
 
-## Model Electron Transport Coefficients In Nanostructured Thermoelectrics
+## Model Electron Transport Coefficients in Nanostructured Thermoelectrics
 
 | tau2D_cylinder(self, energyRange, nk, Uo, m, vfrac, valley, dk_len, ro, n=2000) |
 | ------------------------------------------------------------------------------- |
@@ -334,7 +334,7 @@ The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scatte
  
 </div>
 
-### Model Prediction For Bulk Si
+### Model Prediction for Bulk Si
 
 | electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau)|
 | ---------------------------------------------------------- |
@@ -365,7 +365,7 @@ filtering is plotted in Figure 1 as a function of filtering threshold, U , and c
 </p>
   
 
-### Effect Of Nanopores On Lorenz Number
+### Effect of Nanopores on Lorenz Number
 
 <div align="justify">
  

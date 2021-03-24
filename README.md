@@ -41,7 +41,8 @@ pip install -e .
 ## The Enhancement to Thermoelectric Performance That Could Be Obtained by Designing the Electron Scattering to Optimally Harness the Mechanism of Electron Energy Filtering
 
 <p>
-*Thermoelectric.py8 shows that using electron energy filtering can completely free engineers from the established paradigm that the optimal carrier concentration is constrained and that only semiconductors can make good thermoelectrics. The model demonstrates that if one applies perfect energy filtering then one can obtain greatly enhanced power factor by doping the material to push the Fermi energy even deep into the conduction band. In fact, it is possible to make TE with optimal performance that are metallic! 
+ 
+*Thermoelectric.py* shows that using electron energy filtering can completely free engineers from the established paradigm that the optimal carrier concentration is constrained and that only semiconductors can make good thermoelectrics. The model demonstrates that if one applies perfect energy filtering then one can obtain greatly enhanced power factor by doping the material to push the Fermi energy even deep into the conduction band. In fact, it is possible to make TE with optimal performance that are metallic! 
 </p>
 
 <p align="center">
@@ -55,6 +56,7 @@ pip install -e .
 ## Design the Nanoscale Morphology of a Thermoelectric to Obtain Favorable Electron Scattering
 
 <p>
+ 
 *Thermoelectric.py* tool computes the quantum mechanically predicted rates of electron scattering from heterogeneities with a variety of different geometries to find design strategies to this problem. I have found that the detrimental effect of pores can be largely mitigated in the thermoelectric design by subtly tuning the doping concentration to higher carrier concentration compared to bulk materials. As a design strategy, for the largest enhancement in Seebeck one needs to get in pores of any shape, if one can make them as small as possible. 
 </p>
 

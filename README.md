@@ -152,7 +152,7 @@ Semiconductor TEs are generally doped to beyond their saturation level. In these
 </p>
  
 <p align="center">
-<img src="https://latex.codecogs.com/png.latex?%5Cdpi%7B300%7D%20%5Ctiny%20%5Ctau_%7Bim%7D%28E%29%3D%5Cfrac%7B%5Chbar%7D%7B%5Cpi%20N_i%20%5Cleft%28%5Cfrac%7Be%5E2%20L_D%5E2%7D%7B4%5Cpi%20%5Cepsilon%20%5Cepsilon_o%7D%5Cright%29%5E2%20D%28E%29%7D" align="center" alt="drawing"> 
+<img src="https://latex.codecogs.com/gif.latex?%5Cdpi%7B300%7D%20%5Ctiny%20%5Ctau_i%28E%29%3D%5Cfrac%7B%5Cpi%20N_i%20%5Cleft%28%5Cfrac%7Be%5E2%20L_D%5E2%7D%7B4%5Cpi%20%5Cepsilon%20%5Cepsilon_o%7D%5Cright%29%5E2%20%7D%7B%5Chbar%7DD%28E%29" align="center" alt="drawing"> 
 </p>
 
 <p>
@@ -254,7 +254,7 @@ The pore potential, U(r), is assumed to be
 </p>
 
 <p align="center">
-<img src="https://latex.codecogs.com/png.latex?%5Cdpi%7B300%7D%20%5Ctiny%20U%28r%29%20%3D%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%20U_o%20%26%20%5Ctext%7Bfor%20r%20inside%20the%20pore%7D%20%5C%5C%200%26%20%5Ctext%7Botherwise%7D%20%5Cend%7Bmatrix%7D%5Cright." align="center" alt="drawing"> 
+<img src="https://latex.codecogs.com/gif.latex?%5Cdpi%7B300%7D%20%5Ctiny%20U%28r%29%20%3D%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%20U_o%20%26%20%5Ctext%7Bfor%20r%20inside%20the%20pore%7D%20%5C%5C%200%26%20%5Ctext%7Botherwise%7D%20%5Cend%7Bmatrix%7D%5Cright." align="center" alt="drawing"> 
 </p>
 
 <p>
@@ -262,7 +262,7 @@ where U<sub>o</sub> is the electron affinity. For an infinitely long cylindrical
 </p>
 
 <p align="center">
-<img src="https://latex.codecogs.com/gif.latex?%5Cdpi%7B300%7D%20%5Ctiny%20U%28r%29%20%3D%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%20U_o%20%26%20%5Ctext%7Bfor%20r%20inside%20the%20pore%7D%20%5C%5C%200%26%20%5Ctext%7Botherwise%7D%20%5Cend%7Bmatrix%7D%5Cright." align="center" alt="drawing"> 
+<img src="https://latex.codecogs.com/gif.latex?%5Cdpi%7B300%7D%20%5Ctiny%20M_%7Bkk%27%7D%5E%7Bcylinder%7D%3D2%5Cpi%20r_o%20U_o%20l_z%20%5Cleft%28%20%5Cfrac%7BJ_1%20%28r_o%20q_r%29%7D%7Bq_r%7D%20%5Cright%29%5Cdelta_k%28q_z%29" align="center" alt="drawing"> 
 </p>
 
 or for the spherical pores/ nanoparticles we have

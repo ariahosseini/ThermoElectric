@@ -44,6 +44,14 @@ pip install -e .
 *Thermoelectric.py8 shows that using electron energy filtering can completely free engineers from the established paradigm that the optimal carrier concentration is constrained and that only semiconductors can make good thermoelectrics. The model demonstrates that if one applies perfect energy filtering then one can obtain greatly enhanced power factor by doping the material to push the Fermi energy even deep into the conduction band. In fact, it is possible to make TE with optimal performance that are metallic! 
 </p>
 
+<p align="center">
+<img src="Figures/TOC_2.png" align="center" alt="drawing" width="700px"> 
+</p>
+
+<p align="center">
+<img src="Figures/TOC_3.png" align="center" alt="drawing" width="700px"> 
+</p>
+
 ## Design the nanoscale morphology of a thermoelectric to obtain favorable electron scattering
 
 <p>
@@ -52,14 +60,6 @@ pip install -e .
 
 <p align="center">
 <img src="Figures/TOC_1.png" align="center" alt="drawing" width="700px"> 
-</p>
-
-<p align="center">
-<img src="Figures/TOC_2.png" align="center" alt="drawing" width="700px"> 
-</p>
-
-<p align="center">
-<img src="Figures/TOC_3.png" align="center" alt="drawing" width="700px"> 
 </p>
 
 </div>

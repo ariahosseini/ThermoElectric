@@ -1,5 +1,5 @@
 # Themoelectric.py — A Python Tool for Design of High ZT Nanoengineered Thermoelectrics
-![example workflow](/azure-devops/build/:organization/:projectId/:definitionId)
+![INSTALLATION](/azure-devops/build/:organization/:projectId/:definitionId)
 
 <div align="justify">
  

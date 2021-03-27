@@ -27,9 +27,7 @@
 Compatible with python 3.0 and upwards
 
 ```bash
-git clone https://github.com/...
-cd ...
-pip install -e .
+git clone https://github.com/ariahosseini/thermoelectric.py.git
 ```
 
 # OUTREACH

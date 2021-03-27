@@ -51,10 +51,10 @@ ExpData_SiCfrac_5pct_direction_up = np.loadtxt('ExpData_SiCfrac-5pct_direction-u
                                                delimiter=None, skiprows=1)
 
 # f variables are [T(K), Nc(1/cm^3)], where Nc is the carreir concentration
-f0 = np.array([ExpData_SiCfra_0pct_direction_up[:,0], ExpData_SiCfra_0pct_direction_up[:,-2]*1e20])
-f1 = np.array([ExpData_SiCfrac_5pct_direction_up[:,0], ExpData_SiCfrac_5pct_direction_up[:,-2]*1e20])
-f2 = np.array([ExpData_SiCfrac_5pct_direction_down[:,0], ExpData_SiCfrac_5pct_direction_down[:,-2]*1e20])
-f3 = np.array([ExpData_SiCfrac_1pct_direction_up[:,0], ExpData_SiCfrac_1pct_direction_up[:,-2]*1e20])
+f0 = np.array([ExpData_SiCfra_0pct_direction_up[:,0], ExpData_SiCfra_0pct_direction_up[:,-2]*1e20])       # pristine Si
+f1 = np.array([ExpData_SiCfrac_5pct_direction_up[:,0], ExpData_SiCfrac_5pct_direction_up[:,-2]*1e20])     # Si with 5% of SiC while heaating up
+f2 = np.array([ExpData_SiCfrac_5pct_direction_down[:,0], ExpData_SiCfrac_5pct_direction_down[:,-2]*1e20]) # Si with 5% of SiC while cooling down
+f3 = np.array([ExpData_SiCfrac_1pct_direction_up[:,0], ExpData_SiCfrac_1pct_direction_up[:,-2]*1e20])     # Si with 1% of SiC while heaating up
 
 # Initiate the Obj, let's call it Si 
 Si = thermoelectricProperties(latticeParameter=5.401803661945516e-10, dopantElectricCharge=1, \
@@ -81,11 +81,11 @@ b_rp = np.cross(Lv[2],Lv[0])/np.dot(Lv[1],np.cross(Lv[2],Lv[0]))  # Reciprocal l
 c_rp = np.cross(Lv[0],Lv[1])/np.dot(Lv[2],np.cross(Lv[0],Lv[1]))  # Reciprocal lattice vector alonng c
 RLv = np.array([a_rp, b_rp, c_rp])                                # Reciprocal lattice vector
 
-e = Si.energyRange()                              # Energy range, the fefaul is from 0 to 1 eV ehich is reseanable for near equilibrium transport
-g = Si.temp(TempMin=300, TempMax=1201, dT=50)     # Desired temperature range
+e = Si.energyRange()                                  # Energy range, the fefaul is from 0 to 1 eV ehich is reseanable for near equilibrium transport
+g = Si.temp(TempMin=300, TempMax=1201, dT=50)         # Desired temperature range
 h = Si.bandGap(Eg_o=1.17, Ao=4.73e-4, Bo=636, Temp=g) # Band structe, see the manual for the discription
-alpha = np.array(0.5*np.tile([1],(1,len(h[0]))))  # Nonparabolic term shows the mixture of S and P orbitals, 
-                                                  # for Si it is 0.5 it is defined as a function of temperature to be general
+alpha = np.array(0.5*np.tile([1],(1,len(h[0]))))      # Nonparabolic term shows the mixture of S and P orbitals, 
+                                                      # for Si it is 0.5 it is defined as a function of temperature to be general
   
 """
 Carrier concentratin for pristine, 1% and 5% nanoparticle's valume fraction.
@@ -93,60 +93,120 @@ Note that the process of desolving P dopants is nonreversible,
 so the concentration is different when heating up (direction_up),
 and while cooling down (direction_down)
 """
-cc_no_inc = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-no-inc.txt', \
+cc_no_inc = Si.carrierConcentration(Nc=None, Nv=None, \
+                                    path2extrinsicCarrierConcentration='experimental-carrier-concentration-no-inc.txt', \
                                     bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
-cc = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-5pct-direction-up.txt', \
+
+cc = Si.carrierConcentration(Nc=None, Nv=None, \
+                             path2extrinsicCarrierConcentration='experimental-carrier-concentration-5pct-direction-up.txt', \
                              bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
-cc_direction_down = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-5pct-direction-down.txt', \
+
+cc_direction_down = Si.carrierConcentration(Nc=None, Nv=None, \
+                                            path2extrinsicCarrierConcentration='experimental-carrier-concentration-5pct-direction-down.txt', \
                                             bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
-cc_1pct = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-1pct.txt', \
+
+cc_1pct = Si.carrierConcentration(Nc=None, Nv=None, \
+                                  path2extrinsicCarrierConcentration='experimental-carrier-concentration-1pct.txt', \
                                   bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
 
 # kpoints and band structure from EIGENVAL file of VASP DFT 
 kp, band = Si.electronBandStructure(path2eigenval='EIGENVAL', skipLines=6)
 
 
-kp_rl = 2*np.pi*np.matmul(kp,RLv)
-kp_mag = norm(kp_rl, axis=1)
-min_band = np.argmin(band[400:600, 4], axis=0)
-max_band = np.argmax(band[400:600, 4], axis=0)
-kp_vel = kp_mag[401 + max_band:401 + min_band]
-energy_vel = band[401 + max_band:401 + min_band, 4] - band[401 + min_band, 4]
-enrg_sorted_idx = np.argsort(energy_vel, axis=0)
-gVel = Si.electronGroupVelocity(kp=kp_vel[enrg_sorted_idx], energy_kp=energy_vel[enrg_sorted_idx], energyRange=e)
+kp_rl = 2*np.pi*np.matmul(kp,RLv)                   # kpoints in reciprocal space
+kp_mag = norm(kp_rl, axis=1)                        # Magnitude of kpoints
+min_band = np.argmin(band[400:600, 4], axis=0)      # Index of band minimum edge
+max_band = np.argmax(band[400:600, 4], axis=0)      # Index of band maximum edge
+kp_vel = kp_mag[401 + max_band:401 + min_band]      # This is the kpoints for the desired band, BTE needs single band of conduction
 
+
+# This is the desired energy band, Note that BTE needs single band of conduction
+energy_vel = band[401 + max_band:401 + min_band, 4] - band[401 + min_band, 4] 
+enrg_sorted_idx = np.argsort(energy_vel, axis=0)
+
+# Electron group velocity
+gVel = Si.electronGroupVelocity(kp=kp_vel[enrg_sorted_idx], \
+                                energy_kp=energy_vel[enrg_sorted_idx], energyRange=e)
+
+# Electron density of state from DOSCAR of VASP, the volume is printted in the header of DOSCAR
 DoS = Si.electronDoS(path2DoS='DOSCAR', headerLines=6, unitcell_volume=2*19.70272e-30, numDoSpoints=2000, valleyPoint=1118, energyRange=e)
 
-JD_f_no_inc, JD_n_no_inc = Si.fermiLevel(carrierConcentration=cc_no_inc, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
+"Joyce Dixon approx for the Fermi level" 
 
-JD_f, JD_n = Si.fermiLevel(carrierConcentration=cc, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
-JD_f_direction_down, JD_n_direction_down = Si.fermiLevel(carrierConcentration=cc_direction_down, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
-JD_f_1pct, JD_n_1pct = Si.fermiLevel(carrierConcentration=cc_1pct, energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
+# pristine Si
+JD_f_no_inc, JD_n_no_inc = Si.fermiLevel(carrierConcentration=cc_no_inc, \
+                                         energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
 
-fermi_no_inc, cc_sc_no_inc = Si.fermiLevelSelfConsistent(carrierConcentration=cc_no_inc, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_no_inc)
-fermi, cc_sc = Si.fermiLevelSelfConsistent(carrierConcentration=cc, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f)
-fermi_direction_down, cc_sc_direction_down = Si.fermiLevelSelfConsistent(carrierConcentration=cc_direction_down, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_direction_down)
-fermi_1pct, cc_sc_1pct = Si.fermiLevelSelfConsistent(carrierConcentration=cc_1pct, Temp=g, energyRange=e, DoS=DoS, fermilevel=JD_f_1pct)
+# Si with 5% of SiC while heaating up
+JD_f, JD_n = Si.fermiLevel(carrierConcentration=cc, \
+                           energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
 
-dis_no_inc, dfdE_no_inc = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_no_inc)
+# Si with 5% of SiC while cooling down
+JD_f_direction_down, JD_n_direction_down = Si.fermiLevel(carrierConcentration=cc_direction_down, \
+                                                         energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
 
-dis, dfdE = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi)
-dis_direction_down, dfdE_direction_down = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_direction_down)
-dis_1pct, dfdE_1pct = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_1pct)
-# np.savetxt("Ef-no-inc",fermi_no_inc/g/thermoelectricProperties.kB)
-# np.savetxt("Ef-inc",fermi/g/thermoelectricProperties.kB)
-# np.savetxt("Ef-inc_direction_down",fermi_direction_down/g/thermoelectricProperties.kB)
-# np.savetxt("Ef-inc_1pct",fermi_1pct/g/thermoelectricProperties.kB)
+# Si with 1% of SiC while heaating up
+JD_f_1pct, JD_n_1pct = Si.fermiLevel(carrierConcentration=cc_1pct, \
+                                     energyRange=e, DoS= DoS, Nc=None, Ao=5.3e21, Temp=g)
+
+# Self consistant method to compute Ef to circumvent the problem that DFT underestimates the band gaps
+fermi_no_inc, cc_sc_no_inc = Si.fermiLevelSelfConsistent(carrierConcentration=cc_no_inc, \
+                                                         Temp=g, energyRange=e, DoS=DoS, \
+                                                         fermilevel=JD_f_no_inc) # pristine Si
+
+fermi, cc_sc = Si.fermiLevelSelfConsistent(carrierConcentration=cc, \
+                                           Temp=g, energyRange=e, \
+                                           DoS=DoS, fermilevel=JD_f) # Si with 5% of SiC while heaating up
+
+fermi_direction_down, cc_sc_direction_down = Si.fermiLevelSelfConsistent(carrierConcentration=cc_direction_down, \
+                                                                         Temp=g, energyRange=e, DoS=DoS, \
+                                                                         fermilevel=JD_f_direction_down) # Si with 5% of SiC while cooling down
+
+fermi_1pct, cc_sc_1pct = Si.fermiLevelSelfConsistent(carrierConcentration=cc_1pct, \
+                                                     Temp=g, energyRange=e, DoS=DoS, \
+                                                     fermilevel=JD_f_1pct) # Si with 1% of SiC while heaating up
+
+# Fermi distribution
+dis_no_inc, dfdE_no_inc = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi_no_inc) # pristine Si
+dis, dfdE = Si.fermiDistribution(energyRange=e, Temp=g, fermiLevel=fermi) # Si with 5% of SiC while heaating up
+dis_direction_down, dfdE_direction_down = Si.fermiDistribution(energyRange=e, Temp=g, \
+                                                               fermiLevel=fermi_direction_down) # Si with 5% of SiC while cooling down
+dis_1pct, dfdE_1pct = Si.fermiDistribution(energyRange=e, Temp=g, \
+                                           fermiLevel=fermi_1pct) # Si with 1% of SiC while heaating up
+
+"""
+The following lines save the Fermi level. 
+Femi intergral of them is needed to compute Debye length is degenerate (highly doped) dielectrics. 
+See the manual for availble codes to do the task
+"""
+np.savetxt("Ef-no-inc",fermi_no_inc/g/thermoelectricProperties.kB)
+np.savetxt("Ef-inc",fermi/g/thermoelectricProperties.kB)
+np.savetxt("Ef-inc_direction_down",fermi_direction_down/g/thermoelectricProperties.kB)
+np.savetxt("Ef-inc_1pct",fermi_1pct/g/thermoelectricProperties.kB)
 # exit()
-LD_nondegenerate_no_inc = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_sc_no_inc) # screening length
-LD_nondegenerate = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_sc) # screening length
-LD_nondegenerate_direction_down = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_sc_direction_down) # screening length
-LD_nondegenerate_1pct = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0*thermoelectricProperties.kB/thermoelectricProperties.e2C*g/cc_sc_1pct) # screening length
 
-m_CB_no_inc = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
-m_CB_inc = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
-m_CB_inc_direction_down = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
-m_CB_inc_1pct = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)     # conduction band effective mass
+# Debye lenght in nondegenerate dielectrics
+LD_nondegenerate_no_inc = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0 /
+                                  *thermoelectricProperties.kB/thermoelectricProperties.e2C* /
+                                  g/cc_sc_no_inc)  # pristine Si
+
+LD_nondegenerate = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0* /
+                           thermoelectricProperties.kB/thermoelectricProperties.e2C* /
+                           g/cc_sc)  # Si with 5% of SiC while heaating up
+
+LD_nondegenerate_direction_down = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0* /
+                                          thermoelectricProperties.kB/thermoelectricProperties.e2C* /
+                                          g/cc_sc_direction_down)  # Si with 5% of SiC while cooling down
+
+LD_nondegenerate_1pct = np.sqrt(4*np.pi*Si.dielectric*thermoelectricProperties.e0* /
+                                thermoelectricProperties.kB/thermoelectricProperties.e2C* /
+                                g/cc_sc_1pct) # Si with 1% of SiC while heaating up
+
+# Conduction band effective mass
+m_CB_no_inc = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)              # pristine Si
+m_CB_inc = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)                 # Si with 5% of SiC while cooling down
+m_CB_inc_direction_down = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)  # Si with 5% of SiC while cooling down
+m_CB_inc_1pct = 0.23*thermoelectricProperties.me*(1+5*alpha*thermoelectricProperties.kB*g)            # Si with 1% of SiC while heaating up
 
 Nc_no_inc = 2*(m_CB_no_inc*thermoelectricProperties.kB*g/thermoelectricProperties.hBar**2/2/np.pi/thermoelectricProperties.e2C)**(3/2)
 Nc_inc = 2*(m_CB_inc*thermoelectricProperties.kB*g/thermoelectricProperties.hBar**2/2/np.pi/thermoelectricProperties.e2C)**(3/2)

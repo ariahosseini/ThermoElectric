@@ -51,10 +51,10 @@ ExpData_SiCfrac_5pct_direction_up = np.loadtxt('ExpData_SiCfrac-5pct_direction-u
                                                delimiter=None, skiprows=1)
 
 # f variables are [T(K), Nc(1/cm^3)], where Nc is the carreir concentration
-f0 = np.array([ExpData_SiCfra_0pct_direction_up[:,0],ExpData_SiCfra_0pct_direction_up[:,-2]*1e20])
-f1 = np.array([ExpData_SiCfrac_5pct_direction_up[:,0],ExpData_SiCfrac_5pct_direction_up[:,-2]*1e20])
-f2 = np.array([ExpData_SiCfrac_5pct_direction_down[:,0],ExpData_SiCfrac_5pct_direction_down[:,-2]*1e20])
-f3 = np.array([ExpData_SiCfrac_1pct_direction_up[:,0],ExpData_SiCfrac_1pct_direction_up[:,-2]*1e20])
+f0 = np.array([ExpData_SiCfra_0pct_direction_up[:,0], ExpData_SiCfra_0pct_direction_up[:,-2]*1e20])
+f1 = np.array([ExpData_SiCfrac_5pct_direction_up[:,0], ExpData_SiCfrac_5pct_direction_up[:,-2]*1e20])
+f2 = np.array([ExpData_SiCfrac_5pct_direction_down[:,0], ExpData_SiCfrac_5pct_direction_down[:,-2]*1e20])
+f3 = np.array([ExpData_SiCfrac_1pct_direction_up[:,0], ExpData_SiCfrac_1pct_direction_up[:,-2]*1e20])
 
 # Initiate the Obj, let's call it Si 
 Si = thermoelectricProperties(latticeParameter=5.401803661945516e-10, dopantElectricCharge=1, \
@@ -73,24 +73,39 @@ rho = 2329                              # mass density (Kg/m3)
 sp = np.sqrt(bulk_module/rho)           # speed of sound
 
 
-Lv = np.array([[1,1,0],[0,1,1],[1,0,1]])*Si.latticeParameter/2
-a_rp = np.cross(Lv[1],Lv[2])/np.dot(Lv[0],np.cross(Lv[1],Lv[2]))
-b_rp = np.cross(Lv[2],Lv[0])/np.dot(Lv[1],np.cross(Lv[2],Lv[0]))
-a_rp = np.cross(Lv[0],Lv[1])/np.dot(Lv[2],np.cross(Lv[0],Lv[1]))
-RLv = np.array([a_rp, b_rp, a_rp])
-e = Si.energyRange()
-g = Si.temp(TempMin=300, TempMax=1201, dT=50)
-# np.savetxt('fig3_temperature',g[0])
-h = Si.bandGap(Eg_o=1.17, Ao=4.73e-4, Bo=636, Temp=g)
-alpha = np.array(0.5*np.tile([1],(1,len(h[0]))))
-cc_no_inc = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-no-inc.txt', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
-cc = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-5pct-direction-up.txt', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
-cc_direction_down = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-5pct-direction-down.txt', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
-cc_1pct = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-1pct.txt', bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
+# Silicon has cubic unitcell, here is to define lattice vector and the reciprocal lattice vector
 
+Lv = np.array([[1,1,0],[0,1,1],[1,0,1]])*Si.latticeParameter/2    # Lattice vector
+a_rp = np.cross(Lv[1],Lv[2])/np.dot(Lv[0],np.cross(Lv[1],Lv[2]))  # Reciprocal lattice vector alonng a
+b_rp = np.cross(Lv[2],Lv[0])/np.dot(Lv[1],np.cross(Lv[2],Lv[0]))  # Reciprocal lattice vector alonng b
+c_rp = np.cross(Lv[0],Lv[1])/np.dot(Lv[2],np.cross(Lv[0],Lv[1]))  # Reciprocal lattice vector alonng c
+RLv = np.array([a_rp, b_rp, c_rp])                                # Reciprocal lattice vector
+
+e = Si.energyRange()                              # Energy range, the fefaul is from 0 to 1 eV ehich is reseanable for near equilibrium transport
+g = Si.temp(TempMin=300, TempMax=1201, dT=50)     # Desired temperature range
+h = Si.bandGap(Eg_o=1.17, Ao=4.73e-4, Bo=636, Temp=g) # Band structe, see the manual for the discription
+alpha = np.array(0.5*np.tile([1],(1,len(h[0]))))  # Nonparabolic term shows the mixture of S and P orbitals, 
+                                                  # for Si it is 0.5 it is defined as a function of temperature to be general
+  
+"""
+Carrier concentratin for pristine, 1% and 5% nanoparticle's valume fraction.
+Note that the process of desolving P dopants is nonreversible,
+so the concentration is different when heating up (direction_up),
+and while cooling down (direction_down)
+"""
+cc_no_inc = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-no-inc.txt', \
+                                    bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
+cc = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-5pct-direction-up.txt', \
+                             bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
+cc_direction_down = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-5pct-direction-down.txt', \
+                                            bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
+cc_1pct = Si.carrierConcentration(Nc=None, Nv=None, path2extrinsicCarrierConcentration='experimental-carrier-concentration-1pct.txt', \
+                                  bandGap=h, Ao=5.3e21, Bo=3.5e21, Temp=g)
+
+# kpoints and band structure from EIGENVAL file of VASP DFT 
 kp, band = Si.electronBandStructure(path2eigenval='EIGENVAL', skipLines=6)
-# print(np.shape(band))
-# exit()
+
+
 kp_rl = 2*np.pi*np.matmul(kp,RLv)
 kp_mag = norm(kp_rl, axis=1)
 min_band = np.argmin(band[400:600, 4], axis=0)

@@ -6,6 +6,10 @@ containing nanoscale SiC particles is studied.
 
 Required data files are available in repo under datafile directory
 
+Cite: Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si,
+        Hosseini, S. Aria and Romano, Giuseppe and Greaney, P. Alex,
+        ACS Applied Energy Materials,2021,
+        https://doi.org/10.1021/acsaem.0c02640.
 
 Author: S. Aria Hosseini
 """

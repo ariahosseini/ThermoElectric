@@ -62,12 +62,12 @@ Si = thermoelectricProperties ( latticeParameter = 5.401803661945516e-10, dopant
                                 energyMax = 1, dielectric = 11.7, numKpoints = 800, numBands = 8, numQpoints = 201, \
                                 numEnergySampling = 5000 )
 
-vfrac = 0.05                            # Nanoparticals volume fraction,
+vfrac = 0.05                            # Nanoparticles volume fraction,
                                         # for materials containg nanoscale pores,
                                         # this will be the porosity
 
 ml = 0.98*thermoelectricProperties.me   # Longitudinal conduction band effective mass
-mt = 0.19*thermoelectricProperties.me   # Transverse conduction bandeffective mass
+mt = 0.19*thermoelectricProperties.me   # Transverse conduction band effective mass
 
 bulk_module = 98                        # Bulk module (GPA)
 rho = 2329                              # Mass density (Kg/m3)
@@ -177,7 +177,7 @@ dis_1pct, dfdE_1pct = Si.fermiDistribution(energyRange=e, Temp=Tmp,
 
 """
 The following lines save the Fermi level.
-Femi intergral of them is needed to compute Debye length is degenerate (highly doped) dielectrics.
+Fermi integral of them is needed to compute Debye length is degenerate (highly doped) dielectrics.
 See the manual for available codes to do the task
 """
 np.savetxt("Ef-no-inc",fermi_no_inc/Tmp/thermoelectricProperties.kB)

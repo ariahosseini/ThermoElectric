@@ -28,7 +28,12 @@ Compatible with python 3.0 and upwards
 
 ```bash
 git clone https://github.com/ariahosseini/thermoelectric.py.git
+
+pip install --upgrade pip
+pip install -r Requirements.txt
 ```
+
+
 
 # OUTREACH
 

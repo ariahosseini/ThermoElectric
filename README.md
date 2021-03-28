@@ -20,6 +20,7 @@
   * [Model Prediction for Bulk Si](#Model-Prediction-for-Bulk-Si)
   * [Ideal Electron Filtering](#Ideal-Electron-Filtering)
   * [Effect of Nanopores on Lorenz Number](#Effect-of-Nanopores-on-Lorenz-Number)
+- [REFERENCE](#REFERENCE)
 - [CITATION](#Citation)
 
 # INSTALLATION
@@ -382,11 +383,28 @@ When advocating for increased carrier concentration in TEs, it is important to d
 <img src="Figures/Picture6.png" align="center" alt="drawing" width="700px"/> 
 </p>
   
-
 </div> 
 
+# REFERENCES
+
+<div align="justify">
+
+[1] Chen, G. (2005). Nanoscale energy transport and conversion: a parallel treatment of electrons, molecules, phonons, and photons. Oxford university press.
+[2] Lundstrom, M. S., & Jeong, C. (2012). Near-Equilibrium Transport: Fundamentals and Applications (Vol. 2). World Scientific Publishing Company.
+[3] Taur, Y., & Ning, T. H. (2013). Fundamentals of modern VLSI devices. Cambridge university press.
+[4] Lundstrom, M. (2009). Fundamentals of carrier transport. Cambridge university press.
+[5] Nag, B. R. (2012). Electron transport in compound semiconductors (Vol. 11). Springer Science & Business Media.
+[6] Levinshtein, M. E., Rumyantsev, S. L., & Shur, M. S. (Eds.). (2001). Properties of Advanced Semiconductor Materials: GaN, AIN, InN, BN, SiC, SiGe. John Wiley & Sons.
+[7] Dimitrijev, S. (2012). Principles of semiconductor devices (pp. 253-263). New York: Oxford university press.
+
 # CITATION
+
+<div align="justify">
+ 
 [1] Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si, Hosseini, S. Aria and Romano, Giuseppe and Greaney, P. Alex, ACS Applied Energy Materials,2021, https://doi.org/10.1021/acsaem.0c02640.
+
+ </div> 
+ 
 
 
 

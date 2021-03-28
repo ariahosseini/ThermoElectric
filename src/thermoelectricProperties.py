@@ -181,7 +181,7 @@ class thermoelectricProperties:
                 Nv                                             : Floating number, the effective densities of states in the valence band
                 Temp                                           : Function object, temperature range
         :returns
-                fermiLevelEnergy,np.expand_dims(n,axis=0)      : A 1 by 2 list, The first element is a NumPy array of Fermi level ...
+                [fermiLevelEnergy,np.expand_dims(n,axis=0)]    : A 1 by 2 list, The first element is a NumPy array of Fermi level ...
                                                                  while the second element is a Numpy array of the carrier concentration
         """ 
 
@@ -261,16 +261,32 @@ class thermoelectricProperties:
         return DoSFunctionEnergy  # The array size is [1, numEnergySampling]
 
     def fermiLevelSelfConsistent(self, carrierConcentration, Temp, energyRange, DoS, fermilevel):
-
+                
         """
-        A tool for self-consistent calculation of the Fermi level from a given carrier concentration
-        to circumvent the problem that DFT underestimates the band gaps
-        """
+        A tool for self-consistent calculation of the Fermi level from a given carrier concentration ...
+        to circumvent the problem that DFT underestimates the band gaps.
+        See the manual for the detail.
+        Func. "fermiLevelSelfConsistent" uses Joyce Dixon approximation as the initial guess for degenerate semiconductors.
+        As a defaul values 4000 sampleing points in energy range from Ef(JD)-0.4 eV up to Ef(JD)+0.2 is cosidered. ...
+        This look reasonble in most cases.
+        The index is printed out if it reaches the extreme index of (0) or (4000), increase energy range. ...
+        Increase sampling point number to finner results.
+        
 
-        fermi = np.linspace(fermilevel[0]-0.4, fermilevel[0]+0.2, 4000, endpoint=True).T
+    
+        :arg
+                carrierConcentration                           : Function object, total carrier concentration
+                energyRange                                    : Function object, the electron energy level
+                DoS                                            : Function object, the electron density of state
+                fermilevel                                     : Function object, Joyce Dixon approximation as the initial guess
+                Temp                                           : Function object, temperature range
+        :returns
+                [Ef,n]                                         : A 1 by 2 list, The first element is a NumPy array of Fermi level for each temperature ...
+                                                                 while the second element is a Numpy array of the corresponding carrier concentration
+        """ 
 
+        fermi = np.linspace(fermilevel[0]-0.4, fermilevel[0]+0.2, 4000, endpoint=True).T  
         # Joyce Dixon approx. is a good initial point for degenerate semiconductors.
-        #I considered 4000 points in energy range from Ef(JD)-0.4 eV up to Ef(JD)+0.2. This look reasonble in most cases.
 
         result_array = np.empty((np.shape(Temp)[1], np.shape(fermi)[1]))
         idx_j = 0
@@ -289,7 +305,7 @@ class thermoelectricProperties:
 
         min_idx = np.argmin(np.abs(diff), axis=1)
         print("Fermi Level Self Consistent Index ",min_idx)
-        # This print the index if it reaches the extreme index (0) or (4000), increase number of sampling points.
+        # This print the index if it reaches the extreme index (0) or (4000), increase the energy range.
 
         Ef = np.empty((1, np.shape(Temp)[1]))
 
@@ -304,6 +320,10 @@ class thermoelectricProperties:
         return [Ef,n] # The array size is [2, size(temp)], The first row is the Fermi and the second row is the carrier concentration
 
     def electronGroupVelocity(self, kp, energy_kp, energyRange):
+                
+        # This is the derivation of band structure from DFT. 
+        # BTE needs single band data. Reciprocal lattice vector is needed, ...
+        # See the example (si.py) or the manual for the details.
 
         dE = np.roll(energy_kp, -1, axis=0) - np.roll(energy_kp, 1, axis=0)
         dk = np.roll(kp, -1, axis=0) - np.roll(kp, 1, axis=0)
@@ -317,7 +337,7 @@ class thermoelectricProperties:
         groupVel = dEdkFunctionEnergy / thermoelectricProperties.hBar
 
         return groupVel
-        # This is the derivation of band structure from DFT. BTE needs single band data. See the example (si.py) or the manual for the details
+        
 
     def analyticalGroupVelocity(self,energyRange, nk, m, valley, dk_len, alpha):
 
@@ -357,16 +377,17 @@ class thermoelectricProperties:
 
         return velFunctionEnergy  # The array size is [1, numEnergySampling]
 
-    def matthiessen(self, *args):
+    def matthiessen(self, *args):    # Using  Matthiessen's rule to sum the scattering rates
 
         tau = 1. / sum([1. / arg for arg in args])
         tau[np.isinf(tau)] = 0
 
-        return tau # Using  Matthiessen's rule to sum the scattering rates
+        return tau 
 
     def tau_p(self, energyRange, alpha, Dv, DA, T, vs, D, rho):
 
         # Electron-phonon scattering rate using Ravich model
+        # See the manual for the reference
 
         nonparabolic_term = (1-((alpha.T*energyRange)/(1+2*alpha.T*energyRange)*(1-Dv/DA)))**2 \
         -8/3*(alpha.T*energyRange)*(1+alpha.T*energyRange)/(1+2*alpha.T*energyRange)**2*(Dv/DA)
@@ -377,6 +398,23 @@ class thermoelectricProperties:
         tau_p = tau/nonparabolic_term
 
         return [tau,tau_p] # The first row does not count for nonparabolicity, the second row does
+
+        """
+        In the following lines three models to predict electron-ion scattering rate is defined : 
+        "tau_Screened_Coulomb", "tau_Unscreened_Coulomb", "tau_Strongly_Screened_Coulomb", ...
+        the first one is the Brook-Herring model, the second one is for shallow dopants concentrationn up to  ~10^18 1/cm^3 ...
+        (no screening effect is considered), and the last one is for strongly doped dielectrics.
+
+        Note that for highly doped semiconductors, screen length plays a significant role, ...
+        therefor should be computed carefully. Highly suggest to use following matlab file "Fermi.m" from:
+        https://www.mathworks.com/matlabcentral/fileexchange/13616-fermi
+
+        If committed to use python, the package "dfint" works with python2
+        pip install fdint
+
+        See the manual for details
+        A good reference book on this topic: Fundamentals of Carrier Transport by Mark Lundstrom
+        """
 
     def tau_Screened_Coulomb(self, energyRange, m_c, LD, N):
 
@@ -422,6 +460,8 @@ class thermoelectricProperties:
         """
         This is a fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering rate
         due cylindrical nanoparticles or pores extended perpendicular to the electrical current
+        
+        See manual for the detail
         """
 
         meff = np.array(m) * thermoelectricProperties.me
@@ -493,6 +533,8 @@ class thermoelectricProperties:
         """
         This is a fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering rate
         due spherical nanoparticles or pores.
+                
+        See manual for the detail
         """
 
         meff = np.array(m) * thermoelectricProperties.me
@@ -612,9 +654,29 @@ class thermoelectricProperties:
                 f = SR/delE*(1-cosTheta)
                 scattering_rate[ro_idx,u] = N[ro_idx]/(2*np.pi)**3*np.sum(f*A.T)
 
-        return scattering_rate
+        return scattering_rate # Electorn scattering rate from the spherical pores/ nanoparticles
 
     def electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau):
+                
+        """
+        This function This function returns a list of thermoelectric properties
+        Good references are "Near-equilibrium Transport: Fundamentals And Applications" by  Changwook Jeong and Mark S. Lundstrom and ...
+        'Nanoscale Energy Transport and Conversion: A Parallel Treatment of Electrons, Molecules, Phonons, and Photons" by Gang Chen.
+    
+        :arg
+                E                                       : Function object, Energy range
+                DoS                                     : Function object, Electron density of state
+                vg                                      : Function object, Electron group velocity
+                Ef                                      : Function object, Fermi level
+                dfdE                                    : Function object, Fermi window
+                Temp                                    : Function object, temperature range
+                tau                                     : Function object, electron total lifetime
+                
+        :returns
+                coefficients                            : A list of 1 by 7, The elements are NumPy arrays of the electrical conductivity, ....
+                                                          Seebecl, power factor, electron thermal conductivity, first momentum of current,
+                                                          second moment of current, and the Lorenz number.
+        """        
 
         # This function returns a list of thermoelectric properties
         # See the manual for the detail of calculations
@@ -640,6 +702,7 @@ class thermoelectricProperties:
         return coefficients  # The list is 7 by numEnergySampling
 
     def filteringEffect(self, U, E, DoS, vg, Ef, dfdE, Temp, tau_b):
+                
 
         """
         This function returns list of electrical conductivity and Seebecl for the ideal filtering
@@ -672,6 +735,7 @@ class thermoelectricProperties:
         """
         This function returns list of electrical conductivity and Seebecl for the phenomenological model
         where a frequency independent lifetime of tauo is imposed to all the electrons up to a cutoff energy level of U
+        See manual for the detail.
         """
 
         tauU = np.ones(len(E[0]))

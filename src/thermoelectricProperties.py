@@ -67,6 +67,20 @@ class thermoelectricProperties:
         return np.expand_dims(temperature, axis=0)              # The array size is [1,(TempMax-TempMin)/dT]
 
     def bandGap(self, Eg_o, Ao, Bo, Temp=None):                 # general shape of bandgap: Eg(T)=Eg(T=0)-Ao*T**2/(T+Bo)
+                
+        """
+        This function uses Eg(T)=Eg(T=0)-Ao*T**2/(T+Bo) to approximate the temperature dependency of the dielectrics bandgap.
+        A good reference is "Properties of Advanced Semiconductor Materials" by Michael E. Levinshtein et al.
+    
+        :arg
+                Eg_o                                    : Floating number, the bandgap at zero Kelvin
+                Ao                                      : Floating number, experimentally fitted parameter 
+                Bo                                      : Floating number, experimentally fitted parameter
+                Temp                                    : Function object, temperature range
+        :returns
+                Eg                                      : NumPy array, temperature dependent bandgap 
+        """
+                
         if Temp is None:    # Use default temperature range (300K up to 1301K with step of 50K)
             T = self.temp()
         else:
@@ -75,6 +89,18 @@ class thermoelectricProperties:
         return Eg                                               # The array size is the same as the temp func.
 
     def analyticalDoS(self, energyRange, alpha):                # See the manual fot the eqution
+                
+         """
+        This function approximate the electron density of state for parabolic and nonparabolic bands.
+        This function is of interest in case DFT calculation is not available
+        See manual for the detail.
+    
+        :arg
+                energyRange                                : Function object, electron energy range
+                alpha                                      : NumPy array, nonparabolic term (shows the mixture of S and P orbitals)
+        :returns
+                DoS                                        : NumPy array, first row is nonparabolic DoS while the second row is parabolic DoS 
+        """
 
         DoS_nonparabolic = 1/np.pi**2*np.sqrt(2*energyRange*(1+energyRange*np.transpose(alpha))) \
         *np.sqrt(self.electronEffectiveMass/thermoelectricProperties.hBar**2)**3 \
@@ -85,13 +111,31 @@ class thermoelectricProperties:
 
         DoS = [DoS_nonparabolic,DoS_parabolic]
 
-        return DoS    # The array size is [2,numEnergySampling], first row is the with nonparabolic while the second row is parabolic DoS
+        return DoS    # The array size is [2,numEnergySampling], first row is nonparabolic while the second row is parabolic DoS
 
     def carrierConcentration(self, path2extrinsicCarrierConcentration, bandGap,
                              Ao=None, Bo=None, Nc=None, Nv=None, Temp=None
                             ):
+                
+        """
+        This function computes the carrier concentration. The extrinsic carrier concentration is from experiments
+        The following formula is used to compute intrinsic carrier concentraion: ni = sqrt(Nc*Nv)*exp(-Eg/kB/T/2)
+        A good reference book is "Principles of Semiconductor Devices" by Sima Dimitrijev
+        Note that thermoelectric.py is smart to compute the carrier concentration if any of the parameters is unknown
 
-        # This function computes the carrier concentration
+    
+        :arg
+                path2extrinsicCarrierConcentration         : String, point to the experimental data
+                bandGap                                    : NumPy array, nonparabolic term (shows the mixture of S and P orbitals)
+                Nc                                         : Floating number, the effective densities of states in the conduction band
+                Nv                                         : Floating number, the effective densities of states in the valence band
+                Ao                                         : Floating number, experimentally fitted parameter (Nc ~ Ao*T^(3/2)) 
+                Bo                                         : Floating number, experimentally fitted parameter (Nv ~ Ao*T^(3/2)) 
+                Temp                                       : Function object, temperature range
+        :returns
+                totalCarrierConcentration                  : NumPy array, The total carrier concentration
+        """
+
 
         if Temp is None:
             T = self.temp()
@@ -122,7 +166,24 @@ class thermoelectricProperties:
 
     def fermiLevel(self, carrierConcentration, energyRange, DoS, Nc=None, Ao=None, Temp=None):
 
-        # This function uses Joice Dixon approximation to predict Ef and thereby the carreir concentration at each temperature
+        """
+        This function uses Joice Dixon approximation to predict Ef and thereby the carreir concentration at each temperature
+        A good reference book is "Principles of Semiconductor Devices" by Sima Dimitrijev
+        See the manual for the detail
+        Note that thermoelectric.py is smart to compute the fermi level if any of the parameters is unknown
+
+    
+        :arg
+                carrierConcentration                           : Function object, total carrier concentration
+                energyRange                                    : Function object, the electron energy level
+                DoS                                            : Function object, the electron density of state
+                Nc                                             : Floating number, the effective densities of states in the conduction band
+                Nv                                             : Floating number, the effective densities of states in the valence band
+                Temp                                           : Function object, temperature range
+        :returns
+                fermiLevelEnergy,np.expand_dims(n,axis=0)      : A 1 by 2 list, The first element is a NumPy array of Fermi level ...
+                                                                 while the second element is a Numpy array of the carrier concentration
+        """ 
 
         if Temp is None:
             T = self.temp()
@@ -146,7 +207,7 @@ class thermoelectricProperties:
 
     def fermiDistribution(self, energyRange, fermiLevel, Temp=None):
 
-        # This function compute the Fermi distribution
+        # This function compute the Fermi distribution and the Fermi window (the first derivation of the Fermi level respect to energy)
 
         if Temp is None:
             T = self.temp()

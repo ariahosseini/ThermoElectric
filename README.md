@@ -200,7 +200,7 @@ This panel shows the Debye length for two different carrier concentrations. The 
 
 <p>
  
- A alternative way is to use the Fermi-Dirac Integrals python package (FDINT)--compatable with python2, using following command
+ A alternative way is to use the Fermi-Dirac Integrals python package (FDINT) - compatable with python2, using following command
  
  ```
  pip install fdint

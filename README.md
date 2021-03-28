@@ -20,7 +20,7 @@
   * [Model Prediction for Bulk Si](#Model-Prediction-for-Bulk-Si)
   * [Ideal Electron Filtering](#Ideal-Electron-Filtering)
   * [Effect of Nanopores on Lorenz Number](#Effect-of-Nanopores-on-Lorenz-Number)
-- [REFERENCE](#REFERENCE)
+- [REFERENCES](#REFERENCES)
 - [CITATION](#Citation)
 
 # INSTALLATION

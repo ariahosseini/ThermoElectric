@@ -3,6 +3,12 @@ Thermoelectric.py is a computational framework that computes electron transport 
 with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering
 that will enhance performance through electron energy filtering.
 
+
+Cite: Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si,
+        Hosseini, S. Aria and Romano, Giuseppe and Greaney, P. Alex,
+        ACS Applied Energy Materials,2021,
+        https://doi.org/10.1021/acsaem.0c02640.
+
 Author: S. Aria Hosseini
 Email: shoss008@ucr.edu
 """
@@ -15,23 +21,8 @@ from os.path import expanduser
 from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.interpolate import PchipInterpolator
 from scipy.special import jv
-from accum import accum # This pakage is used to compute the cumulative average
+from accum import accum  # This package is used to compute the cumulative average
 import copy
-
-# Post processing packages
-
-import matplotlib as mpl
-from matplotlib import cm
-from numpy.matlib import repmat
-import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
-import matplotlib.ticker
-from matplotlib.ticker import FormatStrFormatter
-from matplotlib.ticker import ScalarFormatter
-from mpl_toolkits import mplot3d
-from matplotlib.colors import LightSource
-import seaborn as sns
-
 
 
 class thermoelectricProperties:
@@ -55,7 +46,7 @@ class thermoelectricProperties:
         self.energyMin = energyMin                              # Minimum energy in eV, 0 eV unless looking for high level contribution
         self.dielectric = dielectric                            # Relative permittivity
         self.numEnergySampling = numEnergySampling              # Number of energy space samples to generate, defaul is 1000
-        self.numKpoints = numKpoints                            # Number of Kpints in DFT calculation
+        self.numKpoints = numKpoints                            # Number of Kpoints in DFT calculation
         self.numBands = numBands
         self.electronDispersian = electronDispersian
         self.numQpoints = numQpoints
@@ -75,8 +66,8 @@ class thermoelectricProperties:
         temperature = np.arange(TempMin, TempMax, dT)
         return np.expand_dims(temperature, axis=0)              # The array size is [1,(TempMax-TempMin)/dT]
 
-    def bandGap(self, Eg_o, Ao, Bo, Temp=None):                 # general shap of bandgap: Eg(T)=Eg(T=0)-Ao*T**2/(T+Bo)
-        if Temp is None:    # Use defaul temperature range (300K up to 1301K with step of 50K)
+    def bandGap(self, Eg_o, Ao, Bo, Temp=None):                 # general shape of bandgap: Eg(T)=Eg(T=0)-Ao*T**2/(T+Bo)
+        if Temp is None:    # Use default temperature range (300K up to 1301K with step of 50K)
             T = self.temp()
         else:
             T = Temp
@@ -124,7 +115,7 @@ class thermoelectricProperties:
         intrinsicCarrierConcentration = np.multiply(np.sqrt(np.multiply(Nc, Nv)), \
                                                     np.exp(-(np.divide(bandGap, (2 * thermoelectricProperties.kB * T)))))
 
-        # The formula for temperature dependent intrinsic carreir concentration is given in the manual
+        # The formula for temperature dependent intrinsic carrier concentration is given in the manual
         totalCarrierConcentration = intrinsicCarrierConcentration + abs(extrinsicCarrierConcentration)
 
         return totalCarrierConcentration # Total carreir concentration is sum of intrinsic and extrinsic carrier concentration
@@ -143,7 +134,7 @@ class thermoelectricProperties:
             Nc = Ao * Temp**(3. / 2)
 
         JD_CC = np.log(np.divide(carrierConcentration, Nc)) + 1 / np.sqrt(8) * np.divide(carrierConcentration, Nc) - \
-        (3. / 16 - np.sqrt(3) / 9) * np.power(np.divide(carrierConcentration, Nc), 2)
+                (3. / 16 - np.sqrt(3) / 9) * np.power(np.divide(carrierConcentration, Nc), 2)
 
         fermiLevelEnergy = thermoelectricProperties.kB * np.multiply(T, JD_CC)
 
@@ -206,7 +197,7 @@ class thermoelectricProperties:
 
         DoSFunctionEnergy = DoSSpline(energyRange)  # Density of state
 
-        return DoSFunctionEnergy # The array size is [1, numEnergySampling]
+        return DoSFunctionEnergy  # The array size is [1, numEnergySampling]
 
     def fermiLevelSelfConsistent(self, carrierConcentration, Temp, energyRange, DoS, fermilevel):
 
@@ -225,8 +216,8 @@ class thermoelectricProperties:
         for j in Temp[0]:
             idx_i = 0
             for i in fermi[idx_j]:
-                f, _ = self.fermiDistribution(energyRange=energyRange, \
-                                              fermiLevel=np.expand_dims(np.array([i]), axis=0), \
+                f, _ = self.fermiDistribution(energyRange=energyRange,
+                                              fermiLevel=np.expand_dims(np.array([i]), axis=0),
                                               Temp=np.expand_dims(np.array([j]), axis=0))
                 tmp = np.trapz(np.multiply(DoS, f), energyRange, axis=1)
                 result_array[idx_j, idx_i] = tmp
@@ -293,7 +284,7 @@ class thermoelectricProperties:
         E = thermoelectricProperties.hBar**2 / 2 * \
         ((kpoint[0] - ko[0])**2 / meff[0] + (kpoint[1] - ko[1])**2 / meff[1] + (kpoint[2] - ko[2]) ** 2 / meff[2]) \
         * thermoelectricProperties.e2C
-        vel = thermoelectricProperties.hBar*np.sqrt((kpoint[0]-ko[0])**2+(kpoint[1]-ko[1])**2 \
+        vel = thermoelectricProperties.hBar*np.sqrt((kpoint[0]-ko[0])**2+(kpoint[1]-ko[1])**2
                                                     +(kpoint[2]-ko[2])**2)/mc/(1+2*alpha*E)*thermoelectricProperties.e2C
 
         Ec, indices, return_indices = np.unique(E, return_index=True, return_inverse=True)
@@ -326,9 +317,9 @@ class thermoelectricProperties:
 
         return [tau,tau_p] # The first row does not count for nonparabolicity, the second row does
 
-    def tau_Screened_Coulomb(self,energyRange, m_c, LD, N):
+    def tau_Screened_Coulomb(self, energyRange, m_c, LD, N):
 
-        # Electron-ion scattering rate following Brook Heiring model
+        # Electron-ion scattering rate following Brook-Herring model
 
         g = 8*m_c.T*LD.T**2*energyRange/thermoelectricProperties.hBar**2/thermoelectricProperties.e2C
 
@@ -342,7 +333,7 @@ class thermoelectricProperties:
 
         return tau  # The array size is [1, numEnergySampling]
 
-    def tau_Unscreened_Coulomb(self,energyRange, m_c, N):
+    def tau_Unscreened_Coulomb(self, energyRange, m_c, N):
 
         # Electron-ion scattering rate for shallow dopants ~10^18 1/cm^3 (no screening effect is considered)
 
@@ -388,24 +379,24 @@ class thermoelectricProperties:
         mag_kpoint = norm(kpoint, axis=0)
 
         E = thermoelectricProperties.hBar**2 / 2 * \
-        ((kpoint[0, :] - ko[0])**2 / meff[0] + (kpoint[1, :] - ko[1])**2 / meff[1] + \
+        ((kpoint[0, :] - ko[0])**2 / meff[0] + (kpoint[1, :] - ko[1])**2 / meff[1] +
          (kpoint[2, :] - ko[2]) ** 2 / meff[2]) * thermoelectricProperties.e2C
 
         t = np.linspace(0, 2*np.pi, n)
-        a = np.expand_dims(np.sqrt(2 * meff[1] / thermoelectricProperties.hBar**2 * \
+        a = np.expand_dims(np.sqrt(2 * meff[1] / thermoelectricProperties.hBar**2 *
                                    E / thermoelectricProperties.e2C), axis=0)
-        b = np.expand_dims(np.sqrt(2 * meff[2] / thermoelectricProperties.hBar**2 * \
+        b = np.expand_dims(np.sqrt(2 * meff[2] / thermoelectricProperties.hBar**2 *
                                    E / thermoelectricProperties.e2C), axis=0)
 
         ds = np.sqrt((a.T * np.sin(t))**2 + (b.T * np.cos(t))**2)
 
-        cos_theta = ((a * kpoint[0]).T * np.cos(t) + (b * kpoint[1]).T * np.sin(t) + \
+        cos_theta = ((a * kpoint[0]).T * np.cos(t) + (b * kpoint[1]).T * np.sin(t) +
                      np.expand_dims(kpoint[2]**2, axis=1)) / \
-        np.sqrt(a.T**2 * np.cos(t)**2 + b.T**2 * np.sin(t)**2 + \
+        np.sqrt(a.T**2 * np.cos(t)**2 + b.T**2 * np.sin(t)**2 +
                 np.expand_dims(kpoint[2]**2, axis=1)) / np.expand_dims(mag_kpoint, axis=1)
 
         delE = thermoelectricProperties.hBar**2 * \
-        np.abs((a.T * np.cos(t) - ko[0]) / meff[0] + \
+        np.abs((a.T * np.cos(t) - ko[0]) / meff[0] +
                (b.T * np.sin(t) - ko[1]) / meff[1] + (np.expand_dims(kpoint[2]**2, axis=1) - ko[2] / meff[2]))
 
         qx = np.expand_dims(kpoint[0], axis=1) - a.T * np.cos(t)
@@ -461,8 +452,8 @@ class thermoelectricProperties:
         mag_kpoint = norm(kpoint, axis=0)
 
         E = thermoelectricProperties.hBar**2 / 2 * \
-        ((kpoint[0, :] - ko[0])**2 / meff[0] + \
-         (kpoint[1, :] - ko[1])**2 / meff[1] + \
+        ((kpoint[0, :] - ko[0])**2 / meff[0] +
+         (kpoint[1, :] - ko[1])**2 / meff[1] +
          (kpoint[2, :] - ko[2]) ** 2 / meff[2]) * thermoelectricProperties.e2C
 
         scattering_rate = np.zeros((len(ro), len(E)))
@@ -491,27 +482,28 @@ class thermoelectricProperties:
             z = np.tile(Z_[:, None], (1,n))
             for j in np.arange(1,n-1):
                 for i in np.arange(2,n):
-                    S = np.array(np.array([x[i,j],y[i,j],z[i,j]])+ \
-                                 np.array([x[i-1,j],y[i-1,j],z[i-1,j]])+np.array([x[i-1,j-1],y[i-1,j-1],z[i-1,j-1]]))
+                    S = np.array(np.array([x[i, j], y[i, j], z[i, j]]) +
+                                 np.array([x[i-1, j], y[i-1, j], z[i-1, j]]) +
+                                 np.array([x[i-1, j-1], y[i-1, j-1], z[i-1, j-1]]))
                     Q[k] = S/3
-                    a = norm(np.array([x[i,j],y[i,j],z[i,j]])-np.array([x[i-1,j],y[i-1,j],z[i-1,j]]))
-                    b = norm(np.array([x[i-1,j],y[i-1,j],z[i-1,j]])-np.array([x[i-1,j-1],y[i-1,j-1],z[i-1,j-1]]))
-                    c = norm(np.array([x[i-1,j-1],y[i-1,j-1],z[i-1,j-1]])-np.array([x[i,j],y[i,j],z[i,j]]))
+                    a = norm(np.array([x[i, j], y[i, j], z[i, j]])-np.array([x[i-1, j], y[i-1, j], z[i-1, j]]))
+                    b = norm(np.array([x[i-1, j], y[i-1, j], z[i-1, j]])-np.array([x[i-1, j-1], y[i-1, j-1], z[i-1, j-1]]))
+                    c = norm(np.array([x[i-1, j-1], y[i-1, j-1], z[i-1, j-1]])-np.array([x[i, j], y[i, j], z[i, j]]))
                     s = a+b+c
                     s = s/2
                     A[k] = np.sqrt(s*(s-a)*(s-b)*(s-c))
                     k += 1
             for j in np.arange(1,n-1):
                 for i in np.arange(1,n-1):
-                    S = np.array([x[i,j-1],y[i,j-1],z[i,j-1]])+ \
-                    np.array([x[i,j],y[i,j],z[i,j]])+ \
-                    np.array([x[i-1,j-1],y[i-1,j-1],z[i-1,j-1]])
+                    S = np.array([x[i, j-1], y[i, j-1], z[i, j-1]]) + \
+                    np.array([x[i, j], y[i, j], z[i, j]]) + \
+                    np.array([x[i-1, j-1], y[i-1, j-1], z[i-1, j-1]])
 
                     Q[k] = S/3
 
-                    a = norm(np.array([x[i,j-1],y[i,j-1],z[i,j-1]])-np.array([x[i,j],y[i,j],z[i,j]]))
-                    b = norm(np.array([x[i,j],y[i,j],z[i,j]])-np.array([x[i-1,j-1],y[i-1,j-1],z[i-1,j-1]]))
-                    c = norm(np.array([x[i-1,j-1],y[i-1,j-1],z[i-1,j-1]])-np.array([x[i,j-1],y[i,j-1],z[i,j-1]]))
+                    a = norm(np.array([x[i, j-1], y[i,j-1],z[i,j-1]])-np.array([x[i, j], y[i, j], z[i, j]]))
+                    b = norm(np.array([x[i, j], y[i,j],z[i,j]])-np.array([x[i-1, j-1], y[i-1, j-1], z[i-1, j-1]]))
+                    c = norm(np.array([x[i-1, j-1], y[i-1, j-1], z[i-1, j-1]])-np.array([x[i, j-1], y[i, j-1], z[i, j-1]]))
                     s = a+b+c
                     s = s/2
 
@@ -519,12 +511,12 @@ class thermoelectricProperties:
                     k += 1
 
             for i in np.arange(2,n):
-                S = np.array([x[i,0],y[i,0],z[i,0]])+np.array([x[i-1,0],y[i-1,0],z[i-1,0]])+np.array([x[i-1,-2],y[i-1,-2],z[i-1,-2]])
+                S = np.array([x[i, 0], y[i, 0], z[i, 0]])+np.array([x[i-1, 0], y[i-1, 0], z[i-1, 0]])+np.array([x[i-1, -2], y[i-1, -2], z[i-1, -2]])
                 Q[k] = S/3
 
-                a = norm(np.array([x[i,0],y[i,0],z[i,0]])-np.array([x[i-1,0],y[i-1,0],z[i-1,0]]))
-                b = norm(np.array([x[i-1,0],y[i-1,0],z[i-1,0]])-np.array([x[i-1,-2],y[i-1,-2],z[i-1,-2]]))
-                c = norm(np.array([x[i-1,-2],y[i-1,-2],z[i-1,-2]])-np.array([x[i,0],y[i,0],z[i,0]]))
+                a = norm(np.array([x[i, 0], y[i, 0], z[i, 0]])-np.array([x[i-1, 0], y[i-1, 0], z[i-1, 0]]))
+                b = norm(np.array([x[i-1, 0], y[i-1, 0], z[i-1, 0]])-np.array([x[i-1, -2], y[i-1, -2], z[i-1, -2]]))
+                c = norm(np.array([x[i-1, -2], y[i-1, -2], z[i-1, -2]])-np.array([x[i, 0], y[i, 0], z[i, 0]]))
                 s = a+b+c
                 s = s/2
 
@@ -532,12 +524,12 @@ class thermoelectricProperties:
                 k += 1
 
             for i in np.arange(1,n-1):
-                S = np.array([x[i,-2],y[i,-2],z[i,-2]])+np.array([x[i,0],y[i,0],z[i,0]])+np.array([x[i-1,-2],y[i-1,-2],z[i-1,-2]])
+                S = np.array([x[i, -2], y[i, -2], z[i, -2]])+np.array([x[i, 0], y[i, 0], z[i, 0]])+np.array([x[i-1, -2], y[i-1, -2], z[i-1, -2]])
                 Q[k] = S/3
 
-                a = norm(np.array([x[i,-2],y[i,-2],z[i,-2]])-np.array([x[i,0],y[i,0],z[i,0]]))
-                b = norm(np.array([x[i,0],y[i,0],z[i,0]])-np.array([x[i-1,-2],y[i-1,-2],z[i-1,-2]]))
-                c = norm(np.array([x[i-1,-2],y[i-1,-2],z[i-1,-2]])-np.array([x[i,-2],y[i,-2],z[i,-2]]))
+                a = norm(np.array([x[i, -2], y[i, -2], z[i, -2]]) - np.array([x[i,0], y[i,0], z[i, 0]]))
+                b = norm(np.array([x[i, 0], y[i, 0], z[i, 0]]) - np.array([x[i-1,-2], y[i-1, -2], z[i-1, -2]]))
+                c = norm(np.array([x[i-1, -2], y[i-1, -2], z[i-1, -2]]) - np.array([x[i, -2], y[i, -2], z[i, -2]]))
                 s = a+b+c
                 s = s/2
 
@@ -547,23 +539,19 @@ class thermoelectricProperties:
             qx = kpoint[0,u] - Q[:,0]
             qy = kpoint[1,u] - Q[:,1]
             qz = kpoint[2,u] - Q[:,2]
-            q  = np.sqrt(qx**2+qy**2+qz**2)
+            q = np.sqrt(qx**2+qy**2+qz**2)
 
             cosTheta = np.matmul(kpoint[:,u][None,:],Q.T)/norm(kpoint[:,u])/np.sqrt(np.sum(Q**2,axis=1))
 
-            delE = np.abs(thermoelectricProperties.hBar**2*((Q[:,0]-ko[0])/meff[0]+(Q[:,1]-ko[1])/meff[1]+(Q[:,2]-ko[2])/meff[2]))
+            delE = np.abs(thermoelectricProperties.hBar**2*((Q[:, 0]-ko[0])/meff[0]+(Q[:,1]-ko[1])/meff[1]+(Q[:,2]-ko[2])/meff[2]))
 
-            for ro_idx in  np.arange(len(ro)):
-              M = 4*np.pi*Uo*(1/q*np.sin(ro[ro_idx]*q)-ro[ro_idx]*np.cos(ro[ro_idx]*q))/(q**2)
-
-              SR = 2*np.pi/thermoelectricProperties.hBar*M*np.conj(M)
-
-              f = SR/delE*(1-cosTheta)
-
-              scattering_rate[ro_idx,u] = N[ro_idx]/(2*np.pi)**3*np.sum(f*A.T)
+            for ro_idx in np.arange(len(ro)):
+                M = 4*np.pi*Uo*(1/q*np.sin(ro[ro_idx]*q)-ro[ro_idx]*np.cos(ro[ro_idx]*q))/(q**2)
+                SR = 2*np.pi/thermoelectricProperties.hBar*M*np.conj(M)
+                f = SR/delE*(1-cosTheta)
+                scattering_rate[ro_idx,u] = N[ro_idx]/(2*np.pi)**3*np.sum(f*A.T)
 
         return scattering_rate
-
 
     def electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau):
 
@@ -577,18 +565,18 @@ class thermoelectricProperties:
         Sigma = -1 * np.trapz(X * tau, E, axis=1) / 3 * thermoelectricProperties.e2C
         S = -1*np.trapz(Y * tau, E, axis=1)/np.trapz(X * tau, E, axis=1)/Temp
         PF = Sigma*S**2
-        ke = -1*(np.trapz(Z * tau, E, axis=1) - np.trapz(Y * tau, E, axis=1)**2/ \
+        ke = -1*(np.trapz(Z * tau, E, axis=1) - np.trapz(Y * tau, E, axis=1)**2 /
                  np.trapz(X * tau, E, axis=1))/Temp/3 * thermoelectricProperties.e2C
 
         delta_0 = np.trapz(X * tau* E, E, axis=1)
-        delta_1 = np.trapz(X * tau* E, E, axis=1)/ np.trapz(X * tau, E, axis=1)
-        delta_2 = np.trapz(X * tau* E**2, E, axis=1)/ np.trapz(X * tau, E, axis=1)
+        delta_1 = np.trapz(X * tau* E, E, axis=1) / np.trapz(X * tau, E, axis=1)
+        delta_2 = np.trapz(X * tau* E**2, E, axis=1) / np.trapz(X * tau, E, axis=1)
 
         Lorenz = (delta_2-delta_1**2)/Temp/Temp
 
         coefficients = [Sigma, S[0], PF[0], ke[0], delta_1, delta_2, Lorenz[0]]
 
-        return coefficients # The list is 7 by numEnergySampling
+        return coefficients  # The list is 7 by numEnergySampling
 
     def filteringEffect(self, U, E, DoS, vg, Ef, dfdE, Temp, tau_b):
 
@@ -604,10 +592,10 @@ class thermoelectricProperties:
             tau_idl = copy.copy(tauUo)
             tau_idl[E[0]<U[i]] = 0
             tau = self.matthiessen(E, tau_idl, tau_b)
-            coefficients = self.electricalProperties(E=E, DoS=DoS, \
+            coefficients = self.electricalProperties(E=E, DoS=DoS,
                                                      vg=vg, Ef=Ef, dfdE=dfdE, Temp=Temp, tau=tau)
-            Sigma = np.expand_dims(coefficients[0],axis=0)
-            S = np.expand_dims(coefficients[1],axis=0)
+            Sigma = np.expand_dims(coefficients[0], axis=0)
+            S = np.expand_dims(coefficients[1], axis=0)
 
             _Conductivity = np.append(_Conductivity, [Sigma], axis=0)
             _Seebeck = np.append(_Seebeck, [S], axis=0)
@@ -616,7 +604,7 @@ class thermoelectricProperties:
         Conductivity = np.delete(_Conductivity, 0, axis = 0)
         Seebeck = np.delete(_Seebeck, 0, axis = 0)
 
-        return [Conductivity, Seebeck] # The list is 2 by numEnergySampling
+        return [Conductivity, Seebeck]  # The list is 2 by numEnergySampling
 
     def phenomenological(self, U, tauo, E, DoS, vg, Ef, dfdE, Temp, tau_b):
 
@@ -633,10 +621,10 @@ class thermoelectricProperties:
                 tau_ph = copy.copy(tauU)
                 tau_ph[E[0]<U[_i]] = tauo[_j]
                 tau = self.matthiessen(E, tau_ph, tau_b)
-                coefficients = self.electricalProperties(E=E, DoS=DoS, \
+                coefficients = self.electricalProperties(E=E, DoS=DoS,
                                                          vg=vg, Ef=Ef, dfdE=dfdE, Temp=Temp, tau=tau)
-                Sigma = np.expand_dims(coefficients[0],axis=0)
-                S = np.expand_dims(coefficients[1],axis=0)
+                Sigma = np.expand_dims(coefficients[0], axis=0)
+                S = np.expand_dims(coefficients[1], axis=0)
                 _Conductivity = np.append(_Conductivity, [Sigma], axis=0)
                 _Seebeck = np.append(_Seebeck, [S], axis=0)
                 del tau_ph
@@ -644,6 +632,6 @@ class thermoelectricProperties:
         __Conductivity = np.delete(_Conductivity, 0, axis = 0)
         __Seebeck = np.delete(_Seebeck, 0, axis = 0)
         Conductivity = np.reshape(__Conductivity,(len(tauo),len(U)))
-        Seebeck = np.reshape(__Seebeck,(len(tauo),len(U)))
+        Seebeck = np.reshape(__Seebeck, (len(tauo), len(U)))
 
         return [Conductivity, Seebeck]  # The list is 2 by numEnergySampling

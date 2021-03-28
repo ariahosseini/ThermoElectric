@@ -200,9 +200,11 @@ dlmwrite('f_inc',[f1;f2]); % Generate the output
 
 <p>
  A alternative way is to use the Fermi-Dirac Integrals python package (FDINT)--compatable with python2, using following command
+ 
  ```
  pip install fdint
  ```
+ 
  </p>
  
 <p>

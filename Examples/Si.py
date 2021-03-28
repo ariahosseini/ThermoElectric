@@ -82,7 +82,7 @@ b_rp = np.cross(Lv[2],Lv[0])/np.dot(Lv[1],np.cross(Lv[2],Lv[0]))  # Reciprocal l
 c_rp = np.cross(Lv[0],Lv[1])/np.dot(Lv[2],np.cross(Lv[0],Lv[1]))  # Reciprocal lattice vector along c
 RLv = np.array([a_rp, b_rp, c_rp])                                # Reciprocal lattice vector
 
-e = Si.energyRange()                                    # Energy range, the fefaul is from 0 to 1 eV which is reseanable for near equilibrium transport
+e = Si.energyRange()                                    # Energy range, the default is from 0 to 1 eV which is reseanable for near equilibrium transport
 Tmp = Si.temp(TempMin=300, TempMax=1201, dT=50)         # Desired temperature range
 h = Si.bandGap(Eg_o=1.17, Ao=4.73e-4, Bo=636, Temp=Tmp) # Band structe, see the manual for the description
 alpha = np.array(0.5*np.tile([1],(1,len(h[0]))))        # Nonparabolic term shows the mixture of S and P orbitals,

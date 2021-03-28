@@ -187,18 +187,24 @@ where N<sub>c</sub>=2((m<sub>c</sub> k<sub>B</sub>T)/(2πℏ)<sup>2</sup>)<sup>(
 
 This panel shows the Debye length for two different carrier concentrations. The solid lines show the model prediction using degenerate form while the dash lines are for the cases in which degeneracy is neglected. To evaluate the Half-order Fermi-Dirac integral, fermi.m by N.Mohankumar & A.Natarajan is suggested, see *ThirdPartyTools* directory. The running scrtpt is as simple as
 
-``` Matlab running file to compute half order Fermi integral
+```
+%% Matlab running file to compute half order Fermi integral
 
 Ef = dlmread("Ef"); % Fermi level from running thermoelectric.py
-
 for i = 1:size(Ef,2)
 f1(1,i) = fermi(0.5,Ef_inc(1,i)); The (1/2)-order Fermi-Dirac integral
 f2(1,i) = fermi(-0.5,Ef_inc(1,i)); The (-1/2)-order Fermi-Dirac integral
 end
 dlmwrite('f_inc',[f1;f2]); % Generate the output
-
 ```
 
+<p>
+ A alternative way is to use the Fermi-Dirac Integrals python package (FDINT)--compatable with python2, using following command
+ ```
+ pip install fdint
+ ```
+ </p>
+ 
 <p>
 The second important scattering mechanism specially at high temperature in nonpolar semiconductors like Si is the acoustic phonon deformation potential. For electron phonon interaction, Ravich defined the lifetime as 
  

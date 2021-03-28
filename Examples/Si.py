@@ -52,9 +52,9 @@ ExpData_SiCfrac_5pct_direction_up = np.loadtxt('ExpData_SiCfrac-5pct_direction-u
 
 # f variables are [T(K), Nc(1/cm^3)], where Nc is the carreir concentration
 f0 = np.array([ExpData_SiCfra_0pct_direction_up[:,0], ExpData_SiCfra_0pct_direction_up[:,-2]*1e20])       # pristine Si
-f1 = np.array([ExpData_SiCfrac_5pct_direction_up[:,0], ExpData_SiCfrac_5pct_direction_up[:,-2]*1e20])     # Si with 5% of SiC while heaating up
+f1 = np.array([ExpData_SiCfrac_5pct_direction_up[:,0], ExpData_SiCfrac_5pct_direction_up[:,-2]*1e20])     # Si with 5% of SiC while heating up
 f2 = np.array([ExpData_SiCfrac_5pct_direction_down[:,0], ExpData_SiCfrac_5pct_direction_down[:,-2]*1e20]) # Si with 5% of SiC while cooling down
-f3 = np.array([ExpData_SiCfrac_1pct_direction_up[:,0], ExpData_SiCfrac_1pct_direction_up[:,-2]*1e20])     # Si with 1% of SiC while heaating up
+f3 = np.array([ExpData_SiCfrac_1pct_direction_up[:,0], ExpData_SiCfrac_1pct_direction_up[:,-2]*1e20])     # Si with 1% of SiC while heating up
 
 # Initiate the Obj, let's call it Si
 Si = thermoelectricProperties ( latticeParameter = 5.401803661945516e-10, dopantElectricCharge = 1, \
@@ -77,9 +77,9 @@ sp = np.sqrt(bulk_module/rho)           # Speed of sound
 # Silicon has cubic unitcell, here is to define lattice vector and the reciprocal lattice vector
 
 Lv = np.array([[1,1,0],[0,1,1],[1,0,1]])*Si.latticeParameter/2    # Lattice vector
-a_rp = np.cross(Lv[1],Lv[2])/np.dot(Lv[0],np.cross(Lv[1],Lv[2]))  # Reciprocal lattice vector alonng a
-b_rp = np.cross(Lv[2],Lv[0])/np.dot(Lv[1],np.cross(Lv[2],Lv[0]))  # Reciprocal lattice vector alonng b
-c_rp = np.cross(Lv[0],Lv[1])/np.dot(Lv[2],np.cross(Lv[0],Lv[1]))  # Reciprocal lattice vector alonng c
+a_rp = np.cross(Lv[1],Lv[2])/np.dot(Lv[0],np.cross(Lv[1],Lv[2]))  # Reciprocal lattice vector along a
+b_rp = np.cross(Lv[2],Lv[0])/np.dot(Lv[1],np.cross(Lv[2],Lv[0]))  # Reciprocal lattice vector along b
+c_rp = np.cross(Lv[0],Lv[1])/np.dot(Lv[2],np.cross(Lv[0],Lv[1]))  # Reciprocal lattice vector along c
 RLv = np.array([a_rp, b_rp, c_rp])                                # Reciprocal lattice vector
 
 e = Si.energyRange()                                    # Energy range, the fefaul is from 0 to 1 eV which is reseanable for near equilibrium transport

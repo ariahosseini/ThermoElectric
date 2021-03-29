@@ -29,11 +29,16 @@ Compatible with python 3.0 and upwards
 
 ```bash
 git clone https://github.com/ariahosseini/thermoelectric.py.git
+cd thermoelectric.py/
 pip install --upgrade pip
 pip install -r Requirements.txt
 ```
 
+You need to define the following environment variable in your .bashrc or .bash_profile
 
+```bash
+export PYTHONPATH=/PATH/TO/THERMOELECTRICPYl/thermoelectric.py/src:/PATH/TO/THERMOELECTRICPYl/thermoelectric.py/ThirdPartyTools:$PYTHONPATH
+```
 
 # OUTREACH
 

@@ -24,8 +24,10 @@ The required data files are available to download from Datafile director. Here i
 
 </p>
 
+## Output 
+
 <p>
-The following figures will be generated  
+The following figures will be generated:  
 </p>
   
 <p align="center">

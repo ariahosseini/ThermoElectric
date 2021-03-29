@@ -1,9 +1,9 @@
 
 """
 This is an example that shows how to use thermoelectric.py.
-In this script electrical properties of Si-based composite
+In this script the ideal electronn filtering in Si-based composite
 containing nanoscale SiC particles is studied.
-Required data files are available in repo under datafile directory
+Required data files are available in repo under Datafile directory
 Cite: Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si,
         Hosseini, S. Aria and Romano, Giuseppe and Greaney, P. Alex,
         ACS Applied Energy Materials,2021,

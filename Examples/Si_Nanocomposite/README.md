@@ -24,11 +24,64 @@ The required data files are available to download from Datafile director. Here i
 
 </p>
 
-
+<p>
+The following figures will be generated  
+</p>
+  
 <p align="center">
+  
 <img src="Figs/Figure_1.png" align="center" alt="drawing" width="700px"> 
   
-  <img src="Figs/Figure_2.png" align="center" alt="drawing" width="700px"> 
+<img src="Figs/Figure_2.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_3.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_4.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_5.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_6.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_7.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_8.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_9.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_10.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_11.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_12.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_13.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_14.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_15.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_16.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_17.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_18.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_19.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_20.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_21.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_22.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_23.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_24.png" align="center" alt="drawing" width="700px"> 
+
+<img src="Figs/Figure_25.png" align="center" alt="drawing" width="700px"> 
+  
+<img src="Figs/Figure_26.png" align="center" alt="drawing" width="700px"> 
+
 </p>
 
 </div>

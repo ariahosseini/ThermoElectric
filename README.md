@@ -190,7 +190,7 @@ where N<sub>c</sub>=2((m<sub>c</sub> k<sub>B</sub>T)/(2πℏ)<sup>2</sup>)<sup>(
 <img src="Figures/Figure_15.png" align="center" alt="drawing" width="700px"> 
 </p>
 
-This panel shows the Debye length for two different carrier concentrations. The solid lines show the model prediction using degenerate form while the dash lines are for the cases in which degeneracy is neglected. To evaluate the Half-order Fermi-Dirac integral, fermi.m by N.Mohankumar & A.Natarajan is suggested, see *ThirdPartyTools* directory. The running scrtpt is as simple as
+This panel shows the Debye length for two different carrier concentrations. The solid lines show the model prediction using degenerate form while the dash lines are for the cases in which degeneracy is neglected. To evaluate the Half-order Fermi-Dirac integral, fermi.m by N.Mohankumar & A.Natarajan is suggested, see *ThirdPartyTools* directory. The running script is as simple as
 
 ```
 %% Matlab running script to compute half order Fermi integral
@@ -319,7 +319,7 @@ We remark that for nanoparticels the band alignment should be used instead of el
 <img src="https://latex.codecogs.com/png.latex?%5Cdpi%7B300%7D%20%5Ctiny%20M_%7Bkk%27%7D%3D4%5Cpi%20U_g%20%5Cleft%5B%20%5Cfrac%7Bz_o%7D%7B1&plus;%28q_zz_o%29%5E2%7D%20%5Cright%5Dr_o%5E2%5Cleft%5B%20%5Cfrac%7BJ_1%28q_rr_o%29%7D%7Bq_rr_o%7D%20%5Cright%5D" align="center" alt="drawing"> 
 </p>
 
-The electron liftime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scattering terms are shown in the panel below.
+The electron lifetime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scattering terms are shown in the panel below.
 
 <p align="center">
 <img src="Figures/Figure_e2.png" align="center" alt="drawing" width="700px"/> 

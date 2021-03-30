@@ -467,8 +467,7 @@ pages = {1915-1923},\
 year = {2021},\
 doi = {10.1021/acsaem.0c02640},\
 URL = {https://doi.org/10.1021/acsaem.0c02640},\
-eprint = {https://doi.org/10.1021/acsaem.0c02640}\
-}
+eprint = {https://doi.org/10.1021/acsaem.0c02640}}
 
 [2] Enhanced Thermoelectric Performance of Polycrystalline Si0.8Ge0.2 Alloys through the Addition of Nanoscale Porosity, , Hosseini, S. Aria and Romano, Giuseppe and Greaney. Advanced Electronic Materials, 2021, under review.
 
@@ -478,8 +477,7 @@ eprint = {https://doi.org/10.1021/acsaem.0c02640}\
       year={2021},\
       eprint={2103.14223},\
       archivePrefix={arXiv},\
-      primaryClass={cond-mat.mtrl-sci}\
-}
+      primaryClass={cond-mat.mtrl-sci}}
  </div> 
  
 

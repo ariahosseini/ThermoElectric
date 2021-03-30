@@ -457,6 +457,31 @@ When advocating for increased carrier concentration in TEs, it is important to d
  
 [1] Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si, Hosseini, S. Aria and Romano, Giuseppe and Greaney, P. Alex, ACS Applied Energy Materials,2021, https://doi.org/10.1021/acsaem.0c02640.
 
+[2] Enhanced Thermoelectric Performance of Polycrystalline Si0.8Ge0.2 Alloys through the Addition of Nanoscale Porosity, , Hosseini, S. Aria and Romano, Giuseppe and Greaney. Advanced Electronic Materials, 2021, under review.
+
+Please use the following BibTeX formatted citation:
+@article{doi:10.1021/acsaem.0c02640,
+author = {Hosseini, S. Aria and Romano, Giuseppe and Greaney, P. Alex},
+title = {Mitigating the Effect of Nanoscale Porosity on Thermoelectric Power Factor of Si},
+journal = {ACS Applied Energy Materials},
+volume = {4},
+number = {2},
+pages = {1915-1923},
+year = {2021},
+doi = {10.1021/acsaem.0c02640},
+URL = {https://doi.org/10.1021/acsaem.0c02640},
+eprint = {https://doi.org/10.1021/acsaem.0c02640}
+}
+
+
+@misc{hosseini2021enhanced,
+      title={Enhanced Thermoelectric Performance of Polycrystalline $\mathrm{Si_{0.8}Ge_{0.2}}$ Alloys through the Addition of Nanoscale Porosity}, 
+      author={S. Aria Hosseini and P. Alex Greaney and Giuseppe Romano},
+      year={2021},
+      eprint={2103.14223},
+      archivePrefix={arXiv},
+      primaryClass={cond-mat.mtrl-sci}
+}
  </div> 
  
 

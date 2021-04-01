@@ -1,3 +1,16 @@
+# a func. to generate plots for Si.py example
+
+import matplotlib as mpl
+from matplotlib import cm
+import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
+import matplotlib.ticker
+from matplotlib.ticker import FormatStrFormatter
+from matplotlib.ticker import ScalarFormatter
+from mpl_toolkits import mplot3d
+from matplotlib.colors import LightSource
+import seaborn as sns
+
 def generate_figs():
     sns.set ()
     sns.set_context ( "paper", font_scale = 2, rc = {"lines.linewidth": 4} )

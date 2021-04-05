@@ -24,7 +24,7 @@
 - [REFERENCES](#REFERENCES)
 - [CITATION](#Citation)
 
-## GETTING STARTED
+# GETTING STARTED
 
 <div align="justify">
 

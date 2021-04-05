@@ -60,7 +60,7 @@ pip install -r Requirements.txt
 You need to define the following environment variable in your .bashrc or .bash_profile
 
 ```bash
-export PYTHONPATH=/PATH/TO/THERMOELECTRICPYl/thermoelectric.py/src:/PATH/TO/THERMOELECTRICPYl/thermoelectric.py/ThirdPartyTools:$PYTHONPATH
+export PYTHONPATH=/PATH/TO/thermoelectric.py/src:/PATH/TO/thermoelectric.py/ThirdPartyTools:$PYTHONPATH
 ```
 
 # CAPACITY

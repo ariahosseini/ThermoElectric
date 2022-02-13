@@ -1,8 +1,8 @@
-# Themoelectric.py — A Python Tool for Design of High ZT Nanoengineered Thermoelectrics
+# ThemoElectric — A Python Tool for Design of High ZT Nanoengineered Thermoelectrics
 
 <div align="justify">
  
-*Thermoelectric.py* is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance performance through electron energy filtering. The code uses the semiclassical Boltzmann transport equation to compute the TE properties of electrical conductivity, Seebeck coefficient, electron contribution to thermal conductivity, etc., under relaxation time approximation. The code has an interface with the VASP ab initio simulation package. What distinguishes *Thermoelectric.py* from other software such as *BoltzTrap* is sets of subtools that are implemented assist in modeling electron transport in semiconductors. These include a tool for self-consistent calculation of the Fermi level from a given carrier concentration, and a fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering rate due nanoparticles, pores and grain boundaries. The first of these subtools circumvent the problem that DFT underestimates the band gaps, and the second performs isosurface integrals to enable very dense but numerically efficient Brillouin Zone mesh sampling.
+*ThermoElectric* is a computational framework that computes electron transport coefficients with unique features to design the nanoscale morphology of thermoelectrics (TEs) to obtain electron scattering that will enhance performance through electron energy filtering. The code uses the semiclassical Boltzmann transport equation to compute the TE properties of electrical conductivity, Seebeck coefficient, electron contribution to thermal conductivity, etc., under relaxation time approximation. The code has an interface with the VASP ab initio simulation package. What distinguishes *ThermoElectric* from other software such as *BoltzTrap* is sets of subtools that are implemented assist in modeling electron transport in semiconductors. These include a tool for self-consistent calculation of the Fermi level from a given carrier concentration, and a fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering rate due nanoparticles, pores and grain boundaries. The first of these subtools circumvent the problem that DFT underestimates the band gaps, and the second performs isosurface integrals to enable very dense but numerically efficient Brillouin Zone mesh sampling.
 </div>
 
 
@@ -71,7 +71,7 @@ export PYTHONPATH=/PATH/TO/thermoelectric.py/src:/PATH/TO/thermoelectric.py/Thir
 
 <p>
  
-*Thermoelectric.py* shows that using electron energy filtering can completely free engineers from the established paradigm that the optimal carrier concentration is constrained and that only semiconductors can make good thermoelectrics. The model demonstrates that if one applies perfect energy filtering then one can obtain greatly enhanced power factor by doping the material to push the Fermi energy even deep into the conduction band. In fact, it is possible to make TE with optimal performance that are metallic! 
+*ThermoElectric* shows that using electron energy filtering can completely free engineers from the established paradigm that the optimal carrier concentration is constrained and that only semiconductors can make good thermoelectrics. The model demonstrates that if one applies perfect energy filtering then one can obtain greatly enhanced power factor by doping the material to push the Fermi energy even deep into the conduction band. In fact, it is possible to make TE with optimal performance that are metallic! 
 </p>
 
 <p align="center">
@@ -86,7 +86,7 @@ export PYTHONPATH=/PATH/TO/thermoelectric.py/src:/PATH/TO/thermoelectric.py/Thir
 
 <p>
  
-*Thermoelectric.py* tool computes the quantum mechanically predicted rates of electron scattering from heterogeneities with a variety of different geometries to find design strategies to this problem. I have found that the detrimental effect of pores can be largely mitigated in the thermoelectric design by subtly tuning the doping concentration to higher carrier concentration compared to bulk materials. As a design strategy, for the largest enhancement in Seebeck one needs to get in pores of any shape, if one can make them as small as possible. 
+*ThermoElectric* tool computes the quantum mechanically predicted rates of electron scattering from heterogeneities with a variety of different geometries to find design strategies to this problem. I have found that the detrimental effect of pores can be largely mitigated in the thermoelectric design by subtly tuning the doping concentration to higher carrier concentration compared to bulk materials. As a design strategy, for the largest enhancement in Seebeck one needs to get in pores of any shape, if one can make them as small as possible. 
 </p>
 
 <p align="center">

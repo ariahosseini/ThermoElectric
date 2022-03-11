@@ -33,7 +33,7 @@ def kpoints(path2kpoints: str, delimiter: str = None, skip_rows: int = 0) -> np.
 
 def carrier_concentration(path_extrinsic_carrier: str, band_gap: np.ndarray,
                           Ao: float = None, Bo: float = None, Nc: float = None,
-                          Nv: float = None, temp: np.ndarray = None):
+                          Nv: float = None, temp: np.ndarray = None) -> np.ndarray:
 
     """
     This function computes the carrier concentration. The extrinsic carrier concentration is from experiments.
@@ -94,7 +94,7 @@ def carrier_concentration(path_extrinsic_carrier: str, band_gap: np.ndarray,
     return carrier
 
 
-def electronBandStructure(path_eigen: str, skip_lines: int, num_bands: int, num_kpoints: int):
+def electronBandStructure(path_eigen: str, skip_lines: int, num_bands: int, num_kpoints: int) -> np.ndarray:
 
     """
     A function to read "EIGENVAL" file
@@ -136,7 +136,8 @@ def electronBandStructure(path_eigen: str, skip_lines: int, num_bands: int, num_
     return dispersion
 
 
-def electron_density(path_density, header_lines, num_dos_points, unitcell_volume, valley_point, energy):
+def electron_density(path_density: str, header_lines: int, num_dos_points: int,
+                     unitcell_volume: float, valley_point: int, energy: np.ndarray) -> np.ndarray:
 
     """
     A function to read "DOSCAR" file

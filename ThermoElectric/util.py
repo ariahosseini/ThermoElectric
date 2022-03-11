@@ -53,7 +53,7 @@ def temperature(temp_min: float = 300, temp_max: float = 1301, del_temp: float =
     return temp_range
 
 
-def fermi_distribution(energy, fermi_level, temp=None):
+def fermi_distribution(energy: np.ndarray, fermi_level: np.ndarray, temp: np.ndarray = None) -> np.ndarray:
 
     """
     A function to compute the Fermi distribution and
@@ -90,7 +90,7 @@ def fermi_distribution(energy, fermi_level, temp=None):
     return fermi
 
 
-def matthiessen(*args):
+def matthiessen(*args) -> np.ndarray:
 
     """
     A function to compute the total lifetime using Matthiessen's rule

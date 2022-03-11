@@ -2,9 +2,13 @@
 
 from .util import *
 import numpy as np
+from numpy.linalg import norm
+from scipy.interpolate import InterpolatedUnivariateSpline as spline
+from scipy.interpolate import PchipInterpolator as interpolator
+from .accum import *
 
 
-def band_gap(Eg_o: float, Ao: float, Bo: float, temp: np.ndarray = None):
+def band_gap(Eg_o: float, Ao: float, Bo: float, temp: np.ndarray = None) -> np.ndarray:
 
     """
     This method uses Eg(T)=Eg(T=0)-Ao*T**2/(T+Bo) to approximate the temperature dependency of the dielectrics band gap.
@@ -38,7 +42,7 @@ def band_gap(Eg_o: float, Ao: float, Bo: float, temp: np.ndarray = None):
     return Eg
 
 
-def analyticalDoS(range_energy: np.ndarray, electron_eff_mass: float, nonparabolic_term: np.ndarray):
+def analyticalDoS(range_energy: np.ndarray, electron_eff_mass: float, nonparabolic_term: np.ndarray) -> np.ndarray:
 
     """
        This function approximate the electron density of state for parabolic and non-parabolic bands
@@ -76,7 +80,8 @@ def analyticalDoS(range_energy: np.ndarray, electron_eff_mass: float, nonparabol
     return DoS
 
 
-def fermi_level(carrier, energy, density, Nc=None, Ao=None, temp=None):
+def fermi_level(carrier: np.ndarray, energy: np.ndarray, density: np.ndarray,
+                Nc: float = None, Ao: float = None, temp: np.ndarray = None) -> np.ndarray:
 
     """
     This function uses Joice Dixon approximation to predict Ef and thereby the carrier concentration at each temperature
@@ -90,17 +95,17 @@ def fermi_level(carrier, energy, density, Nc=None, Ao=None, temp=None):
         The electron energy level
     density: np.ndarray
         The electron density of states
-    Ao: float
-        Experimentally fitted parameter (Nc ~ Ao*T^(3/2))
     Nc: float
         The effective densities of states in the conduction band
+    Ao: float
+        Experimentally fitted parameter (Nc ~ Ao*T^(3/2))
     temp: np.ndarray
         Temperature range
 
     Returns
     -------
     output: np.ndarray
-        The first roa is the Fermi level and the second one is the carrier concentration
+        The first row is the Fermi level and the second one is the carrier concentration
     """
 
     k_bolt = 8.617330350e-5  # Boltzmann constant in eV/K
@@ -124,48 +129,51 @@ def fermi_level(carrier, energy, density, Nc=None, Ao=None, temp=None):
     return output
 
 
-def fermi_level_self_consistent(carrier, temp, energy, density, fermi_level):
+def fermi_self_consistent(carrier: np.ndarray, temp: np.ndarray,
+                          energy: np.ndarray, density: np.ndarray,
+                          fermi_level: np.ndarray) -> np.ndarray:
 
     """
-    A tool for self-consistent calculation of the Fermi level from a given carrier concentration
+    Self-consistent calculation of the Fermi level from a given carrier concentration
     using Joyce Dixon approximation as the initial guess for degenerate semiconductors.
-    As a default value of 4000 sampling points in energy range from Ef(JD)-0.4 eV up to Ef(JD)+0.2 is considered.
-    This looks reasonable in most cases. The index is printed out if it reaches the extreme index of (0) or (4000),
-    increase energy range. Then increase sampling point number to finner results.
+    As a default value of 4000 sampling points in energy range from Ef(JD)-0.4 eV up to
+    Ef(JD)+0.2 is considered.This looks reasonable in most cases. The index is printed out
+    if it reaches the extreme index of (0) or (4000), increase energy range.
 
     Parameters
     ----------
+    carrier: np.ndarray
+        Total carrier concentration
+    energy: np.ndarray
+        The electron energy level
+    density: np.ndarray
+        The electron density of states
+    fermi_level: np.ndarray
+        Joyce Dixon femi level approximation as the initial guess
+    temp: np.ndarray
+        Temperature range
 
+    Returns
+    -------
+    output: np.ndarray
+        The first row is the Fermi level and the second one is the carrier concentration
+    """
 
+    fermi = np.linspace(fermi_level[0] - 0.4, fermi_level[0] + 0.2, 4000, endpoint=True).T
 
-        :arg
-                carrierConcentration                           : Function object, total carrier concentration
-                energyRange                                    : Function object, the electron energy level
-                DoS                                            : Function object, the electron density of state
-                fermilevel                                     : Function object, Joyce Dixon approximation as the initial guess
-                Temp                                           : Function object, temperature range
-        :returns
-                [Ef,n]                                         : A 1 by 2 list, The first element is a NumPy array of Fermi level for each temperature ...
-                                                                 while the second element is a Numpy array of the corresponding carrier concentration
-        """
-
-
-    fermi = np.linspace(fermi_level[0] - 0.4, fermi_level[0] + 0.2, 4000, endpoint=True).T  # Range of energy arounf Ef(JD )to consider
-
-    result_array = np.empty((np.shape(temp)[1], np.shape(fermi)[1]))
+    init_array = np.empty((np.shape(temp)[1], np.shape(fermi)[1]))
     idx_j = 0
     for j in temp[0]:
         idx_i = 0
         for i in fermi[idx_j]:
             f, _ = fermi_distribution(energy, np.expand_dims(np.array([i]), axis=0),
                                       np.expand_dims(np.array([j]), axis=0))
-            tmp = np.trapz(np.multiply(density, f), energy, axis=1)
-            result_array[idx_j, idx_i] = tmp
+            tmp = np.trapz(density * f, energy, axis=1)
+            init_array[idx_j, idx_i] = tmp
             idx_i += 1
         idx_j += 1
 
-    diff = np.tile(np.transpose(carrier), (1, np.shape(fermi)[1])) - abs(result_array)
-
+    diff = np.tile(carrier.T, (1, np.shape(fermi)[1])) - abs(init_array)
     min_idx = np.argmin(np.abs(diff), axis=1)
     print("Fermi Level Self Consistent Index ", min_idx)
 
@@ -176,73 +184,115 @@ def fermi_level_self_consistent(carrier, temp, energy, density, fermi_level):
     elm = 0
     n = np.empty((1, np.shape(temp)[1]))
     for idx in min_idx:
-        n[0, elm] = result_array[elm, idx]
+        n[0, elm] = init_array[elm, idx]
         elm += 1
 
-    return [Ef,n]  # The array size is [2, size(temp)], The first row is the Fermi and the second row is the carrier concentration
+    output = np.array([Ef,n])
+
+    return output
 
 
-    def electronGroupVelocity(self, kp, energy_kp, energyRange):
+def electron_group_velocity(kpoints: np.ndarray, energy_kp: np.ndarray, energy: np.ndarray) -> np.ndarray:
 
-        # This is the derivation of band structure from DFT.
-        # BTE needs single band data. Reciprocal lattice vector is needed, ...
-        # See the example (si.py) or the manual for the details.
+    """
+    Group velocity is the derivation of band structure from DFT. Linear BTE needs single band data.
+    Reciprocal lattice vector is required
 
-        dE = np.roll(energy_kp, -1, axis=0) - np.roll(energy_kp, 1, axis=0)
-        dk = np.roll(kp, -1, axis=0) - np.roll(kp, 1, axis=0)
-        dEdk = np.divide(dE, dk)
-        dEdk[0] = (energy_kp[1] - energy_kp[0]) / (kp[1] - kp[0])
-        dEdk[-1] = (energy_kp[-1] - energy_kp[-2]) / (kp[-1] - kp[-2])
+    Parameters
+    ----------
+    kpoints: np.ndarray
+        Wave vectors
+    energy_kp: np.ndarray
+        Energy for each wave vector
+    energy: np.ndarray
+        Energy range
 
-        dEdkSpline = InterpolatedUnivariateSpline(energy_kp, np.array(dEdk))
-        dEdkFunctionEnergy = dEdkSpline(energyRange)
+    Returns
+    -------
+    velocity: np.ndarray
+        Group velocity
+    """
 
-        groupVel = dEdkFunctionEnergy / thermoelectricProperties.hBar
+    h_bar = 6.582119e-16  # Reduced Planck constant in eV.s
 
-        return groupVel
+    dE = np.roll(energy_kp, -1, axis=0) - np.roll(energy_kp, 1, axis=0)
+    dk = np.roll(kpoints, -1, axis=0) - np.roll(kpoints, 1, axis=0)
+    dEdk = np.divide(dE, dk)
+    dEdk[0] = (energy_kp[1] - energy_kp[0]) / (kpoints[1] - kpoints[0])
+    dEdk[-1] = (energy_kp[-1] - energy_kp[-2]) / (kpoints[-1] - kpoints[-2])
 
-    def analyticalGroupVelocity(self, energyRange, nk, m, valley, dk_len, alpha):
+    dEdkSpline = spline(energy_kp, np.array(dEdk))
+    dEdkFunctionEnergy = dEdkSpline(energy)
 
-        """
-        If no DFT calculation is availble this function approximate the group velocity near the conduction band edge.
-        This works well up to few hundreds of mev.
-        """
+    group_vel = dEdkFunctionEnergy / h_bar
 
-        meff = np.array(m)
-        ko = 2 * np.pi / self.latticeParameter * np.array(valley)
-        del_k = 2 * np.pi / self.latticeParameter * dk_len * np.array([1, 1, 1])
-        kx = np.linspace(ko[0], ko[0] + del_k[0], nk[0], endpoint=True)  # kpoints mesh
-        ky = np.linspace(ko[1], ko[1] + del_k[1], nk[1], endpoint=True)  # kpoints mesh
-        kz = np.linspace(ko[2], ko[2] + del_k[2], nk[2], endpoint=True)  # kpoints mesh
-        [xk, yk, zk] = np.meshgrid(kx, ky, kz)
-        xk_ = np.reshape(xk, -1)
-        yk_ = np.reshape(yk, -1)
-        zk_ = np.reshape(zk, -1)
-
-        kpoint = np.array([xk_, yk_, zk_])
-        mag_kpoint = norm(kpoint, axis=0)
-
-        mc = 3 / (1 / meff[0] + 1 / meff[1] + 1 / meff[2])  # Conduction band effective mass
-
-        E = thermoelectricProperties.hBar ** 2 / 2 * \
-            ((kpoint[0] - ko[0]) ** 2 / meff[0] + (kpoint[1] - ko[1]) ** 2 / meff[1] + (kpoint[2] - ko[2]) ** 2 / meff[
-                2]) \
-            * thermoelectricProperties.e2C  # Ellipsoidal energy band shape
-
-        vel = thermoelectricProperties.hBar * np.sqrt((kpoint[0] - ko[0]) ** 2 + (kpoint[1] - ko[1]) ** 2
-                                                      + (kpoint[2] - ko[2]) ** 2) / mc / (
-                          1 + 2 * alpha * E) * thermoelectricProperties.e2C
-
-        Ec, indices, return_indices = np.unique(E, return_index=True, return_inverse=True)  # Smooth data
-
-        vg = accum(return_indices, vel, func=np.mean, dtype=float)
-
-        ESpline = PchipInterpolator(Ec, vg)
-        velFunctionEnergy = ESpline(energyRange)
-
-        return velFunctionEnergy  # The array size is [1, numEnergySampling]
+    return group_vel
 
 
+def analytical_group_velocity(energy: np.ndarray, lattice_parameter: np.ndarray, num_kpoints: np.ndarray,
+                              m_eff: np.ndarray, valley: np.ndarray, dk_len: np.ndarray,
+                              alpha_term: np.ndarray) -> np.ndarray:
+
+    """
+    This method approximate the group velocity near the conduction band edge
+    in case no DFT calculation is available.
+
+    Parameters
+    ----------
+    energy: np.ndarray
+        Energy range
+    lattice_parameter: np.ndarray
+        Lattice parameter
+    num_kpoints: np.ndarray
+        Number of wave vectors
+    m_eff: np.ndarray
+        Effective mass along different axis
+    valley: np.ndarray
+        Conduction valley
+    dk_len: np.ndarray
+        magnitude of wave vectors
+    alpha_term: np.ndarray
+        Non-parabolic term
+
+    Returns
+    -------
+    velocity: np.ndarray
+        Group velocity
+    """
+
+    e2C = 1.6021765e-19  # e to Coulomb unit change
+    h_bar = 6.582119e-16  # Reduced Planck constant in eV.s
+
+    ko = 2 * np.pi / lattice_parameter * valley
+    del_k = 2 * np.pi / lattice_parameter * dk_len * np.array([1, 1, 1])
+    kx = np.linspace(ko[0], ko[0] + del_k[0], num_kpoints[0], endpoint=True)  # kpoints mesh
+    ky = np.linspace(ko[1], ko[1] + del_k[1], num_kpoints[1], endpoint=True)  # kpoints mesh
+    kz = np.linspace(ko[2], ko[2] + del_k[2], num_kpoints[2], endpoint=True)  # kpoints mesh
+    [xk, yk, zk] = np.meshgrid(kx, ky, kz)
+    xk_ = np.reshape(xk, -1)
+    yk_ = np.reshape(yk, -1)
+    zk_ = np.reshape(zk, -1)
+
+    kpoint = np.array([xk_, yk_, zk_])
+
+    mass_cond = 3 / (1 / m_eff[0] + 1 / m_eff[1] + 1 / m_eff[2])  # Conduction band effective mass
+
+    E = h_bar ** 2 / 2 * \
+        ((kpoint[0] - ko[0]) ** 2 / m_eff[0] +
+         (kpoint[1] - ko[1]) ** 2 / m_eff[1] +
+         (kpoint[2] - ko[2]) ** 2 / m_eff[2]) * e2C  # Ellipsoidal energy band shape
+
+    vel = h_bar * np.sqrt((kpoint[0] - ko[0]) ** 2 + (kpoint[1] - ko[1]) ** 2
+                          + (kpoint[2] - ko[2]) ** 2) / mass_cond / (1 + 2 * alpha_term * E) * e2C
+
+    Ec, indices, return_indices = np.unique(E, return_index=True, return_inverse=True)
+
+    vg = accum(return_indices, vel, func=np.mean, dtype=float)
+
+    en_spline = interpolator(Ec, vg)
+    velocity = en_spline(energy)
+
+    return velocity
 
 
 if __name__ == "__main__":

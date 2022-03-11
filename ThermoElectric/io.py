@@ -94,26 +94,77 @@ def carrier_concentration(path_extrinsic_carrier: str, band_gap: np.ndarray,
     return carrier
 
 
-    def electronBandStructure(self, path2eigenval, skipLines):
+def electronBandStructure(path_eigen: str, skip_lines: int, num_bands: int, num_kpoints: int):
 
-        # This function ead EIGENVAL file from VASP
+    """
+    A function to read "EIGENVAL" file
 
-        with open(expanduser(path2eigenval)) as eigenvalFile:
-            for _ in range(skipLines):
-                next(eigenvalFile)
-            block = [[float(_) for _ in line.split()] for line in eigenvalFile]
-        eigenvalFile.close()
+    Parameters
+    ----------
+    path_eigen: str
+        Path to EIGENVAL file
+    skip_lines: int
+        Number of lines to skip
+    num_bands: int
+        Number of bands
+    num_kpoints: int
+        number of wave vectors
 
-        electronDispersian = [range(1, self.numBands + 1)]  # First line is atoms id
+    Returns
+    ----------
+    dispersion : np.ndarray
+        Band structure
+    """
 
-        kpoints = np.asarray(block[1::self.numBands + 2])[:, 0:3]
+    with open(expanduser(path_eigen)) as eigen_file:
+        for _ in range(skip_lines):
+            next(eigen_file)
+        block = [[float(_) for _ in line.split()] for line in eigen_file]
+    eigen_file.close()
 
-        for _ in range(self.numKpoints):
-            binary2Darray = []
-            for __ in range(self.numBands):
-                binary2Darray = np.append(binary2Darray, block[__ + 2 + (self.numBands + 2) * _][1])
-            electronDispersian = np.vstack([electronDispersian, binary2Darray]) # Energy levels
+    electron_dispersion = np.arange(1, num_bands + 1)
+    kpoints = np.array(block[1::num_bands + 2])[:, 0:3]
 
-        dispersian = [kpoints, electronDispersian]
+    for _ in range(num_kpoints):
+        disp = []
+        for __ in range(num_bands):
+            disp = np.append(disp, block[__ + 2 + (num_bands + 2) * _][1])
+        electron_dispersion = np.vstack([electron_dispersion, disp])
 
-        return dispersian # The array size is [(number of bands + 1) by (number of kpoints)]
+    dispersion = np.array([kpoints[1, np.newaxis], electron_dispersion[1, np.newaxis]])
+
+    return dispersion
+
+
+def electron_density(path_density, header_lines, num_dos_points, unitcell_volume, valley_point, energy):
+
+    """
+    A function to read "DOSCAR" file
+
+    Parameters
+    ----------
+    path_density: str
+        Path to DOSCAR file
+    header_lines: int
+        Number of lines to skip
+    num_dos_points: int
+        Number of points in DOSCAR
+    unitcell_volume: float
+        The unit cell volume is in [m]
+    valley_point: int
+        Where valley is located in DOSCAR
+    energy: np.ndarray
+        The energy range
+
+    Returns
+    ----------
+    density : np.ndarray
+        Electron density of states
+    """
+
+    den_state = np.loadtxt(expanduser(path_density), delimiter=None, skiprows=header_lines, max_rows=num_dos_points)
+    valley_energy = den_state[valley_point, 0]
+    dos_spline = spline(den_state[valley_point:, 0] - valley_energy, den_state[valley_point:, 1] / unitcell_volume)
+    density = dos_spline(energy)
+
+    return density

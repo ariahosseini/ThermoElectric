@@ -123,31 +123,18 @@ def fermi_level(carrier, energy, density, Nc=None, Ao=None, temp=None):
 
     return output
 
-    def electronDoS(self, path2DoS, headerLines, numDoSpoints, unitcell_volume, valleyPoint, energyRange):
 
-        # This function ead DOSCAR file from VASP
-        # The unitcell_volume is in unit of m
+def fermi_level_self_consistent(carrier, temp, energy, density, fermi_level):
 
-        DoS = np.loadtxt(expanduser(path2DoS), delimiter=None, skiprows=headerLines, max_rows=numDoSpoints)
-        valleyPointEnergy = DoS[valleyPoint, 0]
-        DoSSpline = InterpolatedUnivariateSpline(DoS[valleyPoint:, 0] - valleyPointEnergy, \
-                                                 DoS[valleyPoint:, 1] / unitcell_volume)
+    """
+    A tool for self-consistent calculation of the Fermi level from a given carrier concentration
+    using Joyce Dixon approximation as the initial guess for degenerate semiconductors.
+    As a default value of 4000 sampling points in energy range from Ef(JD)-0.4 eV up to Ef(JD)+0.2 is considered.
+    This looks reasonable in most cases. The index is printed out if it reaches the extreme index of (0) or (4000),
+    increase energy range. Then increase sampling point number to finner results.
 
-        DoSFunctionEnergy = DoSSpline(energyRange)  # Density of state
-
-        return DoSFunctionEnergy  # The array size is [1, numEnergySampling]
-
-    def fermiLevelSelfConsistent(self, carrierConcentration, Temp, energyRange, DoS, fermilevel):
-
-        """
-        A tool for self-consistent calculation of the Fermi level from a given carrier concentration ...
-        to circumvent the problem that DFT underestimates the band gaps.
-        See the manual for the detail.
-        Func. "fermiLevelSelfConsistent" uses Joyce Dixon approximation as the initial guess for degenerate semiconductors.
-        As a defaul values 4000 sampleing points in energy range from Ef(JD)-0.4 eV up to Ef(JD)+0.2 is cosidered. ...
-        This look reasonble in most cases.
-        The index is printed out if it reaches the extreme index of (0) or (4000), increase energy range. ...
-        Increase sampling point number to finner results.
+    Parameters
+    ----------
 
 
 
@@ -162,42 +149,38 @@ def fermi_level(carrier, energy, density, Nc=None, Ao=None, temp=None):
                                                                  while the second element is a Numpy array of the corresponding carrier concentration
         """
 
-        # Joyce Dixon approx. is a good initial point for degenerate semiconductors.
 
-        fermi = np.linspace(fermilevel[0] - 0.4, fermilevel[0] + 0.2, 4000,
-                            endpoint=True).T  # Range of energy arounf Ef(JD )to consider
+    fermi = np.linspace(fermi_level[0] - 0.4, fermi_level[0] + 0.2, 4000, endpoint=True).T  # Range of energy arounf Ef(JD )to consider
 
-        result_array = np.empty((np.shape(Temp)[1], np.shape(fermi)[1]))
-        idx_j = 0
-        for j in Temp[0]:
-            idx_i = 0
-            for i in fermi[idx_j]:
-                f, _ = self.fermiDistribution(energyRange=energyRange,
-                                              fermiLevel=np.expand_dims(np.array([i]), axis=0),
-                                              Temp=np.expand_dims(np.array([j]), axis=0))
-                tmp = np.trapz(np.multiply(DoS, f), energyRange, axis=1)
-                result_array[idx_j, idx_i] = tmp
-                idx_i += 1
-            idx_j += 1
+    result_array = np.empty((np.shape(temp)[1], np.shape(fermi)[1]))
+    idx_j = 0
+    for j in temp[0]:
+        idx_i = 0
+        for i in fermi[idx_j]:
+            f, _ = fermi_distribution(energy, np.expand_dims(np.array([i]), axis=0),
+                                      np.expand_dims(np.array([j]), axis=0))
+            tmp = np.trapz(np.multiply(density, f), energy, axis=1)
+            result_array[idx_j, idx_i] = tmp
+            idx_i += 1
+        idx_j += 1
 
-        diff = np.tile(np.transpose(carrierConcentration), (1, np.shape(fermi)[1])) - abs(result_array)
+    diff = np.tile(np.transpose(carrier), (1, np.shape(fermi)[1])) - abs(result_array)
 
-        min_idx = np.argmin(np.abs(diff), axis=1)
-        print("Fermi Level Self Consistent Index ", min_idx)
-        # This print the index if it reaches the extreme index (0) or (4000), increase the energy range.
+    min_idx = np.argmin(np.abs(diff), axis=1)
+    print("Fermi Level Self Consistent Index ", min_idx)
 
-        Ef = np.empty((1, np.shape(Temp)[1]))
+    Ef = np.empty((1, np.shape(temp)[1]))
 
-        for Ef_idx in np.arange(len(min_idx)):
-            Ef[0, Ef_idx] = fermi[Ef_idx, min_idx[Ef_idx]]
-        elm = 0
-        n = np.empty((1, np.shape(Temp)[1]))
-        for idx in min_idx:
-            n[0, elm] = result_array[elm, idx]
-            elm += 1
+    for Ef_idx in np.arange(len(min_idx)):
+        Ef[0, Ef_idx] = fermi[Ef_idx, min_idx[Ef_idx]]
+    elm = 0
+    n = np.empty((1, np.shape(temp)[1]))
+    for idx in min_idx:
+        n[0, elm] = result_array[elm, idx]
+        elm += 1
 
-        return [Ef,
-                n]  # The array size is [2, size(temp)], The first row is the Fermi and the second row is the carrier concentration
+    return [Ef,n]  # The array size is [2, size(temp)], The first row is the Fermi and the second row is the carrier concentration
+
 
     def electronGroupVelocity(self, kp, energy_kp, energyRange):
 

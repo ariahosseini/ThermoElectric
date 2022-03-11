@@ -1,6 +1,10 @@
-def electricalProperties(self, E, DoS, vg, Ef, dfdE, Temp, tau):
+import numpy as np
+
+
+def electrical_properties(E, DoS, vg, Ef, dfdE, Temp, tau):
+
     """
-    This function This function returns a list of thermoelectric properties
+    This function returns a list of thermoelectric properties
     Good references are "Near-equilibrium Transport: Fundamentals And Applications" by  Changwook Jeong and Mark S. Lundstrom and ...
     'Nanoscale Energy Transport and Conversion: A Parallel Treatment of Electrons, Molecules, Phonons, and Photons" by Gang Chen.
 

@@ -23,7 +23,7 @@ def energy_range(energy_min: float, energy_max: float, sample_size: int) -> np.n
         Energy sampling with the size of [1, sample_size]
     """
 
-    energy_sample = np.linspace(energy_min, energy_max, sample_size)[1,np.newaxis]
+    energy_sample = np.linspace(energy_min, energy_max, sample_size)[1, np.newaxis]
 
     return energy_sample
 

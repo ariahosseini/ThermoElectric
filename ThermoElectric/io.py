@@ -81,7 +81,7 @@ def carrier_concentration(path_extrinsic_carrier: str, band_gap: np.ndarray,
         Nv = Bo * T ** (3. / 2)
 
     # Extrinsic carrier concentration
-    ex_carrier = np.loadtxt(expanduser(path_extrinsic_carrier), delimiter=None,skiprows=0)
+    ex_carrier = np.loadtxt(expanduser(path_extrinsic_carrier), delimiter=None, skiprows=0)
     _ex_carrier_concentration = spline(ex_carrier[0, :], ex_carrier[1, :] * 1e6)
     ex_carrier_concentration = _ex_carrier_concentration(T)
 
@@ -123,7 +123,7 @@ def electronBandStructure(path_eigen: str, skip_lines: int, num_bands: int, num_
     eigen_file.close()
 
     electron_dispersion = np.arange(1, num_bands + 1)
-    kpoints = np.array(block[1::num_bands + 2])[:, 0:3]
+    k_points = np.array(block[1::num_bands + 2])[:, 0:3]
 
     for _ in range(num_kpoints):
         disp = []
@@ -131,7 +131,7 @@ def electronBandStructure(path_eigen: str, skip_lines: int, num_bands: int, num_
             disp = np.append(disp, block[__ + 2 + (num_bands + 2) * _][1])
         electron_dispersion = np.vstack([electron_dispersion, disp])
 
-    dispersion = np.array([kpoints[1, np.newaxis], electron_dispersion[1, np.newaxis]])
+    dispersion = np.array([k_points[1, np.newaxis], electron_dispersion[1, np.newaxis]])
 
     return dispersion
 

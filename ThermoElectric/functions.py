@@ -2,7 +2,6 @@
 
 from .util import *
 import numpy as np
-from numpy.linalg import norm
 from scipy.interpolate import InterpolatedUnivariateSpline as spline
 from scipy.interpolate import PchipInterpolator as interpolator
 from .accum import *
@@ -119,7 +118,7 @@ def fermi_level(carrier: np.ndarray, energy: np.ndarray, density: np.ndarray,
     if Nc is None:
         Nc = Ao * temp ** (3.0 / 2)
 
-    JD_CC = np.log(carrier/ Nc) + 1 / np.sqrt(8) * carrier / Nc - (3. / 16 - np.sqrt(3) / 9) * (carrier/Nc)**2
+    JD_CC = np.log(carrier / Nc) + 1 / np.sqrt(8) * carrier / Nc - (3. / 16 - np.sqrt(3) / 9) * (carrier / Nc)**2
     fermi_energy = k_bolt * (T * JD_CC)  # Joice Dixon approximation of Ef
     f, _ = fermi_distribution(energy, fermi_energy, temp=T)  # Fermi distribution
     n = np.trapz(np.multiply(density, f), energy, axis=1)  # Carrier concentration
@@ -131,7 +130,7 @@ def fermi_level(carrier: np.ndarray, energy: np.ndarray, density: np.ndarray,
 
 def fermi_self_consistent(carrier: np.ndarray, temp: np.ndarray,
                           energy: np.ndarray, density: np.ndarray,
-                          fermi_level: np.ndarray) -> np.ndarray:
+                          fermi_levels: np.ndarray) -> np.ndarray:
 
     """
     Self-consistent calculation of the Fermi level from a given carrier concentration
@@ -148,7 +147,7 @@ def fermi_self_consistent(carrier: np.ndarray, temp: np.ndarray,
         The electron energy level
     density: np.ndarray
         The electron density of states
-    fermi_level: np.ndarray
+    fermi_levels: np.ndarray
         Joyce Dixon femi level approximation as the initial guess
     temp: np.ndarray
         Temperature range
@@ -159,7 +158,7 @@ def fermi_self_consistent(carrier: np.ndarray, temp: np.ndarray,
         The first row is the Fermi level and the second one is the carrier concentration
     """
 
-    fermi = np.linspace(fermi_level[0] - 0.4, fermi_level[0] + 0.2, 4000, endpoint=True).T
+    fermi = np.linspace(fermi_levels[0] - 0.4, fermi_levels[0] + 0.2, 4000, endpoint=True).T
 
     init_array = np.empty((np.shape(temp)[1], np.shape(fermi)[1]))
     idx_j = 0
@@ -187,7 +186,7 @@ def fermi_self_consistent(carrier: np.ndarray, temp: np.ndarray,
         n[0, elm] = init_array[elm, idx]
         elm += 1
 
-    output = np.array([Ef,n])
+    output = np.array([Ef, n])
 
     return output
 
@@ -298,4 +297,3 @@ def analytical_group_velocity(energy: np.ndarray, lattice_parameter: np.ndarray,
 if __name__ == "__main__":
 
     print('ThermoElectric')
-

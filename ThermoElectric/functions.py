@@ -104,7 +104,7 @@ def fermi_level(carrier: np.ndarray, energy: np.ndarray, density: np.ndarray,
     Returns
     -------
     output: np.ndarray
-        The first row is the Fermi level and the second one is the carrier concentration
+        The first row is the carrier concentration and the second one is the Fermi level
     """
 
     k_bolt = 8.617330350e-5  # Boltzmann constant in eV/K
@@ -123,7 +123,7 @@ def fermi_level(carrier: np.ndarray, energy: np.ndarray, density: np.ndarray,
     f, _ = fermi_distribution(energy, fermi_energy, temp=T)  # Fermi distribution
     n = np.trapz(np.multiply(density, f), energy, axis=1)  # Carrier concentration
 
-    output = np.array([fermi_energy, n])
+    output = np.stack((n, fermi_energy[0]))
 
     return output
 
@@ -155,10 +155,10 @@ def fermi_self_consistent(carrier: np.ndarray, temp: np.ndarray,
     Returns
     -------
     output: np.ndarray
-        The first row is the Fermi level and the second one is the carrier concentration
+        The first row is the carrier concentration and the second one is the Fermi level
     """
 
-    fermi = np.linspace(fermi_levels[0] - 0.4, fermi_levels[0] + 0.2, 4000, endpoint=True).T
+    fermi = np.linspace(fermi_levels[1] - 0.4, fermi_levels[1] + 0.2, 4000, endpoint=True).T
 
     init_array = np.empty((np.shape(temp)[1], np.shape(fermi)[1]))
     idx_j = 0
@@ -174,6 +174,7 @@ def fermi_self_consistent(carrier: np.ndarray, temp: np.ndarray,
 
     diff = np.tile(carrier.T, (1, np.shape(fermi)[1])) - abs(init_array)
     min_idx = np.argmin(np.abs(diff), axis=1)
+
     print("Fermi Level Self Consistent Index ", min_idx)
 
     Ef = np.empty((1, np.shape(temp)[1]))
@@ -186,7 +187,7 @@ def fermi_self_consistent(carrier: np.ndarray, temp: np.ndarray,
         n[0, elm] = init_array[elm, idx]
         elm += 1
 
-    output = np.array([Ef, n])
+    output = np.stack((n[0], Ef[0]))
 
     return output
 

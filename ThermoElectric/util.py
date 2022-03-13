@@ -85,18 +85,20 @@ def fermi_distribution(energy: np.ndarray, fermi_level: np.ndarray, temp: np.nda
 
     fermiDirac = 1 / (xi + 1)  # Fermi distribution
     dfdE = -1 * xi / (1 + xi) ** 2 / T.T / k_bolt  # Fermi window
-    fermi = np.array([fermiDirac, dfdE])
+    fermi = np.stack((fermiDirac, dfdE))
 
     return fermi
 
 
-def matthiessen(*args) -> np.ndarray:
+def matthiessen(energy: np.ndarray,*args) -> np.ndarray:
 
     """
     A function to compute the total lifetime using Matthiessen's rule
 
     Parameters
     ----------
+    energy: np.ndarray
+        Energy levels
     *args: np.ndarray
         Electron lifetime from different scattering sources
 

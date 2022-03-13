@@ -23,7 +23,7 @@ def energy_range(energy_min: float, energy_max: float, sample_size: int) -> np.n
         Energy sampling with the size of [1, sample_size]
     """
 
-    energy_sample = np.linspace(energy_min, energy_max, sample_size)[1, np.newaxis]
+    energy_sample = np.linspace(energy_min, energy_max, sample_size)[np.newaxis, :]
 
     return energy_sample
 
@@ -48,7 +48,7 @@ def temperature(temp_min: float = 300, temp_max: float = 1301, del_temp: float =
         Temperature sampling with the size of [1, del_temp]
     """
 
-    temp_range = np.arange(temp_min, temp_max, del_temp)[1, np.newaxis]
+    temp_range = np.arange(temp_min, temp_max, del_temp)[np.newaxis, :]
 
     return temp_range
 

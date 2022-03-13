@@ -94,7 +94,7 @@ def carrier_concentration(path_extrinsic_carrier: str, band_gap: np.ndarray,
     return carrier
 
 
-def electronBandStructure(path_eigen: str, skip_lines: int, num_bands: int, num_kpoints: int) -> np.ndarray:
+def band_structure(path_eigen: str, skip_lines: int, num_bands: int, num_kpoints: int) -> dict:
 
     """
     A function to read "EIGENVAL" file
@@ -112,7 +112,7 @@ def electronBandStructure(path_eigen: str, skip_lines: int, num_bands: int, num_
 
     Returns
     ----------
-    dispersion : np.ndarray
+    dispersion : dict
         Band structure
     """
 
@@ -131,7 +131,7 @@ def electronBandStructure(path_eigen: str, skip_lines: int, num_bands: int, num_
             disp = np.append(disp, block[__ + 2 + (num_bands + 2) * _][1])
         electron_dispersion = np.vstack([electron_dispersion, disp])
 
-    dispersion = np.array([k_points[1, np.newaxis], electron_dispersion[1, np.newaxis]])
+    dispersion ={'k_points': k_points, 'electron_dispersion': np.delete(electron_dispersion, 0, 0)}
 
     return dispersion
 

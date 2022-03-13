@@ -2,6 +2,10 @@
 
 # Add imports here
 from .functions import *
+from .bte_solver import *
+from .util import *
+from .lifetime import *
+from .io import *
 
 # Handle versioneer
 from ._version import get_versions

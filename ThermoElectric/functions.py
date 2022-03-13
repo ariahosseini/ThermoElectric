@@ -41,7 +41,7 @@ def band_gap(Eg_o: float, Ao: float, Bo: float, temp: np.ndarray = None) -> np.n
     return Eg
 
 
-def analyticalDoS(range_energy: np.ndarray, electron_eff_mass: float, nonparabolic_term: np.ndarray) -> np.ndarray:
+def analytical_dos(range_energy: np.ndarray, electron_eff_mass: float, nonparabolic_term: np.ndarray) -> np.ndarray:
 
     """
        This function approximate the electron density of state for parabolic and non-parabolic bands
@@ -191,7 +191,7 @@ def fermi_self_consistent(carrier: np.ndarray, temp: np.ndarray,
     return output
 
 
-def electron_group_velocity(kpoints: np.ndarray, energy_kp: np.ndarray, energy: np.ndarray) -> np.ndarray:
+def group_velocity(kpoints: np.ndarray, energy_kp: np.ndarray, energy: np.ndarray) -> np.ndarray:
 
     """
     Group velocity is the derivation of band structure from DFT. Linear BTE needs single band data.

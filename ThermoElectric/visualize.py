@@ -42,18 +42,16 @@ def visualize(array_to_plot: np.ndarray, linestyle: str, marker: str, pic_name: 
     except FileExistsError:
         pass
 
-    fig = plt.figure(figsize=(6.5, 6.5))
+    fig = plt.figure(figsize=(6.5, 4.5))
     ax = plt.axes()
     ax.set_axis_on()
     ax.grid(False)
-
-    ax.plot(array_to_plot[0], array_to_plot[1], linestyle=linestyle, marker=marker, color='maroon',
-            markersize=6, linewidth=1.5, markerfacecolor='white', markeredgecolor='maroon', markeredgewidth=1)
-
-    ax.set_xlabel(x_label, fontsize=24)
-    ax.set_ylabel(y_label, fontsize=24, labelpad=15)
-    ax.tick_params(axis="y", labelsize=24)
-    ax.tick_params(axis="x", labelsize=24)
+    ax.plot(array_to_plot[0][0], array_to_plot[1][0], linestyle=linestyle, marker=marker, color='maroon',
+            markersize=6, linewidth=2, markerfacecolor='white', markeredgecolor='maroon', markeredgewidth=1)
+    ax.set_xlabel(x_label, fontsize=20)
+    ax.set_ylabel(y_label, fontsize=20, labelpad=15)
+    ax.tick_params(axis="y", labelsize=20)
+    ax.tick_params(axis="x", labelsize=20)
     fig.tight_layout()
     plt.ticklabel_format(axis="both", style="sci")
     plt.savefig(os.path.join(dirName, pic_name), dpi=100)

@@ -6,6 +6,8 @@ from .bte_solver import *
 from .util import *
 from .lifetime import *
 from .io import *
+from .visualize import *
+from .accum import *
 
 # Handle versioneer
 from ._version import get_versions

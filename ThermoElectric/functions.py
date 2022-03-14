@@ -158,7 +158,7 @@ def fermi_self_consistent(carrier: np.ndarray, temp: np.ndarray,
         The first row is the carrier concentration and the second one is the Fermi level
     """
 
-    fermi = np.linspace(fermi_levels[1] - 0.4, fermi_levels[1] + 0.2, 1000, endpoint=True).T
+    fermi = np.linspace(fermi_levels[1] - 0.4, fermi_levels[1] + 0.2, 4000, endpoint=True).T
 
     init_array = np.empty((np.shape(temp)[1], np.shape(fermi)[1]))
     idx_j = 0

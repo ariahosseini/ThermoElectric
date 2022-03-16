@@ -175,7 +175,7 @@ def tau_unscreened_coulomb(energy: np.ndarray, mass_c: np.ndarray,
 
     tau_ = np.log(1 + gamma ** 2)
 
-    tau = 16 * np.pi * np.sqrt(2 * mass_c.T) * (4 * np.pi * dielectric * e_o) ** 2 \
+    tau = 16 * np.pi * np.sqrt(2 * mass_c) * (4 * np.pi * dielectric * e_o) ** 2 \
           / n_imp.T / tau_ * energy ** (3 / 2) / e2C ** (5.0 / 2)
 
     tau[np.isnan(tau)] = 0

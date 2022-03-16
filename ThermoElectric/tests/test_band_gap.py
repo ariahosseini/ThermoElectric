@@ -8,11 +8,6 @@ import numpy as np
 
 def test_band_gap():
 
-    """
-    Test band_gap method to make sure it follows Eg(T)=Eg(T=0)-Ao*T**2/(T+Bo)
-    to approximate the temperature dependency of the dielectrics band gap.
-    """
-
     tmpr = np.array([300, 400, 500])  # Temperature
     Eg_o = 2  # Band gap at zero kelvin
     Ao_term = 1e-3  # First experimentally-fit value

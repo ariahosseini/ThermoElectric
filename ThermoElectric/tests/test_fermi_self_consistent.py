@@ -9,9 +9,6 @@ from pytest import approx
 
 def test_fermi_self_consistent():
 
-    """
-    Test fermi_self_consistent method.
-    """
     carrier = np.array([[1.e23]])
     energy = np.array([[0.2]])
     density = np.array([[0.2*1e28]])

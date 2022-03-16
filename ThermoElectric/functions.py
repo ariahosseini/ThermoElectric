@@ -41,7 +41,7 @@ def band_gap(Eg_o: float, Ao: float, Bo: float, temp: np.ndarray = None) -> np.n
     return Eg
 
 
-def analytical_dos(range_energy: np.ndarray, electron_eff_mass: float, nonparabolic_term: np.ndarray) -> np.ndarray:
+def analytical_dos(range_energy: np.ndarray, electron_eff_mass: float, nonparabolic_term: np.ndarray) -> dict:
 
     """
        This function approximate the electron density of state for parabolic and non-parabolic bands
@@ -58,10 +58,9 @@ def analytical_dos(range_energy: np.ndarray, electron_eff_mass: float, nonparabo
 
     Returns
     -------
-    DoS: np.ndarray
-        First row is phonon density of states for non-parabolic band and
-        the second row is the phonon density of states for non-parabolic.
-        The array size is [2, numEnergySampling].
+    DoS: dict
+        The DoS['DoS_nonparabolic'] is phonon density of states for non-parabolic band and
+        the DoS['DoS_parabolic'] is the phonon density of states for non-parabolic.
     """
 
     hBar = 6.582119e-16  # Reduced Planck constant in eV.s
@@ -74,7 +73,9 @@ def analytical_dos(range_energy: np.ndarray, electron_eff_mass: float, nonparabo
     DoS_parabolic = np.sqrt(range_energy) / np.pi ** 2 * np.sqrt(2) / hBar ** 3 \
                     * electron_eff_mass ** (3.0 / 2) / e2C ** (3.0 / 2)
 
-    DoS = np.array(DoS_nonparabolic, DoS_parabolic)
+    print(np.shape(DoS_nonparabolic), np.shape(DoS_parabolic))
+
+    DoS = {'DoS_nonparabolic':DoS_nonparabolic, 'DoS_parabolic': DoS_parabolic}
 
     return DoS
 

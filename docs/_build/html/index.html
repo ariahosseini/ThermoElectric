@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to ThermoElectric’s documentation! &mdash; ThermoElectric  documentation</title>
+  <title>ThermoElectric &mdash; ThermoElectric  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -17,7 +17,8 @@
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting Started" href="getting_started.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -35,12 +36,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Welcome to ThermoElectric’s documentation!</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ref.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -55,7 +57,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>Welcome to ThermoElectric’s documentation!</li>
+      <li>ThermoElectric</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -65,41 +67,60 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="welcome-to-thermoelectric-s-documentation">
-<h1>Welcome to ThermoElectric’s documentation!<a class="headerlink" href="#welcome-to-thermoelectric-s-documentation" title="Permalink to this headline"></a></h1>
+  <section id="thermoelectric">
+<h1>ThermoElectric<a class="headerlink" href="#thermoelectric" title="Permalink to this headline"></a></h1>
 <p>ThermoElectric is a computational framework that computes electron transport coefficients with unique features to design
 the nanoscale morphology of thermoelectric (TE) materials to obtain electron scattering that will enhance performance
 through electron energy filtering. The code uses the linear Boltzmann transport equation to compute the electrical
 properties of electrical conductivity, Seebeck coefficient, electron thermal conductivity, etc., under relaxation time
-approximation. The code has an interface with the VASP ab initio simulation package. What distinguishes ThermoElectric
-from other software such as BoltzTrap is sets of sub-tools that are implemented assist in modeling electron transport
-in semiconductors. These include a tool for self-consistent calculation of the Fermi level from a given carrier
-concentration, and a fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering
-rate due nano-particles, nanoscale pores and grain boundaries. The first of these sub-tools circumvent the problem that
-DFT underestimates the band gaps, and the second performs iso-surface integrals to enable very dense but numerically
-efficient Brillouin Zone mesh sampling.
-.. toctree:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="n">maxdepth</span><span class="p">:</span> <span class="mi">2</span>
-<span class="p">:</span><span class="n">caption</span><span class="p">:</span> <span class="n">Contents</span><span class="p">:</span>
-
-<span class="n">getting_started</span>
-<span class="n">api</span>
-</pre></div>
-</div>
-</section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+approximation.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#intrinsic-properties">Intrinsic Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#fermi-energy-level">Fermi Energy Level</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#electron-lifetime">Electron Lifetime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#electrical-properties">Electrical Properties</a></li>
 </ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ref.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.energy_range.html">ThermoElectric.energy_range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.temperature.html">ThermoElectric.temperature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.fermi_distribution.html">ThermoElectric.fermi_distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.matthiessen.html">ThermoElectric.matthiessen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.kpoints.html">ThermoElectric.kpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.carrier_concentration.html">ThermoElectric.carrier_concentration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.band_structure.html">ThermoElectric.band_structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.electron_density.html">ThermoElectric.electron_density</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.band_gap.html">ThermoElectric.band_gap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.analytical_dos.html">ThermoElectric.analytical_dos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.fermi_level.html">ThermoElectric.fermi_level</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.fermi_self_consistent.html">ThermoElectric.fermi_self_consistent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.group_velocity.html">ThermoElectric.group_velocity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.analytical_group_velocity.html">ThermoElectric.analytical_group_velocity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau_p.html">ThermoElectric.tau_p</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau_strongly_screened_coulomb.html">ThermoElectric.tau_strongly_screened_coulomb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau_screened_coulomb.html">ThermoElectric.tau_screened_coulomb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau_unscreened_coulomb.html">ThermoElectric.tau_unscreened_coulomb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau_2d_cylinder.html">ThermoElectric.tau_2d_cylinder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau3D_spherical.html">ThermoElectric.tau3D_spherical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.electrical_properties.html">ThermoElectric.electrical_properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.filtering_effect.html">ThermoElectric.filtering_effect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.phenomenological.html">ThermoElectric.phenomenological</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="getting_started.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

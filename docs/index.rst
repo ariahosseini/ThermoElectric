@@ -3,31 +3,21 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to ThermoElectric's documentation!
+ThermoElectric
 =========================================================
 ThermoElectric is a computational framework that computes electron transport coefficients with unique features to design
 the nanoscale morphology of thermoelectric (TE) materials to obtain electron scattering that will enhance performance
 through electron energy filtering. The code uses the linear Boltzmann transport equation to compute the electrical
 properties of electrical conductivity, Seebeck coefficient, electron thermal conductivity, etc., under relaxation time
-approximation. The code has an interface with the VASP ab initio simulation package. What distinguishes ThermoElectric
-from other software such as BoltzTrap is sets of sub-tools that are implemented assist in modeling electron transport
-in semiconductors. These include a tool for self-consistent calculation of the Fermi level from a given carrier
-concentration, and a fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering
-rate due nano-particles, nanoscale pores and grain boundaries. The first of these sub-tools circumvent the problem that
-DFT underestimates the band gaps, and the second performs iso-surface integrals to enable very dense but numerically
-efficient Brillouin Zone mesh sampling.
+approximation.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    getting_started
+   ref
    api
 
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

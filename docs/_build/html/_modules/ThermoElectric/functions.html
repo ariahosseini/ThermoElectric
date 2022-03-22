@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThermoElectric.functions &mdash; ThermoElectric  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> ThermoElectric
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ref.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ThermoElectric</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>ThermoElectric.functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ThermoElectric.functions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Provide the primary functions.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">InterpolatedUnivariateSpline</span> <span class="k">as</span> <span class="n">spline</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">PchipInterpolator</span> <span class="k">as</span> <span class="n">interpolator</span>
+<span class="kn">from</span> <span class="nn">.accum</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="band_gap"><a class="viewcode-back" href="../../autosummary/ThermoElectric.band_gap.html#ThermoElectric.band_gap">[docs]</a><span class="k">def</span> <span class="nf">band_gap</span><span class="p">(</span><span class="n">Eg_o</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ao</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Bo</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method uses Eg(T)=Eg(T=0)-Ao*T**2/(T+Bo) to approximate the temperature dependency of the dielectrics band gap.</span>
+<span class="sd">    A good reference is &quot;Properties of Advanced Semiconductor Materials&quot; by Michael E. Levinshtein.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Eg_o: float</span>
+<span class="sd">        The band gap at zero Kelvin</span>
+<span class="sd">    Ao: float</span>
+<span class="sd">        Experimentally fitted parameter</span>
+<span class="sd">    Bo: float</span>
+<span class="sd">        Experimentally fitted parameter</span>
+<span class="sd">    temp: np.ndarray</span>
+<span class="sd">        Temperature range</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Eg: np.ndarray</span>
+<span class="sd">        Temperature-dependent band gap</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">temp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;Use default temperature range (300K up to 1300K with step of 100K) &#39;&#39;&#39;</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="n">temperature</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="n">temp</span>
+
+    <span class="n">Eg</span> <span class="o">=</span> <span class="n">Eg_o</span> <span class="o">-</span> <span class="n">Ao</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">T</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">T</span> <span class="o">+</span> <span class="n">Bo</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Eg</span></div>
+
+
+<div class="viewcode-block" id="analytical_dos"><a class="viewcode-back" href="../../autosummary/ThermoElectric.analytical_dos.html#ThermoElectric.analytical_dos">[docs]</a><span class="k">def</span> <span class="nf">analytical_dos</span><span class="p">(</span><span class="n">range_energy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">electron_eff_mass</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nonparabolic_term</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       This function approximate the electron density of state for parabolic and non-parabolic bands</span>
+<span class="sd">       in case DFT calculation is not available.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    range_energy: np.ndarray</span>
+<span class="sd">        Electron energy range</span>
+<span class="sd">    electron_eff_mass: float</span>
+<span class="sd">        Electron effective mass</span>
+<span class="sd">    nonparabolic_term: np.ndarray</span>
+<span class="sd">        Non-parabolic term (shows the mixture of S and P orbitals)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    DoS: dict</span>
+<span class="sd">        The DoS[&#39;DoS_nonparabolic&#39;] is phonon density of states for non-parabolic band and</span>
+<span class="sd">        the DoS[&#39;DoS_parabolic&#39;] is the phonon density of states for non-parabolic.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">hBar</span> <span class="o">=</span> <span class="mf">6.582119e-16</span>  <span class="c1"># Reduced Planck constant in eV.s</span>
+    <span class="n">e2C</span> <span class="o">=</span> <span class="mf">1.6021765e-19</span>  <span class="c1"># e to Coulomb unit change</span>
+
+    <span class="n">DoS_nonparabolic</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">range_energy</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">range_energy</span> <span class="o">*</span> <span class="n">nonparabolic_term</span><span class="o">.</span><span class="n">T</span><span class="p">))</span> \
+                       <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">electron_eff_mass</span> <span class="o">/</span> <span class="n">hBar</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span> \
+                       <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">range_energy</span> <span class="o">*</span> <span class="n">nonparabolic_term</span><span class="o">.</span><span class="n">T</span><span class="p">))</span> <span class="o">/</span> <span class="n">e2C</span> <span class="o">**</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">DoS_parabolic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">range_energy</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">hBar</span> <span class="o">**</span> <span class="mi">3</span> \
+                    <span class="o">*</span> <span class="n">electron_eff_mass</span> <span class="o">**</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">e2C</span> <span class="o">**</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">DoS_nonparabolic</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">DoS_parabolic</span><span class="p">))</span>
+
+    <span class="n">DoS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;DoS_nonparabolic&#39;</span><span class="p">:</span><span class="n">DoS_nonparabolic</span><span class="p">,</span> <span class="s1">&#39;DoS_parabolic&#39;</span><span class="p">:</span> <span class="n">DoS_parabolic</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">DoS</span></div>
+
+
+<div class="viewcode-block" id="fermi_level"><a class="viewcode-back" href="../../autosummary/ThermoElectric.fermi_level.html#ThermoElectric.fermi_level">[docs]</a><span class="k">def</span> <span class="nf">fermi_level</span><span class="p">(</span><span class="n">carrier</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                <span class="n">Nc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Ao</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">temp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function uses Joice Dixon approximation to predict Ef and thereby the carrier concentration at each temperature</span>
+<span class="sd">    A good reference book is &quot;Principles of Semiconductor Devices&quot; by Sima Dimitrijev.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    carrier: np.ndarray</span>
+<span class="sd">        Total carrier concentration</span>
+<span class="sd">    energy: np.ndarray</span>
+<span class="sd">        The electron energy level</span>
+<span class="sd">    density: np.ndarray</span>
+<span class="sd">        The electron density of states</span>
+<span class="sd">    Nc: float</span>
+<span class="sd">        The effective densities of states in the conduction band</span>
+<span class="sd">    Ao: float</span>
+<span class="sd">        Experimentally fitted parameter (Nc ~ Ao*T^(3/2))</span>
+<span class="sd">    temp: np.ndarray</span>
+<span class="sd">        Temperature range</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    output: np.ndarray</span>
+<span class="sd">        The first row is the carrier concentration and the second one is the Fermi level</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">k_bolt</span> <span class="o">=</span> <span class="mf">8.617330350e-5</span>  <span class="c1"># Boltzmann constant in eV/K</span>
+
+    <span class="k">if</span> <span class="n">temp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="n">temperature</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="n">temp</span>
+    <span class="k">if</span> <span class="n">Ao</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Nc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Either Ao or Nc should be defined&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">Nc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Nc</span> <span class="o">=</span> <span class="n">Ao</span> <span class="o">*</span> <span class="n">temp</span> <span class="o">**</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">JD_CC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">carrier</span> <span class="o">/</span> <span class="n">Nc</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">*</span> <span class="n">carrier</span> <span class="o">/</span> <span class="n">Nc</span> <span class="o">-</span> <span class="p">(</span><span class="mf">3.</span> <span class="o">/</span> <span class="mi">16</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mi">9</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">carrier</span> <span class="o">/</span> <span class="n">Nc</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">fermi_energy</span> <span class="o">=</span> <span class="n">k_bolt</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">*</span> <span class="n">JD_CC</span><span class="p">)</span>  <span class="c1"># Joice Dixon approximation of Ef</span>
+    <span class="n">f</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fermi_distribution</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>  <span class="c1"># Fermi distribution</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="n">energy</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Carrier concentration</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">fermi_energy</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="fermi_self_consistent"><a class="viewcode-back" href="../../autosummary/ThermoElectric.fermi_self_consistent.html#ThermoElectric.fermi_self_consistent">[docs]</a><span class="k">def</span> <span class="nf">fermi_self_consistent</span><span class="p">(</span><span class="n">carrier</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">temp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                          <span class="n">energy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                          <span class="n">fermi_levels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Self-consistent calculation of the Fermi level from a given carrier concentration</span>
+<span class="sd">    using Joyce Dixon approximation as the initial guess for degenerate semiconductors.</span>
+<span class="sd">    As a default value of 4000 sampling points in energy range from Ef(JD)-0.4 eV up to</span>
+<span class="sd">    Ef(JD)+0.2 is considered.This looks reasonable in most cases. The index is printed out</span>
+<span class="sd">    if it reaches the extreme index of (0) or (4000), increase energy range.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    carrier: np.ndarray</span>
+<span class="sd">        Total carrier concentration</span>
+<span class="sd">    energy: np.ndarray</span>
+<span class="sd">        The electron energy level</span>
+<span class="sd">    density: np.ndarray</span>
+<span class="sd">        The electron density of states</span>
+<span class="sd">    fermi_levels: np.ndarray</span>
+<span class="sd">        Joyce Dixon femi level approximation as the initial guess</span>
+<span class="sd">    temp: np.ndarray</span>
+<span class="sd">        Temperature range</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    output: np.ndarray</span>
+<span class="sd">        The first row is the carrier concentration and the second one is the Fermi level</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fermi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">fermi_levels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">fermi_levels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">init_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">temp</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">fermi</span><span class="p">)[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">idx_j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">idx_i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fermi</span><span class="p">[</span><span class="n">idx_j</span><span class="p">]:</span>
+            <span class="n">f</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fermi_distribution</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                                      <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">j</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">density</span> <span class="o">*</span> <span class="n">f</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">init_array</span><span class="p">[</span><span class="n">idx_j</span><span class="p">,</span> <span class="n">idx_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
+            <span class="n">idx_i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">idx_j</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">carrier</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">fermi</span><span class="p">)[</span><span class="mi">1</span><span class="p">]))</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">init_array</span><span class="p">)</span>
+    <span class="n">min_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diff</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fermi Level Self Consistent Index &quot;</span><span class="p">,</span> <span class="n">min_idx</span><span class="p">)</span>
+
+    <span class="n">Ef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">temp</span><span class="p">)[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="k">for</span> <span class="n">Ef_idx</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">min_idx</span><span class="p">)):</span>
+        <span class="n">Ef</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">Ef_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">fermi</span><span class="p">[</span><span class="n">Ef_idx</span><span class="p">,</span> <span class="n">min_idx</span><span class="p">[</span><span class="n">Ef_idx</span><span class="p">]]</span>
+    <span class="n">elm</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">temp</span><span class="p">)[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">min_idx</span><span class="p">:</span>
+        <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">elm</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_array</span><span class="p">[</span><span class="n">elm</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span>
+        <span class="n">elm</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Ef</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="group_velocity"><a class="viewcode-back" href="../../autosummary/ThermoElectric.group_velocity.html#ThermoElectric.group_velocity">[docs]</a><span class="k">def</span> <span class="nf">group_velocity</span><span class="p">(</span><span class="n">kpoints</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">energy_kp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Group velocity is the derivation of band structure from DFT. Linear BTE needs single band data.</span>
+<span class="sd">    Reciprocal lattice vector is required</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kpoints: np.ndarray</span>
+<span class="sd">        Wave vectors</span>
+<span class="sd">    energy_kp: np.ndarray</span>
+<span class="sd">        Energy for each wave vector</span>
+<span class="sd">    energy: np.ndarray</span>
+<span class="sd">        Energy range</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    velocity: np.ndarray</span>
+<span class="sd">        Group velocity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">h_bar</span> <span class="o">=</span> <span class="mf">6.582119e-16</span>  <span class="c1"># Reduced Planck constant in eV.s</span>
+
+    <span class="n">dE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">energy_kp</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">energy_kp</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">dk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">kpoints</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">kpoints</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">dEdk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">dE</span><span class="p">,</span> <span class="n">dk</span><span class="p">)</span>
+    <span class="n">dEdk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy_kp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">energy_kp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">kpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">kpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">dEdk</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy_kp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">energy_kp</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">kpoints</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">kpoints</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">dEdkSpline</span> <span class="o">=</span> <span class="n">spline</span><span class="p">(</span><span class="n">energy_kp</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dEdk</span><span class="p">))</span>
+    <span class="n">dEdkFunctionEnergy</span> <span class="o">=</span> <span class="n">dEdkSpline</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+
+    <span class="n">group_vel</span> <span class="o">=</span> <span class="n">dEdkFunctionEnergy</span> <span class="o">/</span> <span class="n">h_bar</span>
+
+    <span class="k">return</span> <span class="n">group_vel</span></div>
+
+
+<div class="viewcode-block" id="analytical_group_velocity"><a class="viewcode-back" href="../../autosummary/ThermoElectric.analytical_group_velocity.html#ThermoElectric.analytical_group_velocity">[docs]</a><span class="k">def</span> <span class="nf">analytical_group_velocity</span><span class="p">(</span><span class="n">energy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lattice_parameter</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">num_kpoints</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                              <span class="n">m_eff</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">valley</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dk_len</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                              <span class="n">alpha_term</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method approximate the group velocity near the conduction band edge</span>
+<span class="sd">    in case no DFT calculation is available.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    energy: np.ndarray</span>
+<span class="sd">        Energy range</span>
+<span class="sd">    lattice_parameter: np.ndarray</span>
+<span class="sd">        Lattice parameter</span>
+<span class="sd">    num_kpoints: np.ndarray</span>
+<span class="sd">        Number of wave vectors</span>
+<span class="sd">    m_eff: np.ndarray</span>
+<span class="sd">        Effective mass along different axis</span>
+<span class="sd">    valley: np.ndarray</span>
+<span class="sd">        Conduction valley</span>
+<span class="sd">    dk_len: np.ndarray</span>
+<span class="sd">        magnitude of wave vectors</span>
+<span class="sd">    alpha_term: np.ndarray</span>
+<span class="sd">        Non-parabolic term</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    velocity: np.ndarray</span>
+<span class="sd">        Group velocity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">e2C</span> <span class="o">=</span> <span class="mf">1.6021765e-19</span>  <span class="c1"># e to Coulomb unit change</span>
+    <span class="n">h_bar</span> <span class="o">=</span> <span class="mf">6.582119e-16</span>  <span class="c1"># Reduced Planck constant in eV.s</span>
+
+    <span class="n">ko</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">lattice_parameter</span> <span class="o">*</span> <span class="n">valley</span>
+    <span class="n">del_k</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">lattice_parameter</span> <span class="o">*</span> <span class="n">dk_len</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">kx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ko</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ko</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">del_k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">num_kpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># kpoints mesh</span>
+    <span class="n">ky</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ko</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ko</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">del_k</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_kpoints</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># kpoints mesh</span>
+    <span class="n">kz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ko</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">ko</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">del_k</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">num_kpoints</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># kpoints mesh</span>
+    <span class="p">[</span><span class="n">xk</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">zk</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">kx</span><span class="p">,</span> <span class="n">ky</span><span class="p">,</span> <span class="n">kz</span><span class="p">)</span>
+    <span class="n">xk_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">xk</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">yk_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">yk</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">zk_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">zk</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">kpoint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">xk_</span><span class="p">,</span> <span class="n">yk_</span><span class="p">,</span> <span class="n">zk_</span><span class="p">])</span>
+
+    <span class="n">mass_cond</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">m_eff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">m_eff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">m_eff</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Conduction band effective mass</span>
+
+    <span class="n">E</span> <span class="o">=</span> <span class="n">h_bar</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> \
+        <span class="p">((</span><span class="n">kpoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">ko</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">m_eff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span>
+         <span class="p">(</span><span class="n">kpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ko</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">m_eff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span>
+         <span class="p">(</span><span class="n">kpoint</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">ko</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">m_eff</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">e2C</span>  <span class="c1"># Ellipsoidal energy band shape</span>
+
+    <span class="n">vel</span> <span class="o">=</span> <span class="n">h_bar</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">kpoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">ko</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">kpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ko</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+                          <span class="o">+</span> <span class="p">(</span><span class="n">kpoint</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">ko</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">mass_cond</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">alpha_term</span> <span class="o">*</span> <span class="n">E</span><span class="p">)</span> <span class="o">*</span> <span class="n">e2C</span>
+
+    <span class="n">Ec</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">return_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">vg</span> <span class="o">=</span> <span class="n">accum</span><span class="p">(</span><span class="n">return_indices</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">en_spline</span> <span class="o">=</span> <span class="n">interpolator</span><span class="p">(</span><span class="n">Ec</span><span class="p">,</span> <span class="n">vg</span><span class="p">)</span>
+    <span class="n">velocity</span> <span class="o">=</span> <span class="n">en_spline</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">velocity</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ThermoElectric&#39;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, S. Aria Hosseini. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.6.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThermoElectric.bte_solver &mdash; ThermoElectric  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> ThermoElectric
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ref.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ThermoElectric</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>ThermoElectric.bte_solver</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ThermoElectric.bte_solver</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">.functions</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="electrical_properties"><a class="viewcode-back" href="../../autosummary/ThermoElectric.electrical_properties.html#ThermoElectric.electrical_properties">[docs]</a><span class="k">def</span> <span class="nf">electrical_properties</span><span class="p">(</span><span class="n">E</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">DoS</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vg</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Ef</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                          <span class="n">dfdE</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">temp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">tau</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function returns electronic properties.</span>
+<span class="sd">    Good references on this topic are:</span>
+<span class="sd">    &quot;Near-equilibrium Transport: Fundamentals And Applications&quot; by Changwook Jeong and Mark S. Lundstrom</span>
+<span class="sd">    &quot;Nanoscale Energy Transport and Conversion: A Parallel Treatment of Electrons, Molecules, Phonons, and Photons&quot; by Gang Chen.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    E: np.ndarray</span>
+<span class="sd">        Energy range</span>
+<span class="sd">    DoS: np.ndarray</span>
+<span class="sd">        Electron density of state</span>
+<span class="sd">    vg: np.ndarray</span>
+<span class="sd">        Group velocity</span>
+<span class="sd">    Ef: np.ndarray</span>
+<span class="sd">        Fermi level</span>
+<span class="sd">    dfdE: np.ndarray</span>
+<span class="sd">        Fermi window</span>
+<span class="sd">    temp: np.ndarray</span>
+<span class="sd">        Temperature range</span>
+<span class="sd">    tau:  np.ndarray</span>
+<span class="sd">        Lifetime</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coefficients: dict</span>
+<span class="sd">        Linear BTE prediction of electrical properties</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">e2C</span> <span class="o">=</span> <span class="mf">1.6021765e-19</span>  <span class="c1"># e to Coulomb unit change</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">DoS</span> <span class="o">*</span> <span class="n">vg</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">dfdE</span>  <span class="c1"># Chi</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="p">(</span><span class="n">E</span> <span class="o">-</span> <span class="n">Ef</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">X</span>  <span class="c1"># Gamma</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="p">(</span><span class="n">E</span> <span class="o">-</span> <span class="n">Ef</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">Y</span>  <span class="c1"># Zeta</span>
+
+    <span class="n">Sigma</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">tau</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">e2C</span>  <span class="c1"># Electrical conductivity</span>
+
+    <span class="n">S</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">Y</span> <span class="o">*</span> <span class="n">tau</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">tau</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">temp</span>  <span class="c1"># Thermopower</span>
+
+    <span class="n">PF</span> <span class="o">=</span> <span class="n">Sigma</span> <span class="o">*</span> <span class="n">S</span> <span class="o">**</span> <span class="mi">2</span>  <span class="c1"># Power factor</span>
+
+    <span class="n">ke</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">Z</span> <span class="o">*</span> <span class="n">tau</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">Y</span> <span class="o">*</span> <span class="n">tau</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span>
+               <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">tau</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">temp</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">e2C</span>  <span class="c1"># Electron thermal conductivity</span>
+
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">E</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">tau</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># First moment of current</span>
+
+    <span class="n">delta_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">E</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">tau</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Second moment of current</span>
+
+    <span class="n">Lorenz</span> <span class="o">=</span> <span class="p">(</span><span class="n">delta_</span> <span class="o">-</span> <span class="n">delta</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">temp</span><span class="o">**</span><span class="mi">2</span>  <span class="c1"># Lorenz number</span>
+
+    <span class="n">coefficients</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Electrical_conductivity&#39;</span><span class="p">:</span> <span class="n">Sigma</span><span class="p">,</span> <span class="s1">&#39;Seebeck_coefficient&#39;</span><span class="p">:</span> <span class="n">S</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;Power_factor&#39;</span><span class="p">:</span> <span class="n">PF</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">&#39;Thermal_conductivity&#39;</span><span class="p">:</span> <span class="n">ke</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;Lorenz_number&#39;</span><span class="p">:</span> <span class="n">Lorenz</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+
+    <span class="k">return</span> <span class="n">coefficients</span></div>
+
+
+<div class="viewcode-block" id="filtering_effect"><a class="viewcode-back" href="../../autosummary/ThermoElectric.filtering_effect.html#ThermoElectric.filtering_effect">[docs]</a><span class="k">def</span> <span class="nf">filtering_effect</span><span class="p">(</span><span class="n">Uo</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">DoS</span><span class="p">,</span> <span class="n">vg</span><span class="p">,</span> <span class="n">Ef</span><span class="p">,</span> <span class="n">dfdE</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">tau_bulk</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function returns electric properties for the ideal filtering —  where all the electrons up to a cutoff energy</span>
+<span class="sd">    level of Uo are completely hindered.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Uo: np.ndarray</span>
+<span class="sd">        Barrier height</span>
+<span class="sd">    E: np.ndarray</span>
+<span class="sd">        Energy range</span>
+<span class="sd">    DoS: np.ndarray</span>
+<span class="sd">        Electron density of state</span>
+<span class="sd">    vg: np.ndarray</span>
+<span class="sd">        Group velocity</span>
+<span class="sd">    Ef: np.ndarray</span>
+<span class="sd">        Fermi level</span>
+<span class="sd">    dfdE: np.ndarray</span>
+<span class="sd">        Fermi window</span>
+<span class="sd">    temp: np.ndarray</span>
+<span class="sd">        Temperature range</span>
+<span class="sd">    tau_bulk:  np.ndarray</span>
+<span class="sd">        Lifetime in bulk material</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    output: dict</span>
+<span class="sd">        Linear BTE prediction of electrical properties</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tau_Uo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">_Conductivity</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tau_bulk</span><span class="p">)])]</span>
+    <span class="n">_Seebeck</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tau_bulk</span><span class="p">)])]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Uo</span><span class="p">)):</span>
+
+        <span class="n">tau_idl</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">tau_Uo</span><span class="p">)</span>
+        <span class="n">tau_idl</span><span class="p">[</span><span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">Uo</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="n">matthiessen</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">tau_idl</span><span class="p">,</span> <span class="n">tau_bulk</span><span class="p">)</span>
+
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">electrical_properties</span><span class="p">(</span><span class="n">E</span><span class="o">=</span><span class="n">E</span><span class="p">,</span> <span class="n">DoS</span><span class="o">=</span><span class="n">DoS</span><span class="p">,</span> <span class="n">vg</span><span class="o">=</span><span class="n">vg</span><span class="p">,</span> <span class="n">Ef</span><span class="o">=</span><span class="n">Ef</span><span class="p">,</span> <span class="n">dfdE</span><span class="o">=</span><span class="n">dfdE</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="n">tau</span><span class="p">)</span>
+        <span class="n">Sigma</span> <span class="o">=</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">&#39;Electrical_conductivity&#39;</span><span class="p">]</span>  <span class="c1"># Electrical conductivity</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">&#39;Seebeck_coefficient&#39;</span><span class="p">]</span>  <span class="c1"># Thermopower</span>
+
+        <span class="n">_Conductivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_Conductivity</span><span class="p">,</span> <span class="p">[</span><span class="n">Sigma</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">_Seebeck</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_Seebeck</span><span class="p">,</span> <span class="p">[</span><span class="n">S</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">del</span> <span class="n">tau_idl</span>
+
+    <span class="n">Conductivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">_Conductivity</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">Seebeck</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">_Seebeck</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Electrical_conductivity&#39;</span><span class="p">:</span> <span class="n">Conductivity</span><span class="p">,</span> <span class="s1">&#39;Seebeck_coefficient&#39;</span><span class="p">:</span> <span class="n">Seebeck</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="phenomenological"><a class="viewcode-back" href="../../autosummary/ThermoElectric.phenomenological.html#ThermoElectric.phenomenological">[docs]</a><span class="k">def</span> <span class="nf">phenomenological</span><span class="p">(</span><span class="n">Uo</span><span class="p">,</span> <span class="n">tau_o</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">DoS</span><span class="p">,</span> <span class="n">vg</span><span class="p">,</span> <span class="n">Ef</span><span class="p">,</span> <span class="n">dfdE</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">tau_bulk</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function returns electric properties for the phenomenological filtering —  where a frequency independent</span>
+<span class="sd">    lifetime of tau_o is imposed to all the electrons up to a cutoff energy level of Uo</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Uo: np.ndarray</span>
+<span class="sd">        Barrier height</span>
+<span class="sd">    tau_o: np.ndarray</span>
+<span class="sd">        Phenomenological lifetime</span>
+<span class="sd">    E: np.ndarray</span>
+<span class="sd">        Energy range</span>
+<span class="sd">    DoS: np.ndarray</span>
+<span class="sd">        Electron density of state</span>
+<span class="sd">    vg: np.ndarray</span>
+<span class="sd">        Group velocity</span>
+<span class="sd">    Ef: np.ndarray</span>
+<span class="sd">        Fermi level</span>
+<span class="sd">    dfdE: np.ndarray</span>
+<span class="sd">        Fermi window</span>
+<span class="sd">    temp: np.ndarray</span>
+<span class="sd">        Temperature range</span>
+<span class="sd">    tau_bulk:  np.ndarray</span>
+<span class="sd">        Lifetime in bulk material</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    output: dict</span>
+<span class="sd">        Linear BTE prediction of electrical properties</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tau_u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">_Conductivity</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])]</span>
+    <span class="n">_Seebeck</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])]</span>
+    <span class="k">for</span> <span class="n">_j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tau_o</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Uo</span><span class="p">)):</span>
+            <span class="n">tau_ph</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">tau_u</span><span class="p">)</span>
+            <span class="n">tau_ph</span><span class="p">[</span><span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">Uo</span><span class="p">[</span><span class="n">_i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">tau_o</span><span class="p">[</span><span class="n">_j</span><span class="p">]</span>
+            <span class="n">tau</span> <span class="o">=</span> <span class="n">matthiessen</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">tau_ph</span><span class="p">,</span> <span class="n">tau_bulk</span><span class="p">)</span>
+            <span class="n">coefficients</span> <span class="o">=</span> <span class="n">electrical_properties</span><span class="p">(</span><span class="n">E</span><span class="o">=</span><span class="n">E</span><span class="p">,</span> <span class="n">DoS</span><span class="o">=</span><span class="n">DoS</span><span class="p">,</span> <span class="n">vg</span><span class="o">=</span><span class="n">vg</span><span class="p">,</span> <span class="n">Ef</span><span class="o">=</span><span class="n">Ef</span><span class="p">,</span> <span class="n">dfdE</span><span class="o">=</span><span class="n">dfdE</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="n">tau</span><span class="p">)</span>
+            <span class="n">Sigma</span> <span class="o">=</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">&#39;Electrical_conductivity&#39;</span><span class="p">]</span>  <span class="c1"># Electrical conductivity</span>
+            <span class="n">S</span> <span class="o">=</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">&#39;Seebeck_coefficient&#39;</span><span class="p">]</span>  <span class="c1"># Thermopower</span>
+            <span class="n">_Conductivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_Conductivity</span><span class="p">,</span> <span class="p">[</span><span class="n">Sigma</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">_Seebeck</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_Seebeck</span><span class="p">,</span> <span class="p">[</span><span class="n">S</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">tau_ph</span>
+
+    <span class="n">__Conductivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">_Conductivity</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">__Seebeck</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">_Seebeck</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">Conductivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">__Conductivity</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tau_o</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">Uo</span><span class="p">)))</span>  <span class="c1"># Electrical conductivity</span>
+    <span class="n">Seebeck</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">__Seebeck</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tau_o</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">Uo</span><span class="p">)))</span>  <span class="c1"># Thermopower</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Electrical_conductivity&#39;</span><span class="p">:</span> <span class="n">Conductivity</span><span class="p">,</span> <span class="s1">&#39;Seebeck_coefficient&#39;</span><span class="p">:</span> <span class="n">Seebeck</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, S. Aria Hosseini. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.6.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

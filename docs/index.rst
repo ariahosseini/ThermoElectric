@@ -11,6 +11,16 @@ through electron energy filtering. The code uses the linear Boltzmann transport 
 properties of electrical conductivity, Seebeck coefficient, electron thermal conductivity, etc., under relaxation time
 approximation.
 
+Installation
+=========================================================
+::
+
+   gh repo clone ariahosseini/ThermoElectric
+   cd ThermoElectric
+   sudo python setup.py install
+
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

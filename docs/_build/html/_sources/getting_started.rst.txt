@@ -6,7 +6,7 @@ This page details how to get started with ThermoElectric.
 Intrinsic Properties
 ---------------------
 Once installed, you can use the package. This example shows how to model the electron transport coefficients in
-nano-structured thermoelectric materials.
+nano-structured silicon.
 
 The following block of code computes the energy range [eV], temperature range [K], and the electronic band gap [eV]:
 

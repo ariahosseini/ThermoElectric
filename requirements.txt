@@ -1,0 +1,6 @@
+numpy~=1.21.2
+setuptools~=58.0.4
+matplotlib~=3.5.0
+seaborn~=0.11.2
+scipy~=1.7.3
+pytest~=6.2.5

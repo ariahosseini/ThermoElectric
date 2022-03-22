@@ -5,7 +5,7 @@ ThermoElectric
 [![codecov](https://codecov.io/gh/REPLACE_WITH_OWNER_ACCOUNT/ThermoElectric/branch/master/graph/badge.svg)](https://codecov.io/gh/REPLACE_WITH_OWNER_ACCOUNT/ThermoElectric/branch/master)
 
 
-A Python Tool for Design of High ZT Nanoengineered Thermoelectrics
+A Python Tool for Design of High ZT Nanoengineered Thermoelectrics. Please visit [ThermoElectric](file:///Users/ariahosseini/PycharmProjects/pythonProject/ThermoElectric/docs/_build/html/index.html#)
 
 ### Copyright
 

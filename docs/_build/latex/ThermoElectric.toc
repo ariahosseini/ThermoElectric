@@ -1,0 +1,33 @@
+\select@language {english}
+\contentsline {chapter}{\numberline {1}Installation}{3}{chapter.1}
+\contentsline {section}{\numberline {1.1}Getting Started}{3}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}Intrinsic Properties}{3}{subsection.1.1.1}
+\contentsline {subsection}{\numberline {1.1.2}Fermi Energy Level}{5}{subsection.1.1.2}
+\contentsline {subsection}{\numberline {1.1.3}Electron Lifetime}{6}{subsection.1.1.3}
+\contentsline {subsection}{\numberline {1.1.4}Electrical Properties}{6}{subsection.1.1.4}
+\contentsline {section}{\numberline {1.2}References}{6}{section.1.2}
+\contentsline {section}{\numberline {1.3}API Documentation}{7}{section.1.3}
+\contentsline {subsection}{\numberline {1.3.1}ThermoElectric.energy\_range}{8}{subsection.1.3.1}
+\contentsline {subsection}{\numberline {1.3.2}ThermoElectric.temperature}{9}{subsection.1.3.2}
+\contentsline {subsection}{\numberline {1.3.3}ThermoElectric.fermi\_distribution}{9}{subsection.1.3.3}
+\contentsline {subsection}{\numberline {1.3.4}ThermoElectric.matthiessen}{9}{subsection.1.3.4}
+\contentsline {subsection}{\numberline {1.3.5}ThermoElectric.kpoints}{10}{subsection.1.3.5}
+\contentsline {subsection}{\numberline {1.3.6}ThermoElectric.carrier\_concentration}{10}{subsection.1.3.6}
+\contentsline {subsection}{\numberline {1.3.7}ThermoElectric.band\_structure}{10}{subsection.1.3.7}
+\contentsline {subsection}{\numberline {1.3.8}ThermoElectric.electron\_density}{11}{subsection.1.3.8}
+\contentsline {subsection}{\numberline {1.3.9}ThermoElectric.band\_gap}{11}{subsection.1.3.9}
+\contentsline {subsection}{\numberline {1.3.10}ThermoElectric.analytical\_dos}{12}{subsection.1.3.10}
+\contentsline {subsection}{\numberline {1.3.11}ThermoElectric.fermi\_level}{12}{subsection.1.3.11}
+\contentsline {subsection}{\numberline {1.3.12}ThermoElectric.fermi\_self\_consistent}{12}{subsection.1.3.12}
+\contentsline {subsection}{\numberline {1.3.13}ThermoElectric.group\_velocity}{13}{subsection.1.3.13}
+\contentsline {subsection}{\numberline {1.3.14}ThermoElectric.analytical\_group\_velocity}{13}{subsection.1.3.14}
+\contentsline {subsection}{\numberline {1.3.15}ThermoElectric.tau\_p}{14}{subsection.1.3.15}
+\contentsline {subsection}{\numberline {1.3.16}ThermoElectric.tau\_strongly\_screened\_coulomb}{14}{subsection.1.3.16}
+\contentsline {subsection}{\numberline {1.3.17}ThermoElectric.tau\_screened\_coulomb}{15}{subsection.1.3.17}
+\contentsline {subsection}{\numberline {1.3.18}ThermoElectric.tau\_unscreened\_coulomb}{15}{subsection.1.3.18}
+\contentsline {subsection}{\numberline {1.3.19}ThermoElectric.tau\_2d\_cylinder}{15}{subsection.1.3.19}
+\contentsline {subsection}{\numberline {1.3.20}ThermoElectric.tau3D\_spherical}{16}{subsection.1.3.20}
+\contentsline {subsection}{\numberline {1.3.21}ThermoElectric.electrical\_properties}{17}{subsection.1.3.21}
+\contentsline {subsection}{\numberline {1.3.22}ThermoElectric.filtering\_effect}{17}{subsection.1.3.22}
+\contentsline {subsection}{\numberline {1.3.23}ThermoElectric.phenomenological}{18}{subsection.1.3.23}
+\contentsline {chapter}{Index}{19}{section*.26}

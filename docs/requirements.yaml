@@ -5,8 +5,15 @@ dependencies:
   - python
   - pip
 
-
+    # Package depends
+  - numpy
+  - matplotlib
+  - setuptools
+  - seaborn
+  - scipy
+  - pytest
 
     # Pip-only installs
-  #- pip:
+  - pip:
+      - sphinx-autoapi
 

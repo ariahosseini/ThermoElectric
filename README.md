@@ -15,8 +15,12 @@ that the optimal carrier concentration is constrained and that only semiconducto
 The model demonstrates that if one applies perfect energy filtering then one can obtain greatly enhanced power factor 
 by doping the material to push the Fermi energy even deep into the conduction band. In fact, it is possible to make 
 TE with optimal performance that are metallic!
+
 <p align="center">
 <img src="Figures/TOC_2.png" alt="drawing" width="400px">
+</p>
+
+<p align="center">
 <img src="Figures/TOC_3.png" alt="drawing" width="400px">
 </p>
 
@@ -27,14 +31,14 @@ to find design strategies to this problem. I have found that the detrimental eff
 in the thermoelectric design by subtly tuning the doping concentration to higher carrier concentration compared to bulk 
 materials. As a design strategy, for the largest enhancement in Seebeck one needs to get in pores of any shape, if one 
 can make them as small as possible.
-<p align="center">
-<img src="Figures/TOC_1.png" align="center" alt="drawing" width="400px"> 
-</p>
 
+<p align="center">
+<img src="Figures/TOC_1.png" alt="drawing" width="400px"> 
+</p>
 
 ### Linear Boltzmann Transport 
 
-Thermoelectrics (TE) are a class of materials that convert heat directly into electricity. 
+Thermoelectrics (TEs) are a class of materials that convert heat directly into electricity. 
 The performance of TE materials at a given temperature, 𝑇, is quantified by a dimensionless figure of 
 merit ZT=(σS<sup>2</sup>)/κ T, where κ, σ and S are the material’s thermal conductivity, electrical 
 conductivity and Seebeck coefficient, respectively. The power factor (σS<sup>2</sup>) in ZT depends on 
@@ -46,7 +50,6 @@ efficient and inexpensive, these materials could be used to recapturing low-grad
 process as useful electrical energy. The potential energy savings are vast. Recent studies have suggested 
 that recuperating only 10% of heat lost into electricity can improve fuel energy efficiency by 20% while 
 other studies has reported that more than 68% of U.S. energy consumption escaped as waste heat. 
-
 
 #### Electron Transport Coeff. in Bulk TEs
 
@@ -72,6 +75,7 @@ different energy, defined as
 <p align="center">
 <img src="https://latex.codecogs.com/png.latex?%5Cdpi%7B300%7D%20%5Ctiny%20%5CDelta_n%20%3D%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%20%5Cint%20%5Cchi%5Ctau%20dE%20%26%20n%3D0%5C%5C%20%5Cfrac%7B1%7D%7B%5CDelta_0%7D%5Cint%20E%5En%20%5Cchi%20%5Ctau%20dE%20%26%20n%5Cneq%200%20%5Cend%7Bmatrix%7D%5Cright." alt="drawing"  width="200px">
 </p>
+
 The Seebeck coefficient obtains its largest magnitude by maximizing the asymmetry of product Dτν<sup>2</sup> 
 about the Fermi level to move its center of current, Δ<sub>1</sub>, away from the Fermi level.
 
@@ -90,6 +94,7 @@ state, n=∫<sub>E<sub>c</sub></sub>D(E)f(E)dE.
 <p align="center">
 <img src="Figures/Figure_2.png" alt="drawing" width="400px"> 
 </p>
+
 The experimental measurements are noisy and so for the transport model, the carrier concentration 
 was  represented  with the continuous smoothing function fit through the experimental data. This panel 
 shows the Bayesian interpolation fitted to the temperature dependence of the experimentally measured 
@@ -98,6 +103,7 @@ carrier concentration.
 <p align="center">
 <img src="Figures/Figure_3.png" alt="drawing" width="400px"> 
 </p>
+
 In this pane, the Fermi level is plotted for different carrier concentrations using self-consistent method 
 described above.
 
@@ -112,8 +118,10 @@ In this case, the electron lifetime is defined as
 <p align="center">
 <img src="https://latex.codecogs.com/gif.latex?%5Cdpi%7B300%7D%20%5Ctiny%20%5Ctau_i%28E%29%3D%5Cfrac%7B%5Cpi%20N_i%20%5Cleft%28%5Cfrac%7Be%5E2%20L_D%5E2%7D%7B4%5Cpi%20%5Cepsilon%20%5Cepsilon_o%7D%5Cright%29%5E2%20%7D%7B%5Chbar%7DD%28E%29" alt="drawing" width="220px"> 
 </p>
+
 For the strongly screened Coulombic potential L<sub>D</sub> is small so that 1/(L<sub>D</sub><sup>4</sup>) is dominant. 
 In doped semiconductors the Debye length has generalized form of
+
 <p align="center">
 <img src="https://latex.codecogs.com/png.latex?%5Cdpi%7B300%7D%20%5Ctiny%20L_D%3D%5Cfrac%7Be%5E2%20N_c%7D%7B4%20%5Cpi%20%5Cepsilon%20%5Cepsilon_o%20k_B%20T%7D%20%5Cleft%20%5BF_%7B-%5Cfrac%7B1%7D%7B2%7D%7D%28%5Ceta%29&plus;%5Cfrac%7B15%20%5Calpha%20k_B%20T%7D%7B4%7D%20F_%7B%5Cfrac%7B1%7D%7B2%7D%7D%28%5Ceta%29%5Cright%5D" alt="drawing"  width="300px"> 
 </p>
@@ -125,7 +133,6 @@ impurity and then multiplying it by number of impurities in capturing interferen
 propagate through random distribution of impurities in deriving this equation. We model the conduction band effective 
 mass variation with temperature using m<sub>c</sub>(T)=m<sub>o</sub>(1+5αk<sub>B</sub>T). This model 
 assumes linear dependency on temperature and does not count for degeneracy in high carrier population. 
-
 
 <p align="center">
 <img src="Figures/Figure_15.png" alt="drawing" width="400px"> 
@@ -146,11 +153,11 @@ The running script is as simple as
  end
  dlmwrite('f_inc',[f1;f2]); % Generate the output
 ```
-An alternative way is to use the Fermi-Dirac Integrals python package (FDINT) - compatible with python2, using following command
+An alternative way is to use the Fermi-Dirac Integrals python package (FDINT) — compatible with python2, using following command
  
- ```
+```
  pip install fdint
- ```
+```
 
 The second important scattering mechanism specially at high temperature in non-polar semiconductors like Si is 
 the acoustic phonon deformation potential. For electron phonon interaction, Ravich defined the lifetime as
@@ -169,11 +176,11 @@ The rate of electron scattering due to the disordered arrangement in alloys diel
 <p align="center">
 <img src="https://latex.codecogs.com/png.latex?%5Cdpi%7B300%7D%20%5Ctiny%20%5Ctau_a%28E%29%3D%5Cfrac%7B8%5Csqrt%7B2%7D%20%5Cpi%5E2%20%5Chbar%5E4%7D%7B0.75%20%5Cmathrm%7Bx%7D%281-%5Cmathrm%7Bx%7D%293a%5E3%20%5Cpi%5E3%20U_A%5E2%20m%5E%7B*%5E%7B%5Cfrac%7B3%7D%7B2%7D%7D%7D%20%5Csqrt%7BE%7D%7D" alt="drawing" width="300px"> 
 </p>
-where x is the atomic fraction of alloy, "a" is the lattice parameter and the term U<sub>A</sub> is the alloy 
+where x is the atomic fraction of alloy, a is the lattice parameter and the term U<sub>A</sub> is the alloy 
 scattering potential.
 
 <p align="center">
-<img src="Figures/Picture2.jpg" alt="drawing" width="500px"/> 
+<img src="Figures/Picture2.jpg" alt="drawing" width="450px"/> 
 </p>
 
 This panel shows the magnitude of electrical conductivity and Seebeck coefficient in phosphorus-doped bulk Si. 

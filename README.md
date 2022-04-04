@@ -8,6 +8,7 @@ ThermoElectric
 
 A Python Tool for Design of High ZT Nanoengineered Thermoelectrics. Please visit [ThermoElectric](https://thermoelectric.readthedocs.io/en/latest/index.html#) website.
 
+### Applications
 #### The Enhancement to Thermoelectric Performance That Could Be Obtained by Designing the Electron Scattering to Optimally Harness the Mechanism of Electron Energy Filtering
 
 ThermoElectric shows that using electron energy filtering can completely free engineers from the established paradigm 

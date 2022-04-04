@@ -239,7 +239,7 @@ where U<sub>o</sub> is the electron affinity. For an infinitely long cylindrical
 and aligned with axis parallel to z, this gives the scattering matrix element operator
 
 <p align="center">
-<img src="https://latex.codecogs.com/svg.image?\tiny&space;M_{kk'}%3D2\pi&space;r_o&space;U_o&space;l_z&space;\left(&space;\frac{J_1&space;(r_o&space;q_r)}{q_r}&space;\right)\delta_k(q_z)" alt="drawing" width="350px"> 
+<img src="https://latex.codecogs.com/svg.image?\tiny&space;M_{kk'}%3D2\pi&space;r_o&space;U_o&space;l_z&space;\left(&space;\frac{J_1&space;(r_o&space;q_r)}{q_r}&space;\right)\delta_k(q_z)" alt="drawing" width="300px"> 
 </p>
 
 or for the spherical pores or particles, we have

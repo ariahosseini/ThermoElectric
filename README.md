@@ -18,11 +18,11 @@ by doping the material to push the Fermi energy even deep into the conduction ba
 TE with optimal performance that are metallic!
 
 <p align="center">
-<img src="Figures/TOC_1.png" alt="drawing" width="400px">
+<img src="Figs/TOC_1.png" alt="drawing" width="400px">
 </p>
 
 <p align="center">
-<img src="Figures/TOC_2.png" alt="drawing" width="400px">
+<img src="Figs/TOC_2.png" alt="drawing" width="400px">
 </p>
 
 #### Design the Nanoscale Morphology of a Thermoelectric to Obtain Favorable Electron Scattering
@@ -34,7 +34,7 @@ materials. As a design strategy, for the largest enhancement in Seebeck one need
 can make them as small as possible.
 
 <p align="center">
-<img src="Figures/TOC_3.png" alt="drawing" width="400px"> 
+<img src="Figs/TOC_3.png" alt="drawing" width="400px"> 
 </p>
 
 ### Linear Boltzmann Transport 
@@ -93,7 +93,7 @@ is used as the initial guess. The E<sub>f</sub> iterates to meet the relation be
 state, n=∫<sub>E<sub>c</sub></sub>D(E)f(E)dE.
 
 <p align="center">
-<img src="Figures/Fig_1.png" alt="drawing" width="400px"> 
+<img src="Figs/Fig_1.png" alt="drawing" width="400px"> 
 </p>
 
 The experimental measurements are noisy and so for the transport model, the carrier concentration 
@@ -102,7 +102,7 @@ shows the Bayesian interpolation fitted to the temperature dependence of the exp
 carrier concentration.  
  
 <p align="center">
-<img src="Figures/Fig_2.png" alt="drawing" width="400px"> 
+<img src="Figs/Fig_2.png" alt="drawing" width="400px"> 
 </p>
 
 In this pane, the Fermi level is plotted for different carrier concentrations using self-consistent method 
@@ -136,7 +136,7 @@ mass variation with temperature using m<sub>c</sub>(T)=m<sub>o</sub>(1+5αk<sub>
 assumes linear dependency on temperature and does not count for degeneracy in high carrier population. 
 
 <p align="center">
-<img src="Figures/Fig_3.png" alt="drawing" width="400px"> 
+<img src="Figs/Fig_3.png" alt="drawing" width="400px"> 
 </p>
 
 This panel shows the Debye length for two different carrier concentrations. The solid lines show the model 
@@ -181,7 +181,7 @@ where x is the atomic fraction of alloy, a is the lattice parameter and the term
 scattering potential.
 
 <p align="center">
-<img src="Figures/Fig_4.png" alt="drawing" width="450px"/> 
+<img src="Figs/Fig_4.png" alt="drawing" width="450px"/> 
 </p>
 
 This panel shows the magnitude of electrical conductivity and Seebeck coefficient in phosphorus-doped bulk Si. 
@@ -261,7 +261,7 @@ element for a small disc of grain boundary with radius r<sub>o</sub> as
 The electron lifetime in Si<sub>0.8</sub>Ge<sub>0.2</sub> due to different scattering terms are shown in the panel below.
 
 <p align="center">
-<img src="Figures/Fig_5.png" align="center" alt="drawing" width="400px"/> 
+<img src="Figs/Fig_5.png" align="center" alt="drawing" width="400px"/> 
 </p>
 
 The terms D(E), and ν(E) for Si were derived from the conduction band of Si computed with density functional 
@@ -275,7 +275,7 @@ from the conduction band curvature, ν=1/ℏ|∇<sub>κ</sub> E| along the〈100
 zone path.
 
 <p align="center">
-<img src="Figures/Fig_6.png" alt="drawing" width="400px"/>
+<img src="Figs/Fig_6.png" alt="drawing" width="400px"/>
 </p>
 
 This panel shows the variation of the highest Seebeck (thermopower) and PF modeled in this study with carrier 
@@ -284,7 +284,7 @@ black lines.
 
 
 <p align="center">
-<img src="Figures/Fig_7.png" alt="drawing" width="700px"/> 
+<img src="Figs/Fig_7.png" alt="drawing" width="700px"/> 
 </p>
 
 
@@ -298,7 +298,7 @@ calculation is that if one can control the filtering threshold, the best power p
 high carrier.
 
 <p align="center">
-<img src="Figures/Fig_8.png" alt="drawing" width="400px"/> 
+<img src="Figs/Fig_8.png" alt="drawing" width="400px"/> 
 </p>
 
 #### Lorenz Number
@@ -322,7 +322,7 @@ concentration tuned to optimize ZT, the electronic thermal conductivity is ∼0.
 magnitude lower than the lattice conductivity.
 
 <p align="center">
-<img src="Figures/Fig_9.png" alt="drawing" width="400px"> 
+<img src="Figs/Fig_9.png" alt="drawing" width="400px"> 
 </p>
 
 </div>

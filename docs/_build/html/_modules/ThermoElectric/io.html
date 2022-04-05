@@ -36,8 +36,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../ref.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../intrinsic_properties.html">Intrinsic Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../electron_lifetime.html">Electron Lifetime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../electrical_properties.html">Electrical Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ref.html">Bibliography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
 </ul>
 
@@ -74,7 +76,7 @@
 <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">InterpolatedUnivariateSpline</span> <span class="k">as</span> <span class="n">spline</span>
 
 
-<div class="viewcode-block" id="kpoints"><a class="viewcode-back" href="../../autosummary/ThermoElectric.kpoints.html#ThermoElectric.kpoints">[docs]</a><span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="n">path2kpoints</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">skip_rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="n">path2kpoints</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">skip_rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a 2D array of temperature sampling</span>
@@ -96,7 +98,7 @@
 
     <span class="n">wave_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">expanduser</span><span class="p">(</span><span class="n">path2kpoints</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="n">skip_rows</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">wave_points</span></div>
+    <span class="k">return</span> <span class="n">wave_points</span>
 
 
 <div class="viewcode-block" id="carrier_concentration"><a class="viewcode-back" href="../../autosummary/ThermoElectric.carrier_concentration.html#ThermoElectric.carrier_concentration">[docs]</a><span class="k">def</span> <span class="nf">carrier_concentration</span><span class="p">(</span><span class="n">path_extrinsic_carrier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">band_gap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>

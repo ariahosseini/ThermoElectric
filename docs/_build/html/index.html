@@ -18,7 +18,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Getting Started" href="getting_started.html" /> 
+    <link rel="next" title="Intrinsic Properties" href="intrinsic_properties.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,8 +38,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ref.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intrinsic_properties.html">Intrinsic Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="electron_lifetime.html">Electron Lifetime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="electrical_properties.html">Electrical Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ref.html">Bibliography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
 
@@ -69,11 +71,21 @@
              
   <section id="thermoelectric">
 <h1>ThermoElectric<a class="headerlink" href="#thermoelectric" title="Permalink to this headline"></a></h1>
-<p>ThermoElectric is a computational framework that computes electron transport coefficients with unique features to design
-the nanoscale morphology of thermoelectric (TE) materials to obtain electron scattering that will enhance performance
-through electron energy filtering. The code uses the linear Boltzmann transport equation to compute the electrical
-properties of electrical conductivity, Seebeck coefficient, electron thermal conductivity, etc., under relaxation time
-approximation.</p>
+<p>ThermoElectric is a linear Boltzmann Transport Solver (BTE) solver that computes electronic transport coefficients in
+nano-structured materials. ThermoElectric has unique features for designing the nanoscale morphology of thermoelectric
+materials to enhance electronic performance through electron energy filtering.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/TOC_1.png"><img alt="_images/TOC_1.png" src="_images/TOC_1.png" style="width: 522.4px; height: 315.6px;" /></a>
+<figcaption>
+<p><span class="caption-text">Mitigate the effect of nanoscale porosity on thermoelectric power factor of Si.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="_images/TOC_2.png"><img alt="_images/TOC_2.png" src="_images/TOC_2.png" style="width: 657.3px; height: 258.59999999999997px;" /></a>
+<figcaption>
+<p><span class="caption-text">Enhanced thermoelectric ZT in the tails of the Fermi distribution via electron filtering by nano-inclusions.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
@@ -85,29 +97,29 @@ approximation.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#intrinsic-properties">Intrinsic Properties</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#fermi-energy-level">Fermi Energy Level</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#electron-lifetime">Electron Lifetime</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#electrical-properties">Electrical Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intrinsic_properties.html">Intrinsic Properties</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intrinsic_properties.html#band-gap">Band Gap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intrinsic_properties.html#total-carrier-concentration">Total Carrier Concentration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intrinsic_properties.html#fermi-energy-level">Fermi Energy Level</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intrinsic_properties.html#generalized-debye-length">Generalized Debye Length</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ref.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="electron_lifetime.html">Electron Lifetime</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="electron_lifetime.html#intrinsic-scattering-terms">Intrinsic scattering terms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="electron_lifetime.html#scattering-terms-raised-from-nanoengineering">Scattering terms raised from nanoengineering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="electron_lifetime.html#model-of-electron-lifetime-for-scattering-by-nanoparticles">Model of Electron Lifetime for Scattering by Nanoparticles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="electron_lifetime.html#model-of-electron-lifetime-for-scattering-by-grain-boundaries">Model of Electron Lifetime for Scattering by Grain Boundaries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="electrical_properties.html">Electrical Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ref.html">Bibliography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.energy_range.html">ThermoElectric.energy_range</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.temperature.html">ThermoElectric.temperature</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.fermi_distribution.html">ThermoElectric.fermi_distribution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.matthiessen.html">ThermoElectric.matthiessen</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.kpoints.html">ThermoElectric.kpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.carrier_concentration.html">ThermoElectric.carrier_concentration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.band_structure.html">ThermoElectric.band_structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.electron_density.html">ThermoElectric.electron_density</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.band_gap.html">ThermoElectric.band_gap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.analytical_dos.html">ThermoElectric.analytical_dos</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.fermi_level.html">ThermoElectric.fermi_level</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.fermi_self_consistent.html">ThermoElectric.fermi_self_consistent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.group_velocity.html">ThermoElectric.group_velocity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.analytical_group_velocity.html">ThermoElectric.analytical_group_velocity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau_p.html">ThermoElectric.tau_p</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau_strongly_screened_coulomb.html">ThermoElectric.tau_strongly_screened_coulomb</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau_screened_coulomb.html">ThermoElectric.tau_screened_coulomb</a></li>
@@ -115,8 +127,6 @@ approximation.</p>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau_2d_cylinder.html">ThermoElectric.tau_2d_cylinder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.tau3D_spherical.html">ThermoElectric.tau3D_spherical</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.electrical_properties.html">ThermoElectric.electrical_properties</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.filtering_effect.html">ThermoElectric.filtering_effect</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autosummary/ThermoElectric.phenomenological.html">ThermoElectric.phenomenological</a></li>
 </ul>
 </li>
 </ul>
@@ -127,7 +137,7 @@ approximation.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="getting_started.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="intrinsic_properties.html" class="btn btn-neutral float-right" title="Intrinsic Properties" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

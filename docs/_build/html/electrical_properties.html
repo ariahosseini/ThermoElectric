@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Electrical Properties &mdash; ThermoElectric  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bibliography" href="ref.html" />
+    <link rel="prev" title="Electron Lifetime" href="electron_lifetime.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ThermoElectric
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intrinsic_properties.html">Intrinsic Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="electron_lifetime.html">Electron Lifetime</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Electrical Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ref.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ThermoElectric</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Electrical Properties</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/electrical_properties.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="electrical-properties">
+<h1>Electrical Properties<a class="headerlink" href="#electrical-properties" title="Permalink to this headline"></a></h1>
+<p>Finally the electrical properties are computed using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">elec_propt</span> <span class="o">=</span> <span class="n">TE</span><span class="o">.</span><span class="n">electrical_properties</span><span class="p">(</span><span class="n">E</span> <span class="o">=</span> <span class="n">engr</span><span class="p">,</span> <span class="n">DoS</span> <span class="o">=</span> <span class="n">e_density</span><span class="p">,</span> <span class="n">vg</span> <span class="o">=</span> <span class="n">grp_velocity</span><span class="p">,</span> <span class="n">Ef</span> <span class="o">=</span> <span class="n">fermi</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+                                      <span class="n">dfdE</span> <span class="o">=</span> <span class="n">fermi_dist</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">tmpr</span><span class="p">,</span> <span class="n">tau</span> <span class="o">=</span> <span class="n">tau</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/Fig_15.png"><img alt="_images/Fig_15.png" src="_images/Fig_15.png" style="width: 697.5px; height: 426.9px;" /></a>
+<figcaption>
+<p><span class="caption-text">Electrical properties of Si/ SiC nano-composite.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Panel(a) Schematic picture of the energy barrier <span class="math notranslate nohighlight">\(\Delta E_c\)</span> for filtering conduction band electrons in Si due to
+the conduction band offset of embedded SiC nanoparticles. Panel (b) illustrates the electron energy filtering concept.
+The upper plot shows the energy dependence of the electron scattering time, including an additional filtering scattering
+process that is felt by all electrons with energy less than <span class="math notranslate nohighlight">\(U_o\)</span>. The lower plots show the kernels <span class="math notranslate nohighlight">\(\chi\)</span>
+and <span class="math notranslate nohighlight">\(\gamma\)</span>, normalized, and plotted at 500 K (middle) and 1200 K (bottom). The additional electron filtering
+scattering in the shaded region causes a larger reduction of the <span class="math notranslate nohighlight">\(\tau\)</span> weighted integral of <span class="math notranslate nohighlight">\(\chi\)</span> than
+<span class="math notranslate nohighlight">\(\gamma\)</span>. Panel (c) shows the temperature dependence of the experimentally measured carrier concentration,
+<span class="math notranslate nohighlight">\(N_i\)</span>, for P-doped silicon with 0% (blue), 1% (red) and 5% (gold) volume fraction of SiC. You open circles and
+dots show the measurements made during heating and cooling respectively. The solid and dashed lines show Gaussian
+process regression fit (and corresponding uncertainty) to the four least noisy data sets. Plots (d&amp;e) show the variation
+in electrical conductivity and thermopower with carrier concentration using the same color coding and symbols as in (c).
+In (d) the black lines provide a guide to the eye to illustrate the isothermal change in conductivity due to differences
+in carrier concentration. The dashed line compares how the 0% SiC conductivity at 1285 K would change with <span class="math notranslate nohighlight">\(N_i\)</span>
+and it can be seen that the materials with SiC inclusions are more restive than a material with the same <span class="math notranslate nohighlight">\(N_i\)</span>
+but without inclusions. The dot-dashed line shows a similar guide fit to the 300 K conductivity of the material with 5%
+SiC after heating and cooling. In plot (e) the black lines show isothermal <span class="math notranslate nohighlight">\(N_i^{-2/3}\)</span> dependence expected of
+parabolic band material. As in (d), the dashed and dot-dashed lines are fit to the high-temperature measurement of the
+material with 0% SiC, and the low-temperature measurement in the cooled material with 5% SiC. The dotted line is fit to
+the high-temperature measurement of the material with 1% SiC. At both high and low temperatures the materials with a
+higher fraction of inclusions have thermopower larger than that predicted by the variation in <span class="math notranslate nohighlight">\(N_i\)</span>. Panel (f)
+plots the electron lifetime for the different scattering mechanisms described in the text for Si at 500 K with a carrier
+population of <span class="math notranslate nohighlight">\(\mathrm{2.8 \times 10^{20}\ 1/cm^3}\)</span>.  It can be seen that the electron-inclusion scattering
+(purple) is dominant for electrons with energies less than ~0.12 eV. The scattering of electrons with
+higher energies is dominated by electron-impurity scattering (blue). The electron-grain boundary (<span class="math notranslate nohighlight">\(l_g= 50\ nm\)</span>)
+and electron-inclusion (inclusion radius of <span class="math notranslate nohighlight">\(\mathrm{4\ nm}\)</span>) for 5% SiC inclusion are two additional scattering
+terms Si nanocomposite and are shown in orange and green, respectively.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="electron_lifetime.html" class="btn btn-neutral float-left" title="Electron Lifetime" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ref.html" class="btn btn-neutral float-right" title="Bibliography" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, S. Aria Hosseini. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.6.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

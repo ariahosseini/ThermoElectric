@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Electron Lifetime &mdash; ThermoElectric  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Electrical Properties" href="electrical_properties.html" />
+    <link rel="prev" title="Intrinsic Properties" href="intrinsic_properties.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> ThermoElectric
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intrinsic_properties.html">Intrinsic Properties</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Electron Lifetime</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#intrinsic-scattering-terms">Intrinsic scattering terms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scattering-terms-raised-from-nanoengineering">Scattering terms raised from nanoengineering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-of-electron-lifetime-for-scattering-by-nanoparticles">Model of Electron Lifetime for Scattering by Nanoparticles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-of-electron-lifetime-for-scattering-by-grain-boundaries">Model of Electron Lifetime for Scattering by Grain Boundaries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="electrical_properties.html">Electrical Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ref.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ThermoElectric</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Electron Lifetime</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/electron_lifetime.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="electron-lifetime">
+<h1>Electron Lifetime<a class="headerlink" href="#electron-lifetime" title="Permalink to this headline"></a></h1>
+<section id="intrinsic-scattering-terms">
+<h2>Intrinsic scattering terms<a class="headerlink" href="#intrinsic-scattering-terms" title="Permalink to this headline"></a></h2>
+<p>The electron-phonon and electron-impurity scattering rates are computed as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bulk_module</span> <span class="o">=</span> <span class="mi">98</span>  <span class="c1"># Bulk module (GPA)</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="mi">2329</span>  <span class="c1"># Mass density (Kg/m3)</span>
+<span class="n">speed_sound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">bulk_module</span><span class="o">/</span><span class="n">rho</span><span class="p">)</span>  <span class="c1"># Speed of sound</span>
+<span class="n">num_vally</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="n">tau_ph</span> <span class="o">=</span> <span class="n">TE</span><span class="o">.</span><span class="n">tau_p</span><span class="p">(</span><span class="n">energy</span> <span class="o">=</span> <span class="n">engr</span><span class="p">,</span> <span class="n">alpha_term</span> <span class="o">=</span> <span class="n">nonparabolic_term</span> <span class="p">,</span> <span class="n">D_v</span> <span class="o">=</span> <span class="mf">2.94</span><span class="p">,</span> <span class="n">D_a</span> <span class="o">=</span> <span class="mf">9.5</span><span class="p">,</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">tmpr</span><span class="p">,</span>
+                  <span class="n">vel_sound</span> <span class="o">=</span> <span class="n">speed_sound</span><span class="p">,</span> <span class="n">DoS</span> <span class="o">=</span> <span class="n">e_density</span><span class="p">,</span> <span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span><span class="p">)</span>
+<span class="n">tau_imp</span> <span class="o">=</span> <span class="n">TE</span><span class="o">.</span><span class="n">tau_strongly_screened_coulomb</span><span class="p">(</span><span class="n">DoS</span> <span class="o">=</span> <span class="n">e_density</span><span class="p">,</span> <span class="n">screen_len</span> <span class="o">=</span> <span class="n">screen_len</span><span class="p">,</span> <span class="n">n_imp</span> <span class="o">=</span> <span class="n">carrier_con</span><span class="p">,</span>
+                                                <span class="n">dielectric</span> <span class="o">=</span> <span class="n">dielectric</span><span class="p">)</span>
+<span class="n">tau</span> <span class="o">=</span> <span class="n">TE</span><span class="o">.</span><span class="n">matthiessen</span><span class="p">(</span><span class="n">engr</span><span class="p">,</span> <span class="n">num_vally</span> <span class="o">*</span> <span class="n">tau_ph</span><span class="p">[</span><span class="s1">&#39;nonparabolic_ph_lifetime&#39;</span><span class="p">],</span> <span class="n">num_vally</span> <span class="o">*</span> <span class="n">tau_imp</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following equations are used</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{\tau_p(E)=\frac{\rho \nu_s^2 \hbar}{\pi \Phi_A^2 k_B T D(E)} \left ( \left[1-\frac{\alpha E}{1+2\alpha E}
+        \left(1-\frac{\Phi_v}{\Phi_A} \right)\right]^2-\frac{8}{3} \frac{\alpha E(1+ \alpha E)}{(1+2 \alpha E)^2}
+        \frac{D_v}{D_A} \right)^{-1}}\]</div>
+<div class="math notranslate nohighlight">
+\[\mathrm{\tau_{ion}(E)=\frac{\hbar}{\pi N_i \left(\frac{e^2 L_D^2}{4\pi \epsilon \epsilon_o}\right)^2 D(E)}}\]</div>
+<p>The Matthiessen’s rule is used to add the scattering rates.</p>
+</section>
+<section id="scattering-terms-raised-from-nanoengineering">
+<h2>Scattering terms raised from nanoengineering<a class="headerlink" href="#scattering-terms-raised-from-nanoengineering" title="Permalink to this headline"></a></h2>
+<p>To compute the electron lifetime from the scattering processes raised from nano-engineering we used Fermi’s golden rule
+to relate the transmission probability from the initial energy state to the distribution of final energy states for a
+given time-invariant potential. In the case where energy conservation is imposed (elastic scattering)
+the scattering rate in Born approximation can be written as</p>
+<div class="math notranslate nohighlight">
+\[\tau^{-1}(s) = \frac{N}{(2\pi)^2\hbar}\int_{E(k')=0}\frac{M_{kk'}\overline{M}_{kk'}}{\nabla E(k')}(1-\cos\theta)dS(k').\]</div>
+<p>Here, <span class="math notranslate nohighlight">\(M_{kk'}\)</span> is the matrix element operator shows the coupling strength between initial and final
+wave-functions and the number of ways the transmission may happen, <span class="math notranslate nohighlight">\(N\)</span> is the number density of scattering source
+and <span class="math notranslate nohighlight">\(\theta\)</span> is the angle through which the electron’s momentum is turned between the initial and scattered
+states. For Bloch waves, <span class="math notranslate nohighlight">\(M_{kk'}\)</span> is
+defined as <span class="math notranslate nohighlight">\(M_{kk'}= \int e^{i(k'-k).r} U(r)dr\)</span>. <span class="math notranslate nohighlight">\(S(k')\)</span> represents iso-energic surface of electronic
+states in k-space. For semiconductors with Si-like  band structures with indirect degenerate band gap, the contour
+surfaces of k-states around the conduction band valley with energy <span class="math notranslate nohighlight">\(E(k)\)</span> above the conduction band edge is
+approximated well by an ellipsoid <span class="math notranslate nohighlight">\(E(k)=\hbar^2 \left[\frac{(k_l-k_{ol} )^2}{2m_l^*} +\frac{k_t^2}{m_t^*}\right]\)</span>,
+where <span class="math notranslate nohighlight">\(k_l\)</span> and <span class="math notranslate nohighlight">\(k_t\)</span> are the components of the wavevector that are parallel ant transverse to the long axis
+of the conduction band valley. The term <span class="math notranslate nohighlight">\(k_{ol}\)</span> describes the location of the conduction band minimum, while
+<span class="math notranslate nohighlight">\(m_l^*\)</span> and <span class="math notranslate nohighlight">\(m_t^*\)</span> are the effective masses of electrons traveling along and transverse to the conduction
+band valley, respectively. For silicon, <span class="math notranslate nohighlight">\(m_l^*=0.98m_o\)</span> and <span class="math notranslate nohighlight">\(m_t^*=0.19m_o\)</span> where <span class="math notranslate nohighlight">\(m_o\)</span> is free
+electron rest mass, and <span class="math notranslate nohighlight">\(k_{ol}=0.85 2\pi/a\)</span> where <span class="math notranslate nohighlight">\(a\)</span> is silicon’s lattice parameter of 0.543 nm.</p>
+</section>
+<section id="model-of-electron-lifetime-for-scattering-by-nanoparticles">
+<h2>Model of Electron Lifetime for Scattering by Nanoparticles<a class="headerlink" href="#model-of-electron-lifetime-for-scattering-by-nanoparticles" title="Permalink to this headline"></a></h2>
+<p>The band alignment at the interface of nano-particles presents a barrier to electron transport equal to the conduction
+band offset, <span class="math notranslate nohighlight">\(\Delta\!E_c\)</span> between bulk silicon and the inclusions. For spherical nano-particles, the scattering
+potential term, given as, <span class="math notranslate nohighlight">\(U(r)=\Delta\!E_c \Pi(r_o-r)\)</span>, where <span class="math notranslate nohighlight">\(r_o\)</span> is the nano-particle’s radius and
+<span class="math notranslate nohighlight">\(\Pi(r)\)</span> is a dimensionless boxcar function equal to unit inside and zero outside of the particles. For the
+spherical symmetric potential, <span class="math notranslate nohighlight">\(M_{kk'}\)</span> only depends on <span class="math notranslate nohighlight">\(q=k'-k\)</span> and is defined as</p>
+<div class="math notranslate nohighlight">
+\[M_{kk'}=\frac{4\pi \Delta\!E_c}{|q|^2}\left( \frac{1}{|q|}\sin\left(r_o|q|\right)-r_o\cos\left(r_o|q|\right)\right).\]</div>
+<p>At equilibrium, the Fermi energy level of nano-particles and parent material aligned leaving the band offset between
+SiC nano-particles and silicon, <span class="math notranslate nohighlight">\(\Delta\!E_c\)</span>, equal to the difference between Fermi energy level and conduction
+band edge of the SiC. For intrinsic semiconductors Fermi energy level is located at the middle of band gap so that
+<span class="math notranslate nohighlight">\(\Delta\!E_c=\frac{1}{2}E_g\)</span>. The SiC band gap varies from 2.36 eV at 300 K down to 2.036 eV at 1200 K following
+(<span class="math notranslate nohighlight">\(E_g  = 2.39-6.0\times10^{-4}\times \frac{T^2}{T+1200}\)</span>). Such a variation has negligible effect on scattering
+rate so that we used temperature independent value of <span class="math notranslate nohighlight">\(E_g =2.19\ eV\)</span> (and therefore <span class="math notranslate nohighlight">\(\Delta\!E_c = 1.095\ eV\)</span>)
+to model electron-nanoparticle scattering rate. Note that <span class="math notranslate nohighlight">\(N\)</span> is the number density of nano-particles and is equal
+to <span class="math notranslate nohighlight">\(N=\frac{3\phi}{4\pi r_o^3}\)</span>, with <span class="math notranslate nohighlight">\(\phi\)</span> the volume fraction of nano-particle. We have computed the
+rates of electron scattering from SiC nano-particles</p>
+</section>
+<section id="model-of-electron-lifetime-for-scattering-by-grain-boundaries">
+<h2>Model of Electron Lifetime for Scattering by Grain Boundaries<a class="headerlink" href="#model-of-electron-lifetime-for-scattering-by-grain-boundaries" title="Permalink to this headline"></a></h2>
+<p>Along with the change in dopant concentration, the addition of 1% and 5% of SiC nano-particles results in a 22% and 40%
+reduction in the grain size, respectively. It is known that grain boundaries can cause an electron filtering effect,
+particularly if the boundaries include segregated species such as oxygen that provide centers for trapping charge
+carriers. However, this effect only becomes significant in much smaller grain sizes. For our Si/SiC nanocomposites,
+even with a 40% size reduction, the grains are still an order of magnitude larger than the average electron mean free
+path in P-doped Si (which is only a few nanometers only at room temperature for carrier concentrations in excess of
+<span class="math notranslate nohighlight">\(10^{20}\ 1/cm^3\)</span>). Furthermore, we have computed the rate of electron scattering from grains (this is of special
+importance in the next section where we evaluate the scope of enhancement in power factor in Si nanocomposites) using
+the approach by Minnich et al. in which they have modeled grain boundaries as
+decomposition of many local regions, each interacts independently with charge carriers and coherently scatters electron
+waves. The model potential for grain boundaries in their work described as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}U_{GB} =\left\{\begin{matrix}
+U_g e^{\frac{-|z|}{z_o}}&amp; r&lt;r_{GB} \\
+0&amp; r&gt;r_{GB}
+\end{matrix}\right.\end{split}\]</div>
+<p>In this equation, <span class="math notranslate nohighlight">\(z\)</span> is the direction normal to the grain with <span class="math notranslate nohighlight">\(z=0\)</span> at the center of the grain boundary,
+<span class="math notranslate nohighlight">\(r_{GB}\)</span> is a constant on the order of the screening length, and <span class="math notranslate nohighlight">\(z_o\)</span> is a constant related to the size of
+the depletion region. <span class="math notranslate nohighlight">\(U_g\)</span> in this model is proposed as, <span class="math notranslate nohighlight">\(U_g=\frac{e^2 N_t^2}{8 \epsilon \epsilon_o N_c}\)</span>,
+where <span class="math notranslate nohighlight">\(\epsilon\)</span> and <span class="math notranslate nohighlight">\(\epsilon_o\)</span> are relative and vacuum permittivity, respectively, <span class="math notranslate nohighlight">\(N_c\)</span> is the
+doping concentration, and <span class="math notranslate nohighlight">\(N_t\)</span> is the area density of traps. The matrix element of this potential is</p>
+<div class="math notranslate nohighlight">
+\[M_{kk'}=4\pi U_g \left[ \frac{z_o}{1+(q_zz_o)^2} \right]r_o^2\left[ \frac{J_1(q_rr_o)}{q_rr_o} \right]\]</div>
+<p>where <span class="math notranslate nohighlight">\(J_1 (q_r r_o )\)</span> is the first-order Bessel function of the first kind, <span class="math notranslate nohighlight">\(q=k-k'\)</span>, <span class="math notranslate nohighlight">\(q_r\)</span> and
+<span class="math notranslate nohighlight">\(q_z\)</span> are the <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(z\)</span> component of <span class="math notranslate nohighlight">\(q\)</span>, respectively. Unfortunately, there is a limit
+information about the trap area density (<span class="math notranslate nohighlight">\(N_t\)</span>) and the exact value of <span class="math notranslate nohighlight">\(z_o\)</span> and <span class="math notranslate nohighlight">\(r_o\)</span>. Nevertheless,
+we know that depletion regime and the screening length are on the order of few nm.
+We used <span class="math notranslate nohighlight">\(N_t  = 10^{13}  \mathrm{\frac{1}{cm^2}}\)</span> for trap density of doped silicon,
+<span class="math notranslate nohighlight">\(z_o=1\ nm\)</span> and <span class="math notranslate nohighlight">\(r_o=1\ nm\)</span>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="intrinsic_properties.html" class="btn btn-neutral float-left" title="Intrinsic Properties" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="electrical_properties.html" class="btn btn-neutral float-right" title="Electrical Properties" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, S. Aria Hosseini. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.6.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

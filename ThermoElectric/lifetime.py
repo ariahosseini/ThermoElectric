@@ -3,6 +3,8 @@ import numpy as np
 from numpy.linalg import norm
 from scipy.interpolate import PchipInterpolator as interpolator
 from scipy.special import jv
+from scipy.special import j1 as besselj  # Bessel function of the first kind
+from scipy.integrate import trapz
 from .accum import *
 
 
@@ -182,311 +184,243 @@ def tau_unscreened_coulomb(energy: np.ndarray, mass_c: np.ndarray,
 
     return tau
 
-
-def tau_2d_cylinder(energy: np.ndarray, num_kpoints: np.ndarray, Uo: float, relative_mass: np.ndarray,
-                    volume_frac: float, valley: np.ndarray, dk_len: float, ro: np.ndarray,
-                    lattice_parameter: float, n_sample=2000) -> np.ndarray:
-
+def tau_inf_cylinder(ro, nk, uo, m_frac, v_frac, ko, del_k, n):
     """
-    A fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering rate
-    from cylindrical nano-particles or nano-scale pores infinitely extended perpendicular to the current.
-
-    Parameters
-    ----------
-    energy: np.ndarray
-        Energy range
-    num_kpoints: np.ndarray
-        Number of kpoints in each direction
-    Uo: float
-        Barrier height
-    relative_mass: np.ndarray
-        Relative mass of electron
-    volume_frac: float
-        Defects volume fraction
-    valley: np.ndarray
-        Conduction band valley indices
-    dk_len: float
-        Sample size
-    ro: np.ndarray
-        Cylinder radius
-    lattice_parameter: float
-        lattice parameter
-    n_sample: int
-        Mesh sample size
-
-    Returns
-    -------
-    tau_cylinder: np.ndarray
-        Electron-defect lifetime
+    electron scattering rate from spherical symmetry potential wall in an ellipsoid conduction band.
+    
+    parameters:
+    ro       : radius of the cylindrical potential
+    nk       : number of k-points in each direction (x, y, z)
+    uo       : scattering potential
+    m_frac   : mass fraction array (m1, m2, m3)
+    v_frac   : volume fraction
+    ko       : initial wave vector (kx, ky, kz)
+    del_k    : delta k vector (kx, ky, kz)
+    n        : number of divisions for the ellipse parametrization
+    
+    returns:
+    mag_kpoint : wave vector magnitude for all k-points
+    E          : energy values at each k-point
+    tau        : relaxation times at each k-point
+    N          : number of particles in unit volume
     """
+    
+    # constants
+    hbar = 6.582119514e-16  # Reduced Planck constant (eV.s)
+    eV2J = 1.60218e-19      # Convert eV to Joules
+    me = 9.10938356e-31     # Electron rest mass (kg)
+    
+    # Effective electron mass (kg)
+    m = me * np.array(m_frac)
+    
+    # number of particles in unit volume
+    N = v_frac / np.pi / ro**2
+    
+    # define k-points mesh
+    kx = np.linspace(ko[0], ko[0] + del_k[0], nk[0])
+    ky = np.linspace(ko[1], ko[1] + del_k[1], nk[1])
+    kz = np.linspace(ko[2], ko[2] + del_k[2], nk[2])
+    
+    # create meshgrid and flatten
+    xk, yk, zk = np.meshgrid(kx, ky, kz)
+    kpoint = np.column_stack((xk.ravel(), yk.ravel(), zk.ravel()))  # Matrix of k-points
+    
+    # calculate wave vector magnitude
+    mag_kpoint = np.linalg.norm(kpoint, axis=1)
+    
+    # calculate energy
+    E = hbar**2 / 2 * ((kpoint[:, 0] - ko[0])**2 / m[0] +
+                       (kpoint[:, 1] - ko[1])**2 / m[1] +
+                       (kpoint[:, 2] - ko[2])**2 / m[2]) * eV2J
+    
+    # parametrize the ellipse
+    t = np.linspace(0, 2 * np.pi, n)
+    
+    # ellipse semi-major and semi-minor axes
+    a = np.sqrt(2 * m[0] / hbar**2 * E / eV2J)
+    b = np.sqrt(2 * m[1] / hbar**2 * E / eV2J)
+    
+    # parametrize the ellipse area (ds)
+    ds = np.sqrt((a[:, np.newaxis] * np.sin(t))**2 + (b[:, np.newaxis] * np.cos(t))**2)
+    
+    # calculate cos(theta)
+    cos_theta = (a[:, np.newaxis] * kpoint[:, 0, np.newaxis] * np.cos(t) +
+                 b[:, np.newaxis] * kpoint[:, 1, np.newaxis] * np.sin(t) +
+                 kpoint[:, 2, np.newaxis]**2) / \
+                np.sqrt(a[:, np.newaxis]**2 * np.cos(t)**2 + 
+                        b[:, np.newaxis]**2 * np.sin(t)**2 + 
+                        kpoint[:, 2, np.newaxis]**2) / mag_kpoint[:, np.newaxis]
+    
+    # energy difference (delE)
+    delE = hbar**2 * np.abs((a[:, np.newaxis] * np.cos(t) - ko[0]) / m[0] +
+                            (b[:, np.newaxis] * np.sin(t) - ko[1]) / m[1] +
+                            (kpoint[:, 2, np.newaxis] - ko[2]) / m[2])
+    
+    # calculate q and Bessel function
+    qx = kpoint[:, 0, np.newaxis] - a[:, np.newaxis] * np.cos(t)
+    qy = kpoint[:, 1, np.newaxis] - b[:, np.newaxis] * np.sin(t)
+    qr = np.sqrt(qx**2 + qy**2)
+    J = besselj(ro * qr)
+    
+    # scattering rate (SR)
+    SR = 2 * np.pi / hbar * uo**2 * (2 * np.pi)**3 * (ro * J / qr)**2
+    
+    # function to integrate
+    func = SR * (1 - cos_theta) / delE * ds
+    
+    # integrate over theta using trapezoidal integration
+    Int = trapz(func, t, axis=1)
+    
+    # calculate relaxation time (tau)
+    tau = (N / (2 * np.pi)**3 * Int)**-1 * eV2J
+    
+    return mag_kpoint, E, tau, N
 
-    h_bar = 6.582119e-16  # Reduced Planck constant in eV.s
-    e2C = 1.6021765e-19  # e to Coulomb unit change
-    mass_e = 9.109e-31  # Electron rest mass in Kg
 
-    m_eff = np.array(relative_mass) * mass_e  # Electron conduction effective mass
-    ko = 2 * np.pi / lattice_parameter * np.array(valley)
-    del_k = 2 * np.pi / lattice_parameter * dk_len * np.array([1, 1, 1])
-    N = volume_frac / np.pi / ro ** 2  # Number density
-
-    kx = np.linspace(ko[0], ko[0] + del_k[0], num_kpoints[0], endpoint=True)  # kpoints mesh
-    ky = np.linspace(ko[1], ko[1] + del_k[1], num_kpoints[1], endpoint=True)  # kpoints mesh
-    kz = np.linspace(ko[2], ko[2] + del_k[2], num_kpoints[2], endpoint=True)  # kpoints mesh
-    [xk, yk, zk] = np.meshgrid(kx, ky, kz)
-    xk_ = np.reshape(xk, -1)
-    yk_ = np.reshape(yk, -1)
-    zk_ = np.reshape(zk, -1)
-    kpoint = np.array([xk_, yk_, zk_])  # kpoints mesh sampling
-    mag_kpoint = norm(kpoint, axis=0)
-
-    E = h_bar ** 2 / 2 * \
-        ((kpoint[0, :] - ko[0]) ** 2 / m_eff[0] +
-         (kpoint[1, :] - ko[1]) ** 2 / m_eff[1] +
-         (kpoint[2, :] - ko[2]) ** 2 / m_eff[2]) * e2C
-
-    t = np.linspace(0, 2 * np.pi, n_sample)
-
-    a = np.expand_dims(np.sqrt(2 * m_eff[1] / h_bar ** 2 * E / e2C), axis=0)
-    b = np.expand_dims(np.sqrt(2 * m_eff[2] / h_bar ** 2 * E / e2C), axis=0)
-    ds = np.sqrt((a.T * np.sin(t)) ** 2 + (b.T * np.cos(t)) ** 2)
-
-    cos_theta = ((a * kpoint[0]).T * np.cos(t) + (b * kpoint[1]).T * np.sin(t) +
-                 np.expand_dims(kpoint[2] ** 2, axis=1)) / \
-                np.sqrt(a.T ** 2 * np.cos(t) ** 2 + b.T ** 2 * np.sin(t) ** 2 +
-                        np.expand_dims(kpoint[2] ** 2, axis=1)) / np.expand_dims(mag_kpoint, axis=1)
-
-    delE = h_bar ** 2 * \
-           np.abs((a.T * np.cos(t) - ko[0]) / m_eff[0] +
-                  (b.T * np.sin(t) - ko[1]) / m_eff[1] + (
-                              np.expand_dims(kpoint[2] ** 2, axis=1) - ko[2] / m_eff[2]))
-
-    # q_points
-    qx = np.expand_dims(kpoint[0], axis=1) - a.T * np.cos(t)
-    qy = np.expand_dims(kpoint[1], axis=1) - b.T * np.sin(t)
-    qr = np.sqrt(qx ** 2 + qy ** 2)
-
-    tau = np.empty((len(ro), len(E)))
-
-    for r_idx in np.arange(len(ro)):
-        J = jv(1, ro[r_idx] * qr)  # Bessel func.
-        SR = 2 * np.pi / h_bar * Uo ** 2 * (2 * np.pi) ** 3 * (
-                    ro[r_idx] * J / qr) ** 2  # Scattering rate
-        f = SR * (1 - cos_theta) / delE * ds
-        int_ = np.trapz(f, t, axis=1)
-        tau[r_idx] = 1 / (N[r_idx] / (2 * np.pi) ** 3 * int_) * e2C
-
-    Ec, indices, return_indices = np.unique(E, return_index=True, return_inverse=True)
-
-    tau_c = np.empty((len(ro), len(indices)))
-    tau_cylinder = np.empty((len(ro), len(energy[0])))
-
-    for r_idx in np.arange(len(ro)):
-        tau_c[r_idx] = accum(return_indices, tau[r_idx], func=np.mean, dtype=float)
-
-    # Map lifetime to desired energy range
-    for tau_idx in np.arange(len(tau_c)):
-        ESpline = interpolator(Ec[30:], tau_c[tau_idx, 30:])
-        tau_cylinder[tau_idx] = ESpline(energy)
-
-    return tau_cylinder
-
-
-def tau3D_spherical(num_kpoints: np.ndarray, Uo: float, relative_mass: np.ndarray,
-                    volume_frac: float, valley: np.ndarray, dk_len: float, ro: np.ndarray,
-                    lattice_parameter: float, n_sample=32) -> np.ndarray:
-
+def ellipsoid(xc, yc, zc, xr, yr, zr, n):
     """
-    A fast algorithm that uses Fermi’s golden rule to compute the energy dependent electron scattering rate
-    from spherical nano-particles or nano-scale pores.
+    generates the x, y, z coordinates of an ellipsoid surface.
+    
+    Parameters:
+    xc, yc, zc : float
+        The center of the ellipsoid.
+    xr, yr, zr : float
+        The radii along the x, y, and z axes.
+    n : int
+        The number of divisions along the grid.
 
-    Parameters
-    ----------
-    num_kpoints: np.ndarray
-        Number of kpoints in each direction
-    Uo: float
-        Barrier height
-    relative_mass: np.ndarray
-        Relative mass of electron
-    volume_frac: float
-        Defects volume fraction
-    valley: np.ndarray
-        Conduction band valley indices
-    dk_len: float
-        Sample size
-    ro: np.ndarray
-        Cylinder radius
-    lattice_parameter: float
-        lattice parameter
-    n_sample: int
-        Mesh sample size
-
-    Returns
-    -------
-    tau: np.ndarray
-        Electron-defect lifetime
+    returns:
+    x, y, z : ndarray
+        the meshgrid arrays representing the ellipsoid surface
     """
+    # create a meshgrid in spherical coordinates (theta, phi)
+    u = np.linspace(0, 2 * np.pi, n+1)     # theta from 0 to 2*pi
+    v = np.linspace(0, np.pi, n+1)         # phi from 0 to pi
 
-    h_bar = 6.582119e-16  # Reduced Planck constant in eV.s
-    e2C = 1.6021765e-19  # e to Coulomb unit change
-    mass_e = 9.109e-31  # Electron rest mass in Kg
+    u, v = np.meshgrid(u, v)
 
-    m_eff = np.array(relative_mass) * mass_e  # Electron conduction band effective mass
-    ko = 2 * np.pi / lattice_parameter * np.array(valley)
-    del_k = 2 * np.pi / lattice_parameter * dk_len * np.array([1, 1, 1])
+    # parametric equations for the ellipsoid
+    x = xc + xr * np.cos(u) * np.sin(v)
+    y = yc + yr * np.sin(u) * np.sin(v)
+    z = zc + zr * np.cos(v)
 
-    N = 3 * volume_frac / 4 / np.pi / ro ** 3  # Number density of defects
+    return -x, -y, -z
 
-    kx = np.linspace(ko[0], ko[0] + del_k[0], num_kpoints[0], endpoint=True)  # kpoints mesh
-    ky = np.linspace(ko[1], ko[1] + del_k[1], num_kpoints[1], endpoint=True)  # kpoints mesh
-    kz = np.linspace(ko[2], ko[2] + del_k[2], num_kpoints[2], endpoint=True)  # kpoints mesh
-    [xk, yk, zk] = np.meshgrid(kx, ky, kz)
-    xk_ = np.reshape(xk, -1)
-    yk_ = np.reshape(yk, -1)
-    zk_ = np.reshape(zk, -1)
+def tau_spherical(ro, nk, uo, m_frac, v_frac, ko, del_k, n):
+    # constants
+    hbar = 6.582119514e-16  # reduced Planck constant (eV.s)
+    eV2J = 1.60218e-19      # conversion factor from eV to Joul
+    me = 9.10938356e-31     # electron rest mass (Kg)
+    m = me * m_frac         # effective mass of electrons (Kg)
+    N = 3 * v_frac / (4 * np.pi * ro**3)  # number of particles in unit volume
 
-    kpoint = np.array([xk_, yk_, zk_])  # kpoint mesh sampling
+    # define kpoints
+    kx = np.linspace(ko[0], ko[0] + del_k[0], nk[0])
+    ky = np.linspace(ko[1], ko[1] + del_k[1], nk[1])
+    kz = np.linspace(ko[2], ko[2] + del_k[2], nk[2])
+    xk, yk, zk = np.meshgrid(kx, ky, kz)
+    kpoint = np.column_stack((xk.flatten(), yk.flatten(), zk.flatten()))
+    mag_kpoint = np.linalg.norm(kpoint, axis=1)
 
-    # Energy levels in ellipsoidal band structure
-    E = h_bar ** 2 / 2 * \
-        ((kpoint[0, :] - ko[0]) ** 2 / m_eff[0] +
-         (kpoint[1, :] - ko[1]) ** 2 / m_eff[1] +
-         (kpoint[2, :] - ko[2]) ** 2 / m_eff[2]) * e2C
+    # energy (eV)
+    E = (hbar**2 / 2 * (
+        (kpoint[:, 0] - ko[0])**2 / m[0] +
+        (kpoint[:, 1] - ko[1])**2 / m[1] +
+        (kpoint[:, 2] - ko[2])**2 / m[2]
+    )) * eV2J
 
-    scattering_rate = np.zeros((len(ro), len(E)))
+    scattering_rate = np.zeros(E.shape[0])
 
-    nu = np.linspace(0, np.pi, n_sample)
-    z_ = -1 * np.cos(nu)
-
-    r = np.sqrt(1.0 - z_ ** 2)[:, None]
-    theta = np.linspace(0, 2 * np.pi, n_sample)[None, :]
-
-    x_ = r * np.cos(theta)
-    y_ = r * np.sin(theta)
-
-    for u in np.arange(len(E)):
-
-        Q = np.zeros((2 * (n_sample - 2) * (n_sample - 1), 3))
-        A = np.zeros((2 * (n_sample - 2) * (n_sample - 1), 1))
+    for u in range(E.shape[0]):
+        Q = np.zeros((2 * n * (n - 1), 3))
+        A = np.zeros(2 * n * (n - 1))
         k = 0
-        a_axis = np.sqrt(2 / (h_bar ** 2 * e2C) * m_eff[0] * E[u])
-        b_axis = np.sqrt(2 / (h_bar ** 2 * e2C) * m_eff[1] * E[u])
-        c_axis = np.sqrt(2 / (h_bar ** 2 * e2C) * m_eff[2] * E[u])
 
-        y = -1 * b_axis * y_ + ko[1]
-        x = -1 * a_axis * x_ + ko[0]
-        Z_ = c_axis * z_ + ko[2]
-        z = np.tile(Z_[:, None], (1, n_sample))
-        for j in np.arange(1, n_sample - 1):
-            for i in np.arange(2, n_sample):
-
-                S = np.array(np.array([x[i, j], y[i, j], z[i, j]]) +
-                             np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]) +
-                             np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
-
-                Q[k] = S / 3
-
-                a = norm(np.array([x[i, j], y[i, j], z[i, j]]) - np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]))
-
-                b = norm(np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]) -
-                         np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
-
-                c = norm(np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]])
-                         - np.array([x[i, j], y[i, j], z[i, j]]))
-
-                s = a + b + c
-                s = s / 2
-                A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))  # Surface area of the triangular mesh elements
-                k += 1
-        for j in np.arange(1, n_sample - 1):
-            for i in np.arange(1, n_sample - 1):
-
-                S = np.array([x[i, j - 1], y[i, j - 1], z[i, j - 1]]) + \
-                    np.array([x[i, j], y[i, j], z[i, j]]) + \
-                    np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]])
-
-                Q[k] = S / 3
-
-                a = norm(np.array([x[i, j - 1], y[i, j - 1], z[i, j - 1]]) -
-                         np.array([x[i, j], y[i, j], z[i, j]]))
-
-                b = norm(np.array([x[i, j], y[i, j], z[i, j]]) -
-                         np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
-
-                c = norm(np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]) -
-                         np.array([x[i, j - 1], y[i, j - 1], z[i, j - 1]]))
-
-                s = a + b + c
-                s = s / 2
+        x, y, z = ellipsoid(ko[0], ko[1], ko[2],
+                            np.sqrt(2 / (hbar**2 * eV2J) * m[0] * E[u]),
+                            np.sqrt(2 / (hbar**2 * eV2J) * m[1] * E[u]),
+                            np.sqrt(2 / (hbar**2 * eV2J) * m[2] * E[u]),
+                            n)
+        
+        for j in range(1, n):
+            for i in range(2, n + 1):
+                S = (np.array([x[i, j], y[i, j], z[i, j]]) +
+                      np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]) +
+                      np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
+                Q[k, :] = S / 3
+                a = np.linalg.norm(np.array([x[i, j], y[i, j], z[i, j]]) -
+                                   np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]))
+                b = np.linalg.norm(np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]) -
+                                   np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
+                c = np.linalg.norm(np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]) -
+                                   np.array([x[i, j], y[i, j], z[i, j]]))
+                s = (a + b + c) / 2
                 A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
-
                 k += 1
 
-        for i in np.arange(2, n_sample):
+        for j in range(1, n):
+            for i in range(1, n):
+                S = (np.array([x[i, j - 1], y[i, j - 1], z[i, j - 1]]) +
+                      np.array([x[i, j], y[i, j], z[i, j]]) +
+                      np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
+                Q[k, :] = S / 3
+                a = np.linalg.norm(np.array([x[i, j - 1], y[i, j - 1], z[i, j - 1]]) -
+                                   np.array([x[i, j], y[i, j], z[i, j]]))
+                b = np.linalg.norm(np.array([x[i, j], y[i, j], z[i, j]]) -
+                                   np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
+                c = np.linalg.norm(np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]) -
+                                   np.array([x[i, j - 1], y[i, j - 1], z[i, j - 1]]))
+                s = (a + b + c) / 2
+                A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
+                k += 1
 
-            S = np.array([x[i, 0], y[i, 0], z[i, 0]]) + \
-                np.array([x[i - 1, 0], y[i - 1, 0], z[i - 1, 0]]) + \
-                np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]])
+        for i in range(2, n + 1):
+          S = (np.array([x[i, 0], y[i, 0], z[i, 0]]) + 
+               np.array([x[i - 1, 0], y[i - 1, 0], z[i - 1, 0]]) + 
+               np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]))
+          Q[k, :] = S / 3
+          a = np.linalg.norm(np.array([x[i, 0], y[i, 0], z[i, 0]]) - 
+                             np.array([x[i - 1, 0], y[i - 1, j], z[i - 1, 0]]))
+          b = np.linalg.norm(np.array([x[i - 1, 0], y[i - 1, 0], z[i - 1, 0]]) - 
+                             np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]))   
+          c = np.linalg.norm(np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]) - np.array([x[i, 0], y[i, 0], z[i, 0]]))
+          s = (a + b + c) / 2
+          A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
+          k += 1
 
-            Q[k] = S / 3
+        for i in range(1, n):
+          S = (np.array([x[i, -2], y[i, -2], z[i, -2]]) + 
+               np.array([x[i, 0], y[i, 0], z[i, 0]]) + 
+               np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]])) 
+          Q[k, :] = S / 3 
+          a = np.linalg.norm(np.array([x[i, -2], y[i, -2], z[i, -2]]) - 
+                             np.array([x[i, 0], y[i, 0], z[i, 0]])) 
+          b = np.linalg.norm(np.array([x[i, 0], y[i, 0], z[i, 0]]) - 
+                             np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]])) 
+          c = np.linalg.norm(np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]) - 
+                             np.array([x[i, -2], y[i, -2], z[i, -2]]))
+          s = (a + b + c) / 2
+          A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
+          k += 1
 
-            a = norm(np.array([x[i, 0], y[i, 0], z[i, 0]]) -
-                     np.array([x[i - 1, 0], y[i - 1, 0], z[i - 1, 0]]))
+        # compute q and cosTheta
+        qx = kpoint[u, 0] - Q[:, 0]
+        qy = kpoint[u, 1] - Q[:, 1]
+        qz = kpoint[u, 2] - Q[:, 2]
+        q = np.sqrt(qx**2 + qy**2 + qz**2)
+        cosTheta = np.dot(kpoint[u, :], Q.T) / (np.linalg.norm(kpoint[u, :]) * np.sqrt(np.sum(Q**2, axis=1)))
 
-            b = norm(np.array([x[i - 1, 0], y[i - 1, 0], z[i - 1, 0]]) -
-                     np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]))
+        # matrix element and scattering rate
+        M = 4 * np.pi * uo * (1.0 / q * np.sin(ro * q) - ro * np.cos(ro * q)) / q**2
+        SR = 2 * np.pi / hbar * M * np.conj(M)
+        delE = np.abs(hbar**2 * ((Q[:, 0] - ko[0]) / m[0] +
+                                 (Q[:, 1] - ko[1]) / m[1] +
+                                 (Q[:, 2] - ko[2]) / m[2]))
 
-            c = norm(np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]) -
-                     np.array([x[i, 0], y[i, 0], z[i, 0]]))
+        # final scattering rate calculation
+        f = SR / delE * (1 - cosTheta)
+        scattering_rate[u] = N / (2 * np.pi)**3 * np.sum(f * A)
 
-            s = a + b + c
-            s = s / 2
-            A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
+    tau = 1.0 / scattering_rate * eV2J
+    return mag_kpoint, E, tau, N
 
-            k += 1
-
-        for i in np.arange(1, n_sample - 1):
-
-            S = np.array([x[i, -2], y[i, -2], z[i, -2]]) + \
-                np.array([x[i, 0], y[i, 0], z[i, 0]]) + \
-                np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]])
-
-            Q[k] = S / 3
-
-            a = norm(np.array([x[i, -2], y[i, -2], z[i, -2]]) - np.array([x[i, 0], y[i, 0], z[i, 0]]))
-
-            b = norm(np.array([x[i, 0], y[i, 0], z[i, 0]]) -
-                     np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]))
-
-            c = norm(np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]) -
-                     np.array([x[i, -2], y[i, -2], z[i, -2]]))
-
-            s = a + b + c
-            s = s / 2
-            A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
-
-            k += 1
-
-        qx = kpoint[0, u] - Q[:, 0]
-        qy = kpoint[1, u] - Q[:, 1]
-        qz = kpoint[2, u] - Q[:, 2]
-        q = np.sqrt(qx ** 2 + qy ** 2 + qz ** 2)
-
-        cos_theta = np.matmul(kpoint[:, u][None, :], Q.T) / norm(kpoint[:, u]) / np.sqrt(np.sum(Q ** 2, axis=1))
-
-        delE = np.abs(h_bar ** 2 * (
-                    (Q[:, 0] - ko[0]) / m_eff[0] + (Q[:, 1] - ko[1]) / m_eff[1] + (Q[:, 2] - ko[2]) / m_eff[2]))
-
-        for ro_idx in np.arange(len(ro)):
-
-            M = 4 * np.pi * Uo * (1 / q * np.sin(ro[ro_idx] * q) - ro[ro_idx] * np.cos(ro[ro_idx] * q)) / (
-                        q ** 2)  # Matrix element
-
-            SR = 2 * np.pi / h_bar * M * np.conj(M)  # Scattering rate
-
-            f = SR / delE * (1 - cos_theta)
-
-            scattering_rate[ro_idx, u] = N[ro_idx] / (2 * np.pi) ** 3 * np.sum(f * A.T)
-
-    tau = 1/scattering_rate
-
-    return tau

@@ -5,6 +5,34 @@ from scipy.special import jv, j1 as besselj
 from scipy.integrate import trapz
 from .accum import *
 
+def ellipsoid(xc, yc, zc, xr, yr, zr, n):
+    """
+    generates the x, y, z coordinates of an ellipsoid surface.
+    
+    Parameters:
+    xc, yc, zc : float
+        The center of the ellipsoid.
+    xr, yr, zr : float
+        The radii along the x, y, and z axes.
+    n : int
+        The number of divisions along the grid.
+    returns:
+    x, y, z : ndarray
+        the meshgrid arrays representing the ellipsoid surface
+    """
+    # create a meshgrid in spherical coordinates (theta, phi)
+    u = np.linspace(0, 2 * np.pi, n+1)     # theta from 0 to 2*pi
+    v = np.linspace(0, np.pi, n+1)         # phi from 0 to pi
+
+    u, v = np.meshgrid(u, v)
+
+    # parametric equations for the ellipsoid
+    x = xc + xr * np.cos(u) * np.sin(v)
+    y = yc + yr * np.sin(u) * np.sin(v)
+    z = zc + zr * np.cos(v)
+
+    return -x, -y, -z # negative sign is consistant with Matlab ellipsoid
+
 def calculate_phonon_lifetime(energy: np.ndarray, alpha_term: np.ndarray, D_v: float, D_a: float,
                               temperature: np.ndarray, sound_velocity: float, density_of_states: np.ndarray, mass_density: float) -> dict:
     """
@@ -267,34 +295,34 @@ def calculate_inf_cylinder_scattering(radius: float, k_points: tuple, potential:
     
     return k_magnitude, E, relaxation_time, num_particles
 
-def tau_spherical(ro, nk, uo, m_frac, v_frac, ko, del_k, n):
-    # constants
-    hbar = 6.582119514e-16  # reduced Planck constant (eV.s)
-    eV2J = 1.60218e-19      # conversion factor from eV to Joul
-    me = 9.10938356e-31     # electron rest mass (Kg)
-    m = me * m_frac         # effective mass of electrons (Kg)
-    N = 3 * v_frac / (4 * np.pi * ro**3)  # number of particles in unit volume
 
-    # define kpoints
+import numpy as np
+
+def calculate_spherical_scattering(ro, nk, uo, m_frac, v_frac, ko, del_k, n):
+    # Constants
+    hbar = 6.582119514e-16  # Reduced Planck constant (eV.s)
+    eV2J = 1.60218e-19      # Conversion factor from eV to J
+    me = 9.10938356e-31     # Electron rest mass (Kg)
+    m = me * m_frac         # Effective mass of electrons (Kg)
+    N = 3 * v_frac / (4 * np.pi * ro**3)  # Number of particles in unit volume
+
+    # Define k-points
     kx = np.linspace(ko[0], ko[0] + del_k[0], nk[0])
     ky = np.linspace(ko[1], ko[1] + del_k[1], nk[1])
     kz = np.linspace(ko[2], ko[2] + del_k[2], nk[2])
-    xk, yk, zk = np.meshgrid(kx, ky, kz)
-    kpoint = np.column_stack((xk.flatten(), yk.flatten(), zk.flatten()))
+    xk, yk, zk = np.meshgrid(kx, ky, kz, indexing='ij')
+    kpoint = np.column_stack((xk.ravel(), yk.ravel(), zk.ravel()))
     mag_kpoint = np.linalg.norm(kpoint, axis=1)
 
-    # energy (eV)
-    E = (hbar**2 / 2 * (
-        (kpoint[:, 0] - ko[0])**2 / m[0] +
-        (kpoint[:, 1] - ko[1])**2 / m[1] +
-        (kpoint[:, 2] - ko[2])**2 / m[2]
-    )) * eV2J
+    # Energy (J)
+    E = (hbar**2 / 2) * ((kpoint[:, 0] - ko[0])**2 / m[0] +
+                         (kpoint[:, 1] - ko[1])**2 / m[1] +
+                         (kpoint[:, 2] - ko[2])**2 / m[2]) * eV2J
 
     scattering_rate = np.zeros(E.shape[0])
 
     for u in range(E.shape[0]):
-        Q = np.zeros((2 * n * (n - 1), 3))
-        A = np.zeros(2 * n * (n - 1))
+        Q, A = np.zeros((2 * n * (n - 1), 3)), np.zeros(2 * n * (n - 1))
         k = 0
 
         x, y, z = ellipsoid(ko[0], ko[1], ko[2],
@@ -302,86 +330,78 @@ def tau_spherical(ro, nk, uo, m_frac, v_frac, ko, del_k, n):
                             np.sqrt(2 / (hbar**2 * eV2J) * m[1] * E[u]),
                             np.sqrt(2 / (hbar**2 * eV2J) * m[2] * E[u]),
                             n)
-        
+
+        def compute_triangle_data(i, j, k_offset):
+            S = (np.array([x[i, j], y[i, j], z[i, j]]) +
+                 np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]) +
+                 np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
+            Q[k_offset, :] = S / 3
+            a = np.linalg.norm(np.array([x[i, j], y[i, j], z[i, j]]) -
+                               np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]))
+            b = np.linalg.norm(np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]) -
+                               np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
+            c = np.linalg.norm(np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]) -
+                               np.array([x[i, j], y[i, j], z[i, j]]))
+            s = (a + b + c) / 2
+            A[k_offset] = np.sqrt(s * (s - a) * (s - b) * (s - c))
+
+        # Compute Q and A
         for j in range(1, n):
             for i in range(2, n + 1):
-                S = (np.array([x[i, j], y[i, j], z[i, j]]) +
-                      np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]) +
-                      np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
-                Q[k, :] = S / 3
-                a = np.linalg.norm(np.array([x[i, j], y[i, j], z[i, j]]) -
-                                   np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]))
-                b = np.linalg.norm(np.array([x[i - 1, j], y[i - 1, j], z[i - 1, j]]) -
-                                   np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
-                c = np.linalg.norm(np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]) -
-                                   np.array([x[i, j], y[i, j], z[i, j]]))
-                s = (a + b + c) / 2
-                A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
+                compute_triangle_data(i, j, k)
                 k += 1
 
         for j in range(1, n):
             for i in range(1, n):
-                S = (np.array([x[i, j - 1], y[i, j - 1], z[i, j - 1]]) +
-                      np.array([x[i, j], y[i, j], z[i, j]]) +
-                      np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
-                Q[k, :] = S / 3
-                a = np.linalg.norm(np.array([x[i, j - 1], y[i, j - 1], z[i, j - 1]]) -
-                                   np.array([x[i, j], y[i, j], z[i, j]]))
-                b = np.linalg.norm(np.array([x[i, j], y[i, j], z[i, j]]) -
-                                   np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]))
-                c = np.linalg.norm(np.array([x[i - 1, j - 1], y[i - 1, j - 1], z[i - 1, j - 1]]) -
-                                   np.array([x[i, j - 1], y[i, j - 1], z[i, j - 1]]))
-                s = (a + b + c) / 2
-                A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
+                compute_triangle_data(i, j - 1, k)
                 k += 1
 
         for i in range(2, n + 1):
-          S = (np.array([x[i, 0], y[i, 0], z[i, 0]]) + 
-               np.array([x[i - 1, 0], y[i - 1, 0], z[i - 1, 0]]) + 
-               np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]))
-          Q[k, :] = S / 3
-          a = np.linalg.norm(np.array([x[i, 0], y[i, 0], z[i, 0]]) - 
-                             np.array([x[i - 1, 0], y[i - 1, j], z[i - 1, 0]]))
-          b = np.linalg.norm(np.array([x[i - 1, 0], y[i - 1, 0], z[i - 1, 0]]) - 
-                             np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]))   
-          c = np.linalg.norm(np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]) - np.array([x[i, 0], y[i, 0], z[i, 0]]))
-          s = (a + b + c) / 2
-          A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
-          k += 1
+            S = (np.array([x[i, 0], y[i, 0], z[i, 0]]) +
+                 np.array([x[i - 1, 0], y[i - 1, 0], z[i - 1, 0]]) +
+                 np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]))
+            Q[k, :] = S / 3
+            a = np.linalg.norm(np.array([x[i, 0], y[i, 0], z[i, 0]]) -
+                               np.array([x[i - 1, 0], y[i - 1, 0], z[i - 1, 0]]))
+            b = np.linalg.norm(np.array([x[i - 1, 0], y[i - 1, 0], z[i - 1, 0]]) -
+                               np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]))
+            c = np.linalg.norm(np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]) -
+                               np.array([x[i, 0], y[i, 0], z[i, 0]]))
+            s = (a + b + c) / 2
+            A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
+            k += 1
 
         for i in range(1, n):
-          S = (np.array([x[i, -2], y[i, -2], z[i, -2]]) + 
-               np.array([x[i, 0], y[i, 0], z[i, 0]]) + 
-               np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]])) 
-          Q[k, :] = S / 3 
-          a = np.linalg.norm(np.array([x[i, -2], y[i, -2], z[i, -2]]) - 
-                             np.array([x[i, 0], y[i, 0], z[i, 0]])) 
-          b = np.linalg.norm(np.array([x[i, 0], y[i, 0], z[i, 0]]) - 
-                             np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]])) 
-          c = np.linalg.norm(np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]) - 
-                             np.array([x[i, -2], y[i, -2], z[i, -2]]))
-          s = (a + b + c) / 2
-          A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
-          k += 1
+            S = (np.array([x[i, -2], y[i, -2], z[i, -2]]) +
+                 np.array([x[i, 0], y[i, 0], z[i, 0]]) +
+                 np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]))
+            Q[k, :] = S / 3
+            a = np.linalg.norm(np.array([x[i, -2], y[i, -2], z[i, -2]]) -
+                               np.array([x[i, 0], y[i, 0], z[i, 0]]))
+            b = np.linalg.norm(np.array([x[i, 0], y[i, 0], z[i, 0]]) -
+                               np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]))
+            c = np.linalg.norm(np.array([x[i - 1, -2], y[i - 1, -2], z[i - 1, -2]]) -
+                               np.array([x[i, -2], y[i, -2], z[i, -2]]))
+            s = (a + b + c) / 2
+            A[k] = np.sqrt(s * (s - a) * (s - b) * (s - c))
+            k += 1
 
-        # compute q and cosTheta
-        qx = kpoint[u, 0] - Q[:, 0]
-        qy = kpoint[u, 1] - Q[:, 1]
-        qz = kpoint[u, 2] - Q[:, 2]
+        # Compute q and cosTheta
+        kpoint_u = kpoint[u, :]
+        qx, qy, qz = kpoint_u[0] - Q[:, 0], kpoint_u[1] - Q[:, 1], kpoint_u[2] - Q[:, 2]
         q = np.sqrt(qx**2 + qy**2 + qz**2)
-        cosTheta = np.dot(kpoint[u, :], Q.T) / (np.linalg.norm(kpoint[u, :]) * np.sqrt(np.sum(Q**2, axis=1)))
+        cosTheta = np.dot(kpoint_u, Q.T) / (np.linalg.norm(kpoint_u) * np.linalg.norm(Q, axis=1))
 
-        # matrix element and scattering rate
+        # Matrix element and scattering rate
         M = 4 * np.pi * uo * (1.0 / q * np.sin(ro * q) - ro * np.cos(ro * q)) / q**2
         SR = 2 * np.pi / hbar * M * np.conj(M)
         delE = np.abs(hbar**2 * ((Q[:, 0] - ko[0]) / m[0] +
                                  (Q[:, 1] - ko[1]) / m[1] +
                                  (Q[:, 2] - ko[2]) / m[2]))
 
-        # final scattering rate calculation
+        # Final scattering rate calculation
         f = SR / delE * (1 - cosTheta)
         scattering_rate[u] = N / (2 * np.pi)**3 * np.sum(f * A)
 
     tau = 1.0 / scattering_rate * eV2J
     return mag_kpoint, E, tau, N
-

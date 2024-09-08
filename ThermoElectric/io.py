@@ -1,171 +1,150 @@
-"""Provide the methods to read and write data files."""
-
 import numpy as np
 from os.path import expanduser
 from .util import temperature
-from scipy.interpolate import InterpolatedUnivariateSpline as spline
+from scipy.interpolate import InterpolatedUnivariateSpline as Spline
 
 
 def kpoints(path2kpoints: str, delimiter: str = None, skip_rows: int = 0) -> np.ndarray:
-
     """
-    Create a 2D array of temperature sampling
+    Load a 2D array of k-points (wave vectors) from a file.
 
     Parameters
     ----------
-    path2kpoints: str
-        Path to kpoints file
-    delimiter: str
-        Default it None for ,
-    skip_rows: int
-        Number of lines to skip, default is 0
+    path2kpoints : str
+        Path to the k-points file.
+    delimiter : str, optional
+        Delimiter for the file (default is None for comma).
+    skip_rows : int, optional
+        Number of rows to skip at the start of the file (default is 0).
 
     Returns
-    ----------
-    wave_points : np.ndarray
-        Wave vectors
+    -------
+    np.ndarray
+        Array of k-points (wave vectors).
     """
-
     wave_points = np.loadtxt(expanduser(path2kpoints), delimiter=delimiter, skiprows=skip_rows)
-
     return wave_points
 
 
-def carrier_concentration(path_extrinsic_carrier: str, band_gap: np.ndarray,
-                          Ao: float = None, Bo: float = None, Nc: float = None,
+def carrier_concentration(path_extrinsic_carrier: str, band_gap: np.ndarray, 
+                          Ao: float = None, Bo: float = None, Nc: float = None, 
                           Nv: float = None, temp: np.ndarray = None) -> np.ndarray:
-
     """
-    This function computes the carrier concentration. The extrinsic carrier concentration is from experiments.
-    The following formula is used to compute intrinsic carrier concentration: n = sqrt(Nc*Nv)*exp(-Eg/kB/T/2)
-    A good reference book is "Principles of Semiconductor Devices" by Sima Dimitrijev
+    Calculate total carrier concentration from intrinsic and extrinsic carriers.
+
+    Uses the relation: n = sqrt(Nc * Nv) * exp(-Eg / (2 * kB * T)) for intrinsic carrier concentration.
 
     Parameters
     ----------
-    path_extrinsic_carrier: str
-        Path to kpoints file
-    band_gap: np.ndarray
-        The electronic band gap
-    Ao: float
-        Experimentally fitted parameter (Nc ~ Ao*T^(3/2))
-    Bo: float
-        Experimentally fitted parameter (Nv ~ Ao*T^(3/2))
-    Nc: float
-        The effective densities of states in the conduction band
-    Nv: float
-        The effective densities of states in the conduction band
-    temp: np.ndarray
-        Temperature range
+    path_extrinsic_carrier : str
+        Path to the file with extrinsic carrier concentration data.
+    band_gap : np.ndarray
+        Band gap values.
+    Ao : float, optional
+        Fitting parameter for Nc (default is None).
+    Bo : float, optional
+        Fitting parameter for Nv (default is None).
+    Nc : float, optional
+        Effective density of states in the conduction band (default is None).
+    Nv : float, optional
+        Effective density of states in the valence band (default is None).
+    temp : np.ndarray, optional
+        Temperature array (default is None, uses default temperature range from utility function).
 
     Returns
-    ----------
-    carrier : np.ndarray
-        The total carrier concentration
+    -------
+    np.ndarray
+        Total carrier concentration.
     """
-
     k_bolt = 8.617330350e-5  # Boltzmann constant in eV/K
-
-    if temp is None:
-        T = temperature()
-    else:
-        T = temp
-
-    if Ao is None and Nc is None:
-        raise Exception("Either Ao or Nc should be defined")
-    if Bo is None and Nv is None:
-        raise Exception("Either Bo or Nv should be defined")
+    T = temp if temp is not None else temperature()
 
     if Nc is None:
-        Nc = Ao * T ** (3. / 2)
+        Nc = Ao * T ** (3 / 2)
     if Nv is None:
-        Nv = Bo * T ** (3. / 2)
+        Nv = Bo * T ** (3 / 2)
 
-    # Extrinsic carrier concentration
-    ex_carrier = np.loadtxt(expanduser(path_extrinsic_carrier), delimiter=None, skiprows=0)
-    _ex_carrier_concentration = spline(ex_carrier[0, :], ex_carrier[1, :] * 1e6)
-    ex_carrier_concentration = _ex_carrier_concentration(T)
+    # Load extrinsic carrier concentration data
+    ex_carrier_data = np.loadtxt(expanduser(path_extrinsic_carrier), delimiter=None, skiprows=0)
+    ex_carrier_spline = Spline(ex_carrier_data[:, 0], ex_carrier_data[:, 1] * 1e6)
+    ex_carrier_concentration = ex_carrier_spline(T)
 
-    # Intrinsic carrier concentration
-    in_carrier = np.sqrt(Nc * Nv) * np.exp(-1 * band_gap / (2 * k_bolt * T))
+    # Compute intrinsic carrier concentration
+    in_carrier = np.sqrt(Nc * Nv) * np.exp(-band_gap / (2 * k_bolt * T))
 
     # Total carrier concentration
-    carrier = in_carrier + abs(ex_carrier_concentration)
-
+    carrier = in_carrier + np.abs(ex_carrier_concentration)
+    
     return carrier
 
 
 def band_structure(path_eigen: str, skip_lines: int, num_bands: int, num_kpoints: int) -> dict:
-
     """
-    A function to read "EIGENVAL" file
+    Load the electronic band structure from an "EIGENVAL" file.
 
     Parameters
     ----------
-    path_eigen: str
-        Path to EIGENVAL file
-    skip_lines: int
-        Number of lines to skip
-    num_bands: int
-        Number of bands
-    num_kpoints: int
-        number of wave vectors
+    path_eigen : str
+        Path to the "EIGENVAL" file.
+    skip_lines : int
+        Number of lines to skip in the file.
+    num_bands : int
+        Number of bands.
+    num_kpoints : int
+        Number of k-points (wave vectors).
 
     Returns
-    ----------
-    dispersion : dict
-        Band structure
+    -------
+    dict
+        Dictionary containing k-points and electron dispersion data.
     """
-
     with open(expanduser(path_eigen)) as eigen_file:
         for _ in range(skip_lines):
             next(eigen_file)
-        block = [[float(_) for _ in line.split()] for line in eigen_file]
-    eigen_file.close()
-
+        block = [[float(value) for value in line.split()] for line in eigen_file]
+    
     electron_dispersion = np.arange(1, num_bands + 1)
     k_points = np.array(block[1::num_bands + 2])[:, 0:3]
 
-    for _ in range(num_kpoints):
-        disp = []
-        for __ in range(num_bands):
-            disp = np.append(disp, block[__ + 2 + (num_bands + 2) * _][1])
-        electron_dispersion = np.vstack([electron_dispersion, disp])
+    for idx in range(num_kpoints):
+        dispersion = []
+        for j in range(num_bands):
+            dispersion.append(block[j + 2 + (num_bands + 2) * idx][1])
+        electron_dispersion = np.vstack([electron_dispersion, dispersion])
 
-    dispersion ={'k_points': k_points, 'electron_dispersion': np.delete(electron_dispersion, 0, 0)}
-
-    return dispersion
+    return {'k_points': k_points, 'electron_dispersion': np.delete(electron_dispersion, 0, axis=0)}
 
 
-def electron_density(path_density: str, header_lines: int, num_dos_points: int,
+def electron_density(path_density: str, header_lines: int, num_dos_points: int, 
                      unitcell_volume: float, valley_point: int, energy: np.ndarray) -> np.ndarray:
-
     """
-    A function to read "DOSCAR" file
+    Calculate the electron density of states (DoS) from a "DOSCAR" file.
 
     Parameters
     ----------
-    path_density: str
-        Path to DOSCAR file
-    header_lines: int
-        Number of lines to skip
-    num_dos_points: int
-        Number of points in DOSCAR
-    unitcell_volume: float
-        The unit cell volume is in [m]
-    valley_point: int
-        Where valley is located in DOSCAR
-    energy: np.ndarray
-        The energy range
+    path_density : str
+        Path to the "DOSCAR" file.
+    header_lines : int
+        Number of header lines to skip in the file.
+    num_dos_points : int
+        Number of DoS points in the file.
+    unitcell_volume : float
+        Volume of the unit cell (in cubic meters).
+    valley_point : int
+        Index of the valley in the DoS data.
+    energy : np.ndarray
+        Array of energy values.
 
     Returns
-    ----------
-    density : np.ndarray
-        Electron density of states
+    -------
+    np.ndarray
+        Electron density of states interpolated over the energy range.
     """
-
-    den_state = np.loadtxt(expanduser(path_density), delimiter=None, skiprows=header_lines, max_rows=num_dos_points)
-    valley_energy = den_state[valley_point, 0]
-    dos_spline = spline(den_state[valley_point:, 0] - valley_energy, den_state[valley_point:, 1] / unitcell_volume)
+    dos_data = np.loadtxt(expanduser(path_density), delimiter=None, skiprows=header_lines, max_rows=num_dos_points)
+    valley_energy = dos_data[valley_point, 0]
+    
+    # Interpolate the density of states relative to the valley point
+    dos_spline = Spline(dos_data[valley_point:, 0] - valley_energy, dos_data[valley_point:, 1] / unitcell_volume)
     density = dos_spline(energy)
 
     return density

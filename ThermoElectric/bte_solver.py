@@ -1,178 +1,163 @@
 import numpy as np
-from copy import copy
-from .functions import *
-
+from copy import deepcopy
+from .functions import matthiessen
 
 def electrical_properties(E: np.ndarray, DoS: np.ndarray, vg: np.ndarray, Ef: np.ndarray,
                           dfdE: np.ndarray, temp: np.ndarray, tau: np.ndarray) -> dict:
-
     """
-    This function returns electronic properties.
-    Good references on this topic are:
-    "Near-equilibrium Transport: Fundamentals And Applications" by Changwook Jeong and Mark S. Lundstrom
-    "Nanoscale Energy Transport and Conversion: A Parallel Treatment of Electrons, Molecules, Phonons, and Photons" by Gang Chen.
-
-    Parameters
-    ----------
-    E: np.ndarray
-        Energy range
-    DoS: np.ndarray
-        Electron density of state
-    vg: np.ndarray
-        Group velocity
-    Ef: np.ndarray
-        Fermi level
-    dfdE: np.ndarray
-        Fermi window
-    temp: np.ndarray
-        Temperature range
-    tau:  np.ndarray
-        Lifetime
-
-    Returns
-    -------
-    coefficients: dict
-        Linear BTE prediction of electrical properties
+    Computes the electronic properties using the Boltzmann Transport Equation (BTE).
+    
+    References:
+    -----------
+    - Changwook Jeong and Mark S. Lundstrom, "Near-equilibrium Transport: Fundamentals and Applications"
+    - Gang Chen, "Nanoscale Energy Transport and Conversion: A Parallel Treatment of Electrons, Molecules, Phonons, and Photons"
+    
+    Parameters:
+    -----------
+    E : np.ndarray
+        Energy range (eV)
+    DoS : np.ndarray
+        Density of states (states/eV)
+    vg : np.ndarray
+        Group velocity (m/s)
+    Ef : np.ndarray
+        Fermi level (eV)
+    dfdE : np.ndarray
+        Fermi-Dirac derivative
+    temp : np.ndarray
+        Temperature (K)
+    tau : np.ndarray
+        Relaxation time (s)
+    
+    Returns:
+    --------
+    dict
+        Contains electrical conductivity, Seebeck coefficient, power factor, thermal conductivity, and Lorenz number.
     """
+    e2C = 1.6021765e-19  # Elementary charge in Coulombs
 
-    e2C = 1.6021765e-19  # e to Coulomb unit change
+    # Precompute useful terms
+    X = DoS * vg ** 2 * dfdE  # χ (Chi)
+    Y = (E - Ef.T) * X  # Γ (Gamma)
+    Z = (E - Ef.T) * Y  # ζ (Zeta)
 
-    X = DoS * vg ** 2 * dfdE  # Chi
-    Y = (E - Ef.T) * X  # Gamma
-    Z = (E - Ef.T) * Y  # Zeta
-
-    Sigma = -1 * np.trapz(X * tau, E, axis=1) / 3 * e2C  # Electrical conductivity
-
-    S = -1 * np.trapz(Y * tau, E, axis=1) / np.trapz(X * tau, E, axis=1) / temp  # Thermopower
-
-    PF = Sigma * S ** 2  # Power factor
-
+    # Transport properties
+    Sigma = -np.trapz(X * tau, E, axis=1) / 3 * e2C  # Electrical conductivity (S/m)
+    S = -np.trapz(Y * tau, E, axis=1) / np.trapz(X * tau, E, axis=1) / temp  # Seebeck coefficient (V/K)
+    PF = Sigma * S ** 2  # Power factor (W/K²·m)
     ke = -1 * (np.trapz(Z * tau, E, axis=1) - np.trapz(Y * tau, E, axis=1) ** 2 /
-               np.trapz(X * tau, E, axis=1)) / temp / 3 * e2C  # Electron thermal conductivity
-
+               np.trapz(X * tau, E, axis=1)) / temp / 3 * e2C  # Thermal conductivity (W/m·K)
+    
+    # Lorenz number
     delta = np.trapz(X * tau * E, E, axis=1) / np.trapz(X * tau, E, axis=1)  # First moment of current
-
     delta_ = np.trapz(X * tau * E ** 2, E, axis=1) / np.trapz(X * tau, E, axis=1)  # Second moment of current
+    Lorenz = (delta_ - delta ** 2) / temp**2  # Lorenz number (WΩ/K²)
 
-    Lorenz = (delta_ - delta ** 2) / temp**2  # Lorenz number
+    return {
+        'Electrical_conductivity': Sigma,
+        'Seebeck_coefficient': S[0],
+        'Power_factor': PF[0],
+        'Thermal_conductivity': ke[0],
+        'Lorenz_number': Lorenz[0]
+    }
 
-    coefficients = {'Electrical_conductivity': Sigma, 'Seebeck_coefficient': S[0], 'Power_factor': PF[0],
-                    'Thermal_conductivity': ke[0], 'Lorenz_number': Lorenz[0]}
 
-    return coefficients
-
-
-def filtering_effect(Uo, E, DoS, vg, Ef, dfdE, temp, tau_bulk):
-
+def filtering_effect(Uo: np.ndarray, E: np.ndarray, DoS: np.ndarray, vg: np.ndarray, Ef: np.ndarray,
+                     dfdE: np.ndarray, temp: np.ndarray, tau_bulk: np.ndarray) -> dict:
     """
-    This function returns electric properties for the ideal filtering —  where all the electrons up to a cutoff energy
-    level of Uo are completely hindered.
-
-    Parameters
-    ----------
-    Uo: np.ndarray
-        Barrier height
-    E: np.ndarray
-        Energy range
-    DoS: np.ndarray
-        Electron density of state
-    vg: np.ndarray
-        Group velocity
-    Ef: np.ndarray
-        Fermi level
-    dfdE: np.ndarray
-        Fermi window
-    temp: np.ndarray
-        Temperature range
-    tau_bulk:  np.ndarray
-        Lifetime in bulk material
-
-    Returns
-    -------
-    output: dict
-        Linear BTE prediction of electrical properties
+    Calculates the electrical properties under ideal filtering conditions, where all electrons
+    up to a cutoff energy Uo are blocked.
+    
+    Parameters:
+    -----------
+    Uo : np.ndarray
+        Barrier height (eV)
+    E : np.ndarray
+        Energy range (eV)
+    DoS : np.ndarray
+        Density of states (states/eV)
+    vg : np.ndarray
+        Group velocity (m/s)
+    Ef : np.ndarray
+        Fermi level (eV)
+    dfdE : np.ndarray
+        Fermi-Dirac derivative
+    temp : np.ndarray
+        Temperature (K)
+    tau_bulk : np.ndarray
+        Bulk relaxation time (s)
+    
+    Returns:
+    --------
+    dict
+        Contains electrical conductivity and Seebeck coefficient.
     """
+    tau_Uo = np.ones(E.shape[1])
+    Conductivity, Seebeck = [], []
 
-    tau_Uo = np.ones(len(E[0]))
-    _Conductivity = [np.empty([1, len(tau_bulk)])]
-    _Seebeck = [np.empty([1, len(tau_bulk)])]
+    for uo in Uo:
+        tau_filtered = deepcopy(tau_Uo)
+        tau_filtered[E[0] < uo] = 0  # Apply ideal filtering
+        
+        tau = matthiessen(E, tau_filtered, tau_bulk)  # Compute total relaxation time
+        coefficients = electrical_properties(E, DoS, vg, Ef, dfdE, temp, tau)
 
-    for i in np.arange(len(Uo)):
+        Conductivity.append(coefficients['Electrical_conductivity'])
+        Seebeck.append(coefficients['Seebeck_coefficient'])
 
-        tau_idl = copy(tau_Uo)
-        tau_idl[E[0] < Uo[i]] = 0
-        tau = matthiessen(E, tau_idl, tau_bulk)
-
-        coefficients = electrical_properties(E=E, DoS=DoS, vg=vg, Ef=Ef, dfdE=dfdE, temp=temp, tau=tau)
-        Sigma = coefficients['Electrical_conductivity']  # Electrical conductivity
-        S = coefficients['Seebeck_coefficient']  # Thermopower
-
-        _Conductivity = np.append(_Conductivity, [Sigma], axis=0)
-        _Seebeck = np.append(_Seebeck, [S], axis=0)
-
-        del tau_idl
-
-    Conductivity = np.delete(_Conductivity, 0, axis=0)
-    Seebeck = np.delete(_Seebeck, 0, axis=0)
-
-    output = {'Electrical_conductivity': Conductivity, 'Seebeck_coefficient': Seebeck}
-
-    return output
+    return {
+        'Electrical_conductivity': np.array(Conductivity),
+        'Seebeck_coefficient': np.array(Seebeck)
+    }
 
 
-def phenomenological(Uo, tau_o, E, DoS, vg, Ef, dfdE, temp, tau_bulk):
-
+def phenomenological(Uo: np.ndarray, tau_o: np.ndarray, E: np.ndarray, DoS: np.ndarray, vg: np.ndarray,
+                     Ef: np.ndarray, dfdE: np.ndarray, temp: np.ndarray, tau_bulk: np.ndarray) -> dict:
     """
-    This function returns electric properties for the phenomenological filtering —  where a frequency independent
-    lifetime of tau_o is imposed to all the electrons up to a cutoff energy level of Uo
-
-    Parameters
-    ----------
-    Uo: np.ndarray
-        Barrier height
-    tau_o: np.ndarray
-        Phenomenological lifetime
-    E: np.ndarray
-        Energy range
-    DoS: np.ndarray
-        Electron density of state
-    vg: np.ndarray
-        Group velocity
-    Ef: np.ndarray
-        Fermi level
-    dfdE: np.ndarray
-        Fermi window
-    temp: np.ndarray
-        Temperature range
-    tau_bulk:  np.ndarray
-        Lifetime in bulk material
-
-    Returns
-    -------
-    output: dict
-        Linear BTE prediction of electrical properties
+    Calculates the electrical properties with phenomenological filtering, where a lifetime tau_o
+    is imposed up to a cutoff energy Uo.
+    
+    Parameters:
+    -----------
+    Uo : np.ndarray
+        Barrier height (eV)
+    tau_o : np.ndarray
+        Phenomenological lifetime (s)
+    E : np.ndarray
+        Energy range (eV)
+    DoS : np.ndarray
+        Density of states (states/eV)
+    vg : np.ndarray
+        Group velocity (m/s)
+    Ef : np.ndarray
+        Fermi level (eV)
+    dfdE : np.ndarray
+        Fermi-Dirac derivative
+    temp : np.ndarray
+        Temperature (K)
+    tau_bulk : np.ndarray
+        Bulk relaxation time (s)
+    
+    Returns:
+    --------
+    dict
+        Contains electrical conductivity and Seebeck coefficient.
     """
+    tau_Uo = np.ones(E.shape[1])
+    Conductivity, Seebeck = [], []
 
-    tau_u = np.ones(len(E[0]))
-    _Conductivity = [np.empty([1, 1])]
-    _Seebeck = [np.empty([1, 1])]
-    for _j in np.arange(len(tau_o)):
-        for _i in np.arange(len(Uo)):
-            tau_ph = copy(tau_u)
-            tau_ph[E[0] < Uo[_i]] = tau_o[_j]
-            tau = matthiessen(E, tau_ph, tau_bulk)
-            coefficients = electrical_properties(E=E, DoS=DoS, vg=vg, Ef=Ef, dfdE=dfdE, temp=temp, tau=tau)
-            Sigma = coefficients['Electrical_conductivity']  # Electrical conductivity
-            S = coefficients['Seebeck_coefficient']  # Thermopower
-            _Conductivity = np.append(_Conductivity, [Sigma], axis=0)
-            _Seebeck = np.append(_Seebeck, [S], axis=0)
-            del tau_ph
+    for tau in tau_o:
+        for uo in Uo:
+            tau_ph = deepcopy(tau_Uo)
+            tau_ph[E[0] < uo] = tau  # Apply phenomenological filtering
+            
+            total_tau = matthiessen(E, tau_ph, tau_bulk)
+            coefficients = electrical_properties(E, DoS, vg, Ef, dfdE, temp, total_tau)
+            
+            Conductivity.append(coefficients['Electrical_conductivity'])
+            Seebeck.append(coefficients['Seebeck_coefficient'])
 
-    __Conductivity = np.delete(_Conductivity, 0, axis=0)
-    __Seebeck = np.delete(_Seebeck, 0, axis=0)
-    Conductivity = np.reshape(__Conductivity, (len(tau_o), len(Uo)))  # Electrical conductivity
-    Seebeck = np.reshape(__Seebeck, (len(tau_o), len(Uo)))  # Thermopower
-
-    output = {'Electrical_conductivity': Conductivity, 'Seebeck_coefficient': Seebeck}
-
-    return output
+    return {
+        'Electrical_conductivity': np.array(Conductivity).reshape(len(tau_o), len(Uo)),
+        'Seebeck_coefficient': np.array(Seebeck).reshape(len(tau_o), len(Uo))
+    }

@@ -1,310 +1,271 @@
-
 import numpy as np
 from numpy.linalg import norm
-from scipy.interpolate import PchipInterpolator as interpolator
-from scipy.special import jv
-from scipy.special import j1 as besselj  # Bessel function of the first kind
+from scipy.interpolate import PchipInterpolator as Interpolator
+from scipy.special import jv, j1 as besselj
 from scipy.integrate import trapz
 from .accum import *
 
-
-def tau_p(energy: np.ndarray, alpha_term: np.ndarray, D_v: float, D_a: float,
-          temp: np.ndarray, vel_sound: float, DoS: np.ndarray, rho: float) -> dict:
-
+def calculate_phonon_lifetime(energy: np.ndarray, alpha_term: np.ndarray, D_v: float, D_a: float,
+                              temperature: np.ndarray, sound_velocity: float, density_of_states: np.ndarray, mass_density: float) -> dict:
     """
-    Electron-phonon scattering rate using Ravich model
+    Calculate the electron-phonon scattering rate using the Ravich model.
 
     Parameters
     ----------
-    energy: np.ndarray
-        Energy range
-    alpha_term: np.ndarray
-        Non-parabolic term
-    D_v: float
-        Hole deformation potential
-    D_a: float
-        Electron deformation potential
-    temp: np.ndarray
-        Temperature
-    vel_sound: float
-        Sound velocity
-    DoS: np.ndarray
-        Density of state
-    rho: float
-        Mass density
+    energy : np.ndarray
+        Energy range.
+    alpha_term : np.ndarray
+        Non-parabolic term.
+    D_v : float
+        Hole deformation potential.
+    D_a : float
+        Electron deformation potential.
+    temperature : np.ndarray
+        Temperature.
+    sound_velocity : float
+        Sound velocity.
+    density_of_states : np.ndarray
+        Density of states.
+    mass_density : float
+        Mass density.
 
     Returns
     -------
-    output: dict
-        parabolic and non-parabolic electron-phonon lifetime
+    dict
+        Dictionary with 'parabolic_phonon_lifetime' and 'nonparabolic_phonon_lifetime'.
     """
-
     h_bar = 6.582119e-16  # Reduced Planck constant in eV.s
-    k_bolt = 8.617330350e-5  # Boltzmann constant in eV/K
-    e2C = 1.6021765e-19  # e to Coulomb unit change
+    k_boltzmann = 8.617330350e-5  # Boltzmann constant in eV/K
+    e_to_coulomb = 1.6021765e-19  # e to Coulomb unit conversion
 
     nonparabolic_term = (1 - ((alpha_term.T * energy) / (1 + 2 * alpha_term.T * energy) * (1 - D_v / D_a))) ** 2 \
                         - 8 / 3 * (alpha_term.T * energy) * (1 + alpha_term.T * energy) / (
                                     1 + 2 * alpha_term.T * energy) ** 2 * (D_v / D_a)
 
-    tau_ph_parabolic = rho * vel_sound ** 2 * h_bar \
-          / np.pi / k_bolt / temp.T / D_a**2 * 1e9 / e2C / DoS  # Lifetime for parabolic band
+    tau_ph_parabolic = mass_density * sound_velocity ** 2 * h_bar \
+          / (np.pi * k_boltzmann * temperature.T * D_a**2) * 1e9 / e_to_coulomb / density_of_states  # Lifetime for parabolic band
 
     tau_ph_nonparabolic = tau_ph_parabolic / nonparabolic_term  # Lifetime in nonparabolic band
 
-    output = {'parabolic_ph_lifetime': tau_ph_parabolic, 'nonparabolic_ph_lifetime': tau_ph_nonparabolic}
-
-    return output
+    return {'parabolic_phonon_lifetime': tau_ph_parabolic, 'nonparabolic_phonon_lifetime': tau_ph_nonparabolic}
 
 
-def tau_strongly_screened_coulomb(DoS: np.ndarray, screen_len: np.ndarray,
-                                  n_imp: np.ndarray, dielectric: float) -> np.ndarray:
-
+def calculate_screened_coulomb_lifetime(density_of_states: np.ndarray, screening_length: np.ndarray,
+                                         impurity_scattering: np.ndarray, dielectric_constant: float) -> np.ndarray:
     """
-    Electron-impurity scattering model in highly doped dielectrics
-
-    Note that for highly doped semiconductors, screen length plays a significant role,
-    therefor should be computed carefully. Highly suggest to use following matlab file "Fermi.m"
-    from: https://www.mathworks.com/matlabcentral/fileexchange/13616-fermi
-
-    If committed to use python, the package "dfint" works with python2
-    pip install fdint
+    Calculate electron-impurity scattering lifetime in highly doped dielectrics.
 
     Parameters
     ----------
-    DoS: np.ndarray
-        Density of states
-    screen_len: np.ndarray
-        Screening length
-    n_imp: np.ndarray
-        impurity scattering
-    dielectric: float
-        Dielectric constant
+    density_of_states : np.ndarray
+        Density of states.
+    screening_length : np.ndarray
+        Screening length.
+    impurity_scattering : np.ndarray
+        Impurity scattering rate.
+    dielectric_constant : float
+        Dielectric constant.
 
     Returns
     -------
-    tau: np.ndarray
-        Electron-impurity lifetime
+    np.ndarray
+        Electron-impurity lifetime.
     """
-
     h_bar = 6.582119e-16  # Reduced Planck constant in eV.s
-    e2C = 1.6021765e-19  # e to Coulomb unit change
-    e_o = 8.854187817e-12  # Permittivity in vacuum F/m
+    e_to_coulomb = 1.6021765e-19  # e to Coulomb unit conversion
+    permittivity_vacuum = 8.854187817e-12  # Permittivity in vacuum (F/m)
 
-    tau = h_bar / n_imp.T / np.pi / DoS / \
-          (screen_len.T ** 2 / (4 * np.pi * dielectric * e_o)) ** 2 \
-          * 1 / e2C ** 2
+    tau = h_bar / impurity_scattering.T / np.pi / density_of_states / \
+          (screening_length.T ** 2 / (4 * np.pi * dielectric_constant * permittivity_vacuum)) ** 2 \
+          * 1 / e_to_coulomb ** 2
 
     return tau
 
 
-def tau_screened_coulomb(energy: np.ndarray, mass_c: np.ndarray, screen_len: np.ndarray,
-                         n_imp: np.ndarray, dielectric: float) -> np.ndarray:
-
+def calculate_screened_coulomb_lifetime_brook_herring(energy: np.ndarray, conduction_mass: np.ndarray, screening_length: np.ndarray,
+                                                       impurity_scattering: np.ndarray, dielectric_constant: float) -> np.ndarray:
     """
-    Electron-ion scattering rate — Brook-Herring model
-
-    Note that for highly doped semiconductors, screen length plays a significant role,
-    therefor should be computed carefully. Highly suggest to use following matlab file "Fermi.m"
-    from: https://www.mathworks.com/matlabcentral/fileexchange/13616-fermi
-
-    If committed to use python, the package "dfint" works with python2
-    pip install fdint
+    Calculate electron-ion scattering lifetime using the Brook-Herring model.
 
     Parameters
     ----------
-    energy: np.ndarray
-        Energy range
-    mass_c: np.ndarray
-        Conduction band effective mass
-    screen_len: np.ndarray
-        Screening length
-    n_imp: np.ndarray
-        impurity scattering
-    dielectric: float
-        Dielectric constant
+    energy : np.ndarray
+        Energy range.
+    conduction_mass : np.ndarray
+        Conduction band effective mass.
+    screening_length : np.ndarray
+        Screening length.
+    impurity_scattering : np.ndarray
+        Impurity scattering rate.
+    dielectric_constant : float
+        Dielectric constant.
 
     Returns
     -------
-    tau: np.ndarray
-        Electron-impurity lifetime
+    np.ndarray
+        Electron-impurity lifetime.
     """
-
     h_bar = 6.582119e-16  # Reduced Planck constant in eV.s
-    e2C = 1.6021765e-19  # e to Coulomb unit change
-    e_o = 8.854187817e-12  # Permittivity in vacuum F/m
+    e_to_coulomb = 1.6021765e-19  # e to Coulomb unit conversion
+    permittivity_vacuum = 8.854187817e-12  # Permittivity in vacuum (F/m)
 
-    gamma = 8 * mass_c.T * screen_len.T ** 2 * energy / h_bar ** 2 / e2C  # Gamma term
+    gamma = 8 * conduction_mass.T * screening_length.T ** 2 * energy / h_bar ** 2 / e_to_coulomb  # Gamma term
 
     tau_ = np.log(1 + gamma) - gamma / (1 + gamma)
 
-    tau = 16 * np.pi * np.sqrt(2 * mass_c.T) * (4 * np.pi * dielectric * e_o) ** 2 \
-          / n_imp.T / tau_ * energy ** (3 / 2) / e2C ** (5.0/2)
+    tau = 16 * np.pi * np.sqrt(2 * conduction_mass.T) * (4 * np.pi * dielectric_constant * permittivity_vacuum) ** 2 \
+          / impurity_scattering.T / tau_ * energy ** (3 / 2) / e_to_coulomb ** (5.0 / 2)
 
     tau[np.isnan(tau)] = 0
 
     return tau
 
 
-def tau_unscreened_coulomb(energy: np.ndarray, mass_c: np.ndarray,
-                           n_imp: np.ndarray, dielectric: float) -> np.ndarray:
-
+def calculate_unscreened_coulomb_lifetime(energy: np.ndarray, conduction_mass: np.ndarray,
+                                          impurity_scattering: np.ndarray, dielectric_constant: float) -> np.ndarray:
     """
-    Electron-ion scattering rate for shallow dopants ~10^18 1/cm^3
-    (no screening effect is considered)
+    Calculate electron-ion scattering lifetime for shallow dopants (no screening effect considered).
 
     Parameters
     ----------
-    energy: np.ndarray
-        Energy range
-    mass_c: np.ndarray
-        Conduction band effective mass
-    n_imp: np.ndarray
-        impurity scattering
-    dielectric: float
-        Dielectric constant
+    energy : np.ndarray
+        Energy range.
+    conduction_mass : np.ndarray
+        Conduction band effective mass.
+    impurity_scattering : np.ndarray
+        Impurity scattering rate.
+    dielectric_constant : float
+        Dielectric constant.
 
     Returns
     -------
-    tau: np.ndarray
-        Electron-impurity lifetime
+    np.ndarray
+        Electron-impurity lifetime.
     """
+    e_to_coulomb = 1.6021765e-19  # e to Coulomb unit conversion
+    permittivity_vacuum = 8.854187817e-12  # Permittivity in vacuum (F/m)
 
-    e2C = 1.6021765e-19  # e to Coulomb unit change
-    e_o = 8.854187817e-12  # Permittivity in vacuum F/m
-
-    gamma = 4 * np.pi * (4 * np.pi * dielectric * e_o) * energy / n_imp.T ** (1.0 / 3) / e2C  # Gamma term
+    gamma = 4 * np.pi * (4 * np.pi * dielectric_constant * permittivity_vacuum) * energy / impurity_scattering.T ** (1.0 / 3) / e_to_coulomb  # Gamma term
 
     tau_ = np.log(1 + gamma ** 2)
 
-    tau = 16 * np.pi * np.sqrt(2 * mass_c) * (4 * np.pi * dielectric * e_o) ** 2 \
-          / n_imp.T / tau_ * energy ** (3 / 2) / e2C ** (5.0 / 2)
+    tau = 16 * np.pi * np.sqrt(2 * conduction_mass) * (4 * np.pi * dielectric_constant * permittivity_vacuum) ** 2 \
+          / impurity_scattering.T / tau_ * energy ** (3 / 2) / e_to_coulomb ** (5.0 / 2)
 
     tau[np.isnan(tau)] = 0
 
     return tau
 
-def tau_inf_cylinder(ro, nk, uo, m_frac, v_frac, ko, del_k, n):
+
+def calculate_inf_cylinder_scattering(radius: float, k_points: tuple, potential: float, mass_fraction: np.ndarray,
+                                       volume_fraction: float, initial_wave_vector: np.ndarray, delta_k_vector: np.ndarray, num_divisions: int) -> tuple:
     """
-    electron scattering rate from spherical symmetry potential wall in an ellipsoid conduction band.
+    Calculate electron scattering rate from a cylindrical potential in an ellipsoid conduction band.
+    q = |k'-k|
+    Matrix element: M = 4*pi*u0*(1./q.*sin(r_inc*q)-r_inc*cos(r_inc*q))./(q.^2)
+    Scattering rate matrix ignoring delta(E-E'): SR = 2*pi/hbar*M.*conj(M)
+    E = Ec + hbar^2/2*((kx-k0x)^2/ml+(ky^2+kz^2)/mt)
+    Ec = 0
     
-    parameters:
-    ro       : radius of the cylindrical potential
-    nk       : number of k-points in each direction (x, y, z)
-    uo       : scattering potential
-    m_frac   : mass fraction array (m1, m2, m3)
-    v_frac   : volume fraction
-    ko       : initial wave vector (kx, ky, kz)
-    del_k    : delta k vector (kx, ky, kz)
-    n        : number of divisions for the ellipse parametrization
-    
-    returns:
-    mag_kpoint : wave vector magnitude for all k-points
-    E          : energy values at each k-point
-    tau        : relaxation times at each k-point
-    N          : number of particles in unit volume
+    Parameters
+    ----------
+    radius : float
+        Radius of the cylindrical potential.
+    k_points : tuple
+        Number of k-points in each direction (x, y, z).
+    potential : float
+        Scattering potential.
+    mass_fraction : np.ndarray
+        Mass fraction array (m1, m2, m3).
+    volume_fraction : float
+        Volume fraction.
+    initial_wave_vector : np.ndarray
+        Initial wave vector (kx, ky, kz).
+    delta_k_vector : np.ndarray
+        Delta k vector (kx, ky, kz).
+    num_divisions : int
+        Number of divisions for the ellipse parametrization.
+
+    Returns
+    -------
+    tuple
+        - wave vector magnitude for all k-points.
+        - energy values at each k-point.
+        - relaxation times at each k-point.
+        - number of particles in unit volume.
     """
-    
-    # constants
-    hbar = 6.582119514e-16  # Reduced Planck constant (eV.s)
-    eV2J = 1.60218e-19      # Convert eV to Joules
-    me = 9.10938356e-31     # Electron rest mass (kg)
+    h_bar = 6.582119514e-16  # Reduced Planck constant (eV.s)
+    eV_to_J = 1.60218e-19    # Convert eV to Joules
+    electron_mass = 9.10938356e-31  # Electron rest mass (kg)
     
     # Effective electron mass (kg)
-    m = me * np.array(m_frac)
+    masses = electron_mass * np.array(mass_fraction)
     
-    # number of particles in unit volume
-    N = v_frac / np.pi / ro**2
+    # Number of particles in unit volume
+    num_particles = volume_fraction / (np.pi * radius**2)
     
-    # define k-points mesh
-    kx = np.linspace(ko[0], ko[0] + del_k[0], nk[0])
-    ky = np.linspace(ko[1], ko[1] + del_k[1], nk[1])
-    kz = np.linspace(ko[2], ko[2] + del_k[2], nk[2])
+    # Define k-points mesh
+    kx = np.linspace(initial_wave_vector[0], initial_wave_vector[0] + delta_k_vector[0], k_points[0])
+    ky = np.linspace(initial_wave_vector[1], initial_wave_vector[1] + delta_k_vector[1], k_points[1])
+    kz = np.linspace(initial_wave_vector[2], initial_wave_vector[2] + delta_k_vector[2], k_points[2])
     
-    # create meshgrid and flatten
-    xk, yk, zk = np.meshgrid(kx, ky, kz)
-    kpoint = np.column_stack((xk.ravel(), yk.ravel(), zk.ravel()))  # Matrix of k-points
+    # Create meshgrid and flatten
+    kx_grid, ky_grid, kz_grid = np.meshgrid(kx, ky, kz)
+    k_point_matrix = np.column_stack((kx_grid.ravel(), ky_grid.ravel(), kz_grid.ravel()))  # Matrix of k-points
     
-    # calculate wave vector magnitude
-    mag_kpoint = np.linalg.norm(kpoint, axis=1)
+    # Calculate wave vector magnitude
+    k_magnitude = np.linalg.norm(k_point_matrix, axis=1)
     
-    # calculate energy
-    E = hbar**2 / 2 * ((kpoint[:, 0] - ko[0])**2 / m[0] +
-                       (kpoint[:, 1] - ko[1])**2 / m[1] +
-                       (kpoint[:, 2] - ko[2])**2 / m[2]) * eV2J
+    # Calculate energy
+    E = (h_bar**2 / 2) * ((k_point_matrix[:, 0] - initial_wave_vector[0])**2 / masses[0] +
+                          (k_point_matrix[:, 1] - initial_wave_vector[1])**2 / masses[1] +
+                          (k_point_matrix[:, 2] - initial_wave_vector[2])**2 / masses[2]) * eV_to_J
     
-    # parametrize the ellipse
-    t = np.linspace(0, 2 * np.pi, n)
+    # Parametrize the ellipse
+    t = np.linspace(0, 2 * np.pi, num_divisions)
     
-    # ellipse semi-major and semi-minor axes
-    a = np.sqrt(2 * m[0] / hbar**2 * E / eV2J)
-    b = np.sqrt(2 * m[1] / hbar**2 * E / eV2J)
+    # Ellipse semi-major and semi-minor axes
+    a = np.sqrt(2 * masses[0] / h_bar**2 * E / eV_to_J)
+    b = np.sqrt(2 * masses[1] / h_bar**2 * E / eV_to_J)
     
-    # parametrize the ellipse area (ds)
+    # Parametrize the ellipse area (ds)
     ds = np.sqrt((a[:, np.newaxis] * np.sin(t))**2 + (b[:, np.newaxis] * np.cos(t))**2)
     
-    # calculate cos(theta)
-    cos_theta = (a[:, np.newaxis] * kpoint[:, 0, np.newaxis] * np.cos(t) +
-                 b[:, np.newaxis] * kpoint[:, 1, np.newaxis] * np.sin(t) +
-                 kpoint[:, 2, np.newaxis]**2) / \
+    # Calculate cos(theta)
+    kx_cos_t = a[:, np.newaxis] * np.cos(t)
+    ky_cos_t = b[:, np.newaxis] * np.sin(t)
+    
+    cos_theta = (kx_cos_t * k_point_matrix[:, 0, np.newaxis] +
+                 ky_cos_t * k_point_matrix[:, 1, np.newaxis] +
+                 k_point_matrix[:, 2, np.newaxis]**2) / \
                 np.sqrt(a[:, np.newaxis]**2 * np.cos(t)**2 + 
                         b[:, np.newaxis]**2 * np.sin(t)**2 + 
-                        kpoint[:, 2, np.newaxis]**2) / mag_kpoint[:, np.newaxis]
+                        k_point_matrix[:, 2, np.newaxis]**2) / k_magnitude[:, np.newaxis]
     
-    # energy difference (delE)
-    delE = hbar**2 * np.abs((a[:, np.newaxis] * np.cos(t) - ko[0]) / m[0] +
-                            (b[:, np.newaxis] * np.sin(t) - ko[1]) / m[1] +
-                            (kpoint[:, 2, np.newaxis] - ko[2]) / m[2])
+    # Energy difference (delE)
+    delE = h_bar**2 * np.abs((kx_cos_t - initial_wave_vector[0]) / masses[0] +
+                            (ky_cos_t - initial_wave_vector[1]) / masses[1] +
+                            (k_point_matrix[:, 2, np.newaxis] - initial_wave_vector[2]) / masses[2])
     
-    # calculate q and Bessel function
-    qx = kpoint[:, 0, np.newaxis] - a[:, np.newaxis] * np.cos(t)
-    qy = kpoint[:, 1, np.newaxis] - b[:, np.newaxis] * np.sin(t)
+    # Calculate q and Bessel function
+    qx = k_point_matrix[:, 0, np.newaxis] - a[:, np.newaxis] * np.cos(t)
+    qy = k_point_matrix[:, 1, np.newaxis] - b[:, np.newaxis] * np.sin(t)
     qr = np.sqrt(qx**2 + qy**2)
-    J = besselj(ro * qr)
+    J = besselj(radius * qr)
     
-    # scattering rate (SR)
-    SR = 2 * np.pi / hbar * uo**2 * (2 * np.pi)**3 * (ro * J / qr)**2
+    # Scattering rate (SR)
+    SR = 2 * np.pi / h_bar * potential**2 * (2 * np.pi)**3 * (radius * J / qr)**2
     
-    # function to integrate
+    # Function to integrate
     func = SR * (1 - cos_theta) / delE * ds
     
-    # integrate over theta using trapezoidal integration
-    Int = trapz(func, t, axis=1)
+    # Integrate over theta using trapezoidal integration
+    integrated_func = trapz(func, t, axis=1)
     
-    # calculate relaxation time (tau)
-    tau = (N / (2 * np.pi)**3 * Int)**-1 * eV2J
+    # Calculate relaxation time (tau)
+    relaxation_time = (num_particles / (2 * np.pi)**3 * integrated_func)**-1 * eV_to_J
     
-    return mag_kpoint, E, tau, N
-
-
-def ellipsoid(xc, yc, zc, xr, yr, zr, n):
-    """
-    generates the x, y, z coordinates of an ellipsoid surface.
-    
-    Parameters:
-    xc, yc, zc : float
-        The center of the ellipsoid.
-    xr, yr, zr : float
-        The radii along the x, y, and z axes.
-    n : int
-        The number of divisions along the grid.
-
-    returns:
-    x, y, z : ndarray
-        the meshgrid arrays representing the ellipsoid surface
-    """
-    # create a meshgrid in spherical coordinates (theta, phi)
-    u = np.linspace(0, 2 * np.pi, n+1)     # theta from 0 to 2*pi
-    v = np.linspace(0, np.pi, n+1)         # phi from 0 to pi
-
-    u, v = np.meshgrid(u, v)
-
-    # parametric equations for the ellipsoid
-    x = xc + xr * np.cos(u) * np.sin(v)
-    y = yc + yr * np.sin(u) * np.sin(v)
-    z = zc + zr * np.cos(v)
-
-    return -x, -y, -z
+    return k_magnitude, E, relaxation_time, num_particles
 
 def tau_spherical(ro, nk, uo, m_frac, v_frac, ko, del_k, n):
     # constants

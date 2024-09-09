@@ -3,6 +3,7 @@ from numpy.linalg import norm
 from scipy.interpolate import PchipInterpolator as Interpolator
 from scipy.special import jv, j1 as besselj
 from scipy.integrate import trapz
+from tqdm import tqdm  # Import tqdm for progress tracking
 from .accum import *
 
 def ellipsoid(xc, yc, zc, xr, yr, zr, n):
@@ -295,10 +296,7 @@ def calculate_inf_cylinder_scattering(radius: float, k_points: tuple, potential:
     
     return k_magnitude, E, relaxation_time, num_particles
 
-
-import numpy as np
-
-def calculate_spherical_scattering(ro, nk, uo, m_frac, v_frac, ko, del_k, n):
+def tau_spherical(ro, nk, uo, m_frac, v_frac, ko, del_k, n):
     # Constants
     hbar = 6.582119514e-16  # Reduced Planck constant (eV.s)
     eV2J = 1.60218e-19      # Conversion factor from eV to J
@@ -321,7 +319,7 @@ def calculate_spherical_scattering(ro, nk, uo, m_frac, v_frac, ko, del_k, n):
 
     scattering_rate = np.zeros(E.shape[0])
 
-    for u in range(E.shape[0]):
+    for u in tqdm(range(E.shape[0]), desc="Processing energies"):
         Q, A = np.zeros((2 * n * (n - 1), 3)), np.zeros(2 * n * (n - 1))
         k = 0
 

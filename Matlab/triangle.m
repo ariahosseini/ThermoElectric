@@ -1,5 +1,5 @@
 function [mag_kpoint, E, tau, N] = triangle(l, nk, uo, m_frac, v_frac, ko, del_k, n, kind)
-%% electron scattering rate from spherical symmetry potential wall in ellipsoid conduction band
+%% Electron scattering rate from spherical symmetry potential wall in ellipsoid conduction band
 % q = |k'-k|;
 % Matrix element: M;
 % SR matrix ignoring delta(E-E'): 2*pi/hbar*M.*conj(M);
@@ -32,11 +32,11 @@ E = hbar^2 / 2 * (...
 scattering_rate = zeros(1, size(E, 1));
 
 %% Ellipsoid and Numerical Integration (Centroid Method)
-% number of triangles : 2*n*(n-1)
-% [x,y,z] = ellipsoid(xc,yc,zc,xr,yr,zr,n) generates a surface mesh described by three n+1-by-n+1 matrices, 
-% enabling surf(x,y,z) to plot an ellipsoid with center (xc,yc,zc) and semi-axis lengths (xr,yr,zr).
-% Numerical integration on ellipsoid surface (iso energy surface) using cetroid method with triangle meshes
-% a, b and c are the vertices of the triangles
+% Number of triangles : 2*n*(n-1)
+% [x,y,z] = ellipsoid(xc,yc,zc,xr,yr,zr,n) generates a surface mesh described by three n+1-by-n+1 matrices.
+% Enable surf(x,y,z) to plot an ellipsoid centered at (xc,yc,zc) and semi-axis lengths of (xr,yr,zr).
+% Numerical integration on ellipsoid surface (iso energy surface) using cetroid method with triangle meshes.
+% Here, a, b and c are the vertices of the triangles.
 % s = (a+b+c)/2
 % A = sqrt(s*(s-a)*(s-b)*(s-c)); % triangle surface are in 3D  
 for u = 1:size(E, 1)

@@ -1,4 +1,4 @@
-function [mag_kpoint, E, tau, N] = inf_scattering(l, nk, uo, m_frac, v_frac, ko, del_k, n, geom_type, kind, ro)
+function [mag_kpoint, E, tau, N] = TwoDimScattering(l, nk, uo, m_frac, v_frac, ko, del_k, n, geom_type, kind, ro)
 % Electron scattering rate for different geometries (cubic, cylinder, triangle)
 
 % Constants
